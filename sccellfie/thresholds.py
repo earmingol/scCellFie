@@ -12,13 +12,17 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upp
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
-            thresholds[thresholds < lower_bound] = lower_bound[thresholds < lower_bound]
+            lb = lower_bound.copy()
+            lb.columns = columns
+            thresholds[thresholds < lb] = lb[thresholds < lb]
         else:
             thresholds[thresholds < lower_bound] = lower_bound
 
     if upper_bound is not None:
         if type(upper_bound) not in (int, float, complex):
-            thresholds[thresholds < upper_bound] = upper_bound[thresholds < upper_bound]
+            ub = upper_bound.copy()
+            ub.columns = columns
+            thresholds[thresholds < ub] = ub[thresholds < ub]
         else:
             thresholds[thresholds < upper_bound] = upper_bound
     return thresholds
@@ -34,13 +38,17 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, up
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
-            thresholds[thresholds < lower_bound] = lower_bound[thresholds < lower_bound]
+            lb = lower_bound.copy()
+            lb.columns = columns
+            thresholds[thresholds < lb] = lb[thresholds < lb]
         else:
             thresholds[thresholds < lower_bound] = lower_bound
 
     if upper_bound is not None:
         if type(upper_bound) not in (int, float, complex):
-            thresholds[thresholds < upper_bound] = upper_bound[thresholds < upper_bound]
+            ub = upper_bound.copy()
+            ub.columns = columns
+            thresholds[thresholds < ub] = ub[thresholds < ub]
         else:
             thresholds[thresholds < upper_bound] = upper_bound
     return thresholds
@@ -53,13 +61,17 @@ def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None):
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
-            thresholds[thresholds < lower_bound] = lower_bound[thresholds < lower_bound]
+            lb = lower_bound.copy()
+            lb.columns = columns
+            thresholds[thresholds < lb] = lb[thresholds < lb]
         else:
             thresholds[thresholds < lower_bound] = lower_bound
 
     if upper_bound is not None:
         if type(upper_bound) not in (int, float, complex):
-            thresholds[thresholds < upper_bound] = upper_bound[thresholds < upper_bound]
+            ub = upper_bound.copy()
+            ub.columns = columns
+            thresholds[thresholds < ub] = ub[thresholds < ub]
         else:
             thresholds[thresholds < upper_bound] = upper_bound
     return thresholds
@@ -72,13 +84,17 @@ def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None):
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
-            thresholds[thresholds < lower_bound] = lower_bound[thresholds < lower_bound]
+            lb = lower_bound.copy()
+            lb.columns = columns
+            thresholds[thresholds < lb] = lb[thresholds < lb]
         else:
             thresholds[thresholds < lower_bound] = lower_bound
 
     if upper_bound is not None:
         if type(upper_bound) not in (int, float, complex):
-            thresholds[thresholds < upper_bound] = upper_bound[thresholds < upper_bound]
+            ub = upper_bound.copy()
+            ub.columns = columns
+            thresholds[thresholds < ub] = ub[thresholds < ub]
         else:
             thresholds[thresholds < upper_bound] = upper_bound
     return thresholds

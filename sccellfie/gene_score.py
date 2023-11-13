@@ -4,8 +4,7 @@ import numpy as np
 
 
 def gene_score(gene_expression, gene_threshold):
-    return 5*np.log(1 + gene_expression/gene_threshold)
-
+    return 5*np.log(1 + gene_expression/(gene_threshold+0.01)) # Added small value to threshold to avoid division by zero
 
 def compute_gene_scores(adata, thresholds):
     genes = [g for g in thresholds.index if g in adata.var_names]
