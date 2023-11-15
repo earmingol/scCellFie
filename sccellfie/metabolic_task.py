@@ -1,5 +1,5 @@
 import numpy as np
-
+import scanpy as sc
 
 def compute_mt_score(adata, task_by_rxn):
     assert 'RAL' in adata.uns.keys(), "You must run sccellfie.reaction_activity.compute_reaction_activity() first."
@@ -19,6 +19,7 @@ def compute_mt_score(adata, task_by_rxn):
     mts = mts.divide(rxns_per_task).fillna(0.0)
     # Remove tasks with zeros across cells
     mts = mts.loc[:, (mts != 0).any(axis=0)]
-    adata.uns.update({'MT_scores' : mts})
-
+    #adata.uns.update({'MT_scores' : mts})
+    drop_cols = [col for col in mts.columns if col in adata.obs.columns]
+    adata.metabolic_tasks = sc.AnnData(mts, obs=adata.obs.drop(columns=drop_cols), obsm=adata.obsm, obsp=adata.obsp)
 
