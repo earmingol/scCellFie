@@ -2,8 +2,13 @@ import numpy as np
 import pandas as pd
 
 
-def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None):
-    thresholds = np.quantile(adata.X.toarray(), q=percentile, axis=0)
+def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None, exclude_zeros=False):
+    if exclude_zeros:
+        X = np.ma.masked_equal(adata.X.toarray(), 0)
+        thresholds = np.quantile(X, q=percentile, axis=0).data
+    else:
+        X = adata.X.toarray()
+        thresholds = np.quantile(X, q=percentile, axis=0)
     if isinstance(percentile, list):
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
@@ -28,8 +33,13 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upp
     return thresholds
 
 
-def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None):
-    thresholds = np.quantile(adata.X.toarray(), q=percentile)
+def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None, exclude_zeros=False):
+    if exclude_zeros:
+        X = np.ma.masked_equal(adata.X.toarray(), 0)
+        thresholds = np.quantile(X, q=percentile)
+    else:
+        X = adata.X.toarray()
+        thresholds = np.quantile(X, q=percentile)
     if isinstance(percentile, list):
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
@@ -54,8 +64,13 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, up
     return thresholds
 
 
-def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None):
-    thresholds = np.nanmean(adata.X.toarray(), axis=0)
+def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_zeros=False):
+    if exclude_zeros:
+        X = np.ma.masked_equal(adata.X.toarray(), 0)
+        thresholds = np.ma.mean(X, axis=0).data
+    else:
+        X = adata.X.toarray()
+        thresholds = np.nanmean(X, axis=0)
     columns = ['threshold-mean']
     thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
 
@@ -77,8 +92,13 @@ def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None):
     return thresholds
 
 
-def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None):
-    thresholds = np.nanmean(adata.X.toarray())
+def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_zeros=False):
+    if exclude_zeros:
+        X = np.ma.masked_equal(adata.X.toarray(), 0)
+        thresholds = np.ma.mean(X)
+    else:
+        X = adata.X.toarray()
+        thresholds = np.nanmean(X)
     columns = ['threshold-mean']
     thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
 
