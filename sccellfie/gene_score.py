@@ -17,10 +17,10 @@ def compute_gene_scores(adata, thresholds):
     adata.layers['gene_scores'] = gene_scores
 
 
-def evaluate_gene_score(gpr, gene_scores):
+def compute_gpr_gene_score(gpr, gene_scores):
     '''Recursive parsing of gprs into lists of complexes and their scores.'''
     if isinstance(gpr, cobra.core.gene.GPR):
-        return evaluate_gene_score(gpr.body, gene_scores)
+        return compute_gpr_gene_score(gpr.body, gene_scores)
     elif isinstance(gpr, ast.Name):
         return gene_scores.get(gpr.id, 0), gpr.id  # Returns a default score of 0 if not found
     elif isinstance(gpr, ast.BoolOp):
@@ -29,7 +29,7 @@ def evaluate_gene_score(gpr, gene_scores):
             max_score = 0
             max_gene = None
             for value in gpr.values:
-                score, gene = evaluate_gene_score(value, gene_scores)
+                score, gene = compute_gpr_gene_score(value, gene_scores)
                 if score > max_score:  # Find the maximum score
                     max_score, max_gene = score, gene
             return max_score, max_gene  # Return the maximum score and corresponding gene
@@ -37,7 +37,7 @@ def evaluate_gene_score(gpr, gene_scores):
             min_score = float('inf')
             min_gene = None
             for value in gpr.values:
-                score, gene = evaluate_gene_score(value, gene_scores)
+                score, gene = compute_gpr_gene_score(value, gene_scores)
                 if score < min_score:  # Find the minimum score
                     min_score, min_gene = score, gene
             return min_score, min_gene  # Return the minimum score and corresponding gene

@@ -1,13 +1,12 @@
 import cobra
-# import concurrent
+import scanpy as sc
 import numpy as np
 import pandas as pd
-from collections import defaultdict
-# from concurrent.futures import ProcessPoolExecutor
-from tqdm import tqdm
-from .gene_score import evaluate_gene_score
 
-# from typing import Union, Optional, Tuple, Collection, Sequence, Iterable, Literal
+from collections import defaultdict
+from tqdm import tqdm
+
+from sccellfie.gene_score import compute_gpr_gene_score
 
 
 def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pbar=False):
@@ -31,7 +30,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
         for j, k in enumerate(rxns):
             gpr = gpr_dict[k]
             try: # Fix case when GPR is not valid in COBRA
-                score, gene = evaluate_gene_score(cobra.core.gene.GPR().from_string(gpr), scores)
+                score, gene = compute_gpr_gene_score(cobra.core.gene.GPR().from_string(gpr), scores)
             except:
                 continue
             ral[i, j] = score
@@ -47,12 +46,21 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
                     times = 1.0
                 ral[i, rxn_ids_gene[g]] /= times
 
-    rxn_max_genes = np.asarray(rxn_max_genes)
+
     ral_df = pd.DataFrame(ral, index=adata.obs_names, columns=rxns)
+    drop_cols = [col for col in ral_df.columns if col in adata.obs.columns]
+    adata.reactions = sc.AnnData(ral_df, obs=adata.obs.drop(columns=drop_cols), obsm=adata.obsm, obsp=adata.obsp)
+
+    rxn_max_genes = np.asarray(rxn_max_genes)
     rxn_max_genes = pd.DataFrame(rxn_max_genes, index=adata.obs_names, columns=rxns)
-    adata.uns.update({'RAL' : ral_df, 'Rxn-Max-Genes' : rxn_max_genes})
+    adata.reactions.uns.update({'Rxn-Max-Genes' : rxn_max_genes})
 
-
+# THIS IS FOR PARALLEL PROCESSING - IT WORKS SLOWER THAN SINGLE CORE FUNCTIONS. TODO: TRY TO MAKE IT FASTER
+#
+# import concurrent
+# from concurrent.futures import ProcessPoolExecutor
+# from typing import Union, Optional, Tuple, Collection, Sequence, Iterable, Literal
+#
 # def reaction_activity_worker(i, gene_scores, genes, gpr_dict):
 #     scores = defaultdict(float)
 #     scores.update({name: value for name, value in zip(genes, gene_scores[i, :])})

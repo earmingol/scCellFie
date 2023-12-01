@@ -1,6 +1,7 @@
+from . import external
 from . import gene_score
 from . import metabolic_task
 from . import reaction_activity
-from . import thresholds
-from .utils import gpr_parsing
 from . import stats as tl
+from .expression import thresholds, aggregation
+from .utils import gpr_parsing

@@ -776,8 +776,8 @@ def filter_rank_metabolic_tasks_groups(
 
     mean_in_cluster_matrix = pd.DataFrame(
         np.zeros(gene_names.shape),
-        columns=gene_names.columns,
-        index=gene_names.index,
+        columns=gene_names.columns, # Clusters
+        index=gene_names.index, # Genes
     )
 
     if use_logfolds:
@@ -805,7 +805,7 @@ def filter_rank_metabolic_tasks_groups(
         # iterate per column
         var_names = gene_names[cluster].values
 
-        if not use_logfolds or not use_fraction:
+        if (not use_logfolds) or (not use_fraction) or (min_mean_value != 0.):
             sub_X = adata.raw[:, var_names].X if use_raw else adata[:, var_names].X
             in_group = adata.obs[groupby] == cluster
             X_in = sub_X[in_group]
@@ -823,7 +823,7 @@ def filter_rank_metabolic_tasks_groups(
             fraction_out_cluster_matrix.loc[:, cluster] = _calc_frac(X_out)
 
         mean_in_cluster = np.ravel(X_in.mean(0))
-        mean_in_cluster_matrix.loc[:, cluster] = mean_in_cluster
+        mean_in_cluster_matrix.loc[:, cluster] = (mean_in_cluster)
         if not use_logfolds:
             # compute mean value
             mean_out_cluster = np.ravel(X_out.mean(0))
