@@ -1,11 +1,11 @@
 # Metabolic functionalities of mammalian cells from single-cell and spatial transcriptomics
 
-<img src="./scCellFie-Logo.png" width="350" height="350" alt="Logo" style="margin-right: 10px;">
-
 ## About scCellFie
 Single-cell CellFie is a Python implementation of [CellFie](https://github.com/LewisLabUCSD/CellFie), a tool for studying metabolic tasks 
 originally developed in MATLAB by the [Lewis Lab](https://lewislab.ucsd.edu/). This version is designed to be 
 compatible with single-cell and spatial data analysis using Scanpy.
+<img src="./scCellFie-Logo.png" width="350" height="350" alt="Logo" style="margin-right: 10px;">
+
 
 ## Installation
 To install scCellFie, use pip:
