@@ -55,6 +55,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
     rxn_max_genes = pd.DataFrame(rxn_max_genes, index=adata.obs_names, columns=rxns)
     adata.reactions.uns.update({'Rxn-Max-Genes' : rxn_max_genes})
 
+
 # THIS IS FOR PARALLEL PROCESSING - IT WORKS SLOWER THAN SINGLE CORE FUNCTIONS. TODO: TRY TO MAKE IT FASTER
 #
 # import concurrent
