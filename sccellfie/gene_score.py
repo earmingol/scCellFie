@@ -11,7 +11,7 @@ def compute_gene_scores(adata, thresholds):
     genes = [g for g in thresholds.index if g in adata.var_names]
 
     X = adata[:, genes].X.toarray()
-    _thresholds = thresholds.loc[genes, :]
+    _thresholds = thresholds.loc[genes, thresholds.columns[:1]] # Use only first column, to avoid issues
 
     gene_scores = gene_score(X, _thresholds.values.T)
     adata.layers['gene_scores'] = gene_scores
