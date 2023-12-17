@@ -4,14 +4,43 @@ import pandas as pd
 import scanpy as sc
 
 
-def create_test_adata(n_obs=100, n_vars=50, layers=None):
+def create_random_adata(n_obs=100, n_vars=50, layers=None):
     # Create a simple AnnData object for testing
     X = np.random.rand(n_obs, n_vars)
-    obs = pd.DataFrame(index=[f'cell{i}' for i in range(n_obs)])
-    var = pd.DataFrame(index=[f'gene{i}' for i in range(n_vars)])
+    obs = pd.DataFrame(index=[f'cell{i}' for i in range(1, n_obs+1)])
+    var = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
     adata = sc.AnnData(X=X, obs=obs, var=var)
 
     if layers:
         for layer in layers:
             adata.layers[layer] = np.random.rand(n_obs, n_vars)
     return adata
+
+
+def create_controlled_adata():
+    # Create a small, controlled AnnData object
+    data = np.array([
+        [1, 2, 0],  # Cell 1
+        [3, 4, 2],  # Cell 2
+        [5, 6, 10],  # Cell 3
+        [7, 8, 6],  # Cell 4
+    ])
+    adata = sc.AnnData(X=data)
+    adata.var_names = ['gene1', 'gene2', 'gene3']
+    adata.obs['group'] = ['A', 'A', 'B', 'B']
+    return adata
+
+
+def create_controlled_gpr_dict():
+    gpr_dict = {'rxn1': 'gene1',
+                'rxn2': 'gene2',
+                'rxn3': 'gene2 and gene3',
+                'rxn4': 'gene1 or gene3'
+                }
+    return gpr_dict
+
+
+def create_global_threshold(threshold=0.5, n_vars=4):
+    thresholds = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
+    thresholds['global'] = [threshold]*n_vars
+    return thresholds
