@@ -20,13 +20,14 @@ def create_random_adata(n_obs=100, n_vars=50, layers=None):
 def create_controlled_adata():
     # Create a small, controlled AnnData object
     data = np.array([
-        [1, 2, 0],  # Cell 1
-        [3, 4, 2],  # Cell 2
-        [5, 6, 10],  # Cell 3
-        [7, 8, 6],  # Cell 4
+        [1, 2, 0],  # Cell1
+        [3, 4, 2],  # Cell2
+        [5, 6, 10],  # Cell3
+        [7, 8, 6],  # Cell4
     ])
     adata = sc.AnnData(X=data)
     adata.var_names = ['gene1', 'gene2', 'gene3']
+    adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
     adata.obs['group'] = ['A', 'A', 'B', 'B']
     return adata
 

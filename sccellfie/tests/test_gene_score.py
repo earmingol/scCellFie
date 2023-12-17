@@ -27,8 +27,8 @@ def test_gene_score():
 def test_compute_gene_scores():
     # Create a small, controlled AnnData object
     gene_expression_data = np.array([
-        [1, 2],  # Cell 1
-        [3, 4],  # Cell 2
+        [1, 2],  # Cell1
+        [3, 4],  # Cell2
     ])
     adata = sc.AnnData(X=gene_expression_data)
     adata.var_names = ['gene1', 'gene2']

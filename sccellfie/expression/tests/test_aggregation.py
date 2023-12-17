@@ -1,13 +1,13 @@
 import pytest
 import numpy as np
 import pandas as pd
-import scanpy as sc
 
 from sccellfie.expression.aggregation import agg_expression_cells
-from sccellfie.tests.toy_inputs import create_test_adata
+from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata
+
 
 def test_agg_expression_cells_all_groups_present():
-    adata = create_test_adata()
+    adata = create_random_adata()
     groupby = 'group'
     # Create two groups for simplicity
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
@@ -22,7 +22,7 @@ def test_agg_expression_cells_all_groups_present():
 
 
 def test_agg_expression_cells_specific_gene_present():
-    adata = create_test_adata()
+    adata = create_random_adata()
     groupby = 'group'
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
     gene_symbols = ['gene1', 'gene10']
@@ -34,7 +34,7 @@ def test_agg_expression_cells_specific_gene_present():
 
 
 def test_agg_expression_cells_invalid_agg_func():
-    adata = create_test_adata()
+    adata = create_random_adata()
     groupby = 'group'
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
 
@@ -45,20 +45,17 @@ def test_agg_expression_cells_invalid_agg_func():
 
 def test_mean_agg_known_values():
     # Create a small, controlled AnnData object
-    data = np.array([
-        [1, 2],  # Cell 1
-        [3, 4],  # Cell 2
-        [5, 6],  # Cell 3
-    ])
-    # Create an AnnData object with known values
-    adata = sc.AnnData(X=data)
-    adata.var_names = ['gene1', 'gene2']
-    adata.obs['group'] = ['A', 'A', 'B']  # Two groups: A and B
+    adata = create_controlled_adata()
 
     # Expected aggregated values
-    # For 'gene1': group A mean = (1+3)/2, group B mean = 5
-    # For 'gene2': group A mean = (2+4)/2, group B mean = 6
-    expected_means = pd.DataFrame({'gene1': [2, 5], 'gene2': [3, 6]}, index=['A', 'B'], dtype=float)
+    # For 'gene1': group A mean = (1+3)/2, group B mean = (5+7)/2
+    # For 'gene2': group A mean = (2+4)/2, group B mean = (6+8)/2
+    # For 'gene3': group A mean = (0+2)/2, group B mean = (10+6)/2
+    expected_means = pd.DataFrame({'gene1': [2, 6],
+                                   'gene2': [3, 7],
+                                   'gene3': [1, 8]},
+                                  index=['A', 'B'],
+                                  dtype=float)
 
     # Compute aggregated expression
     agg_result = agg_expression_cells(adata, groupby='group', agg_func='mean')
@@ -66,25 +63,18 @@ def test_mean_agg_known_values():
     # Check if the results match the expected means
     assert agg_result.equals(expected_means), "Aggregated values do not match expected results"
 
+
 def test_median_agg_known_values():
     # Create a small, controlled AnnData object
-    data = np.array([
-        [1, 2],  # Cell 1
-        [3, 4],  # Cell 2
-        [5, 6],  # Cell 3
-        [7, 8],  # Cell 4
-    ])
-    adata = sc.AnnData(X=data)
-    adata.var_names = ['gene1', 'gene2']
-    adata.obs['group'] = ['A', 'A', 'B', 'B']
+    adata = create_controlled_adata()
 
     # Expected median values
-    # Group A: median for gene1 is (1+3)/2 = 2, for gene2 is (2+4)/2 = 3
-    # Group B: median for gene1 is (5+7)/2 = 6, for gene2 is (6+8)/2 = 7
-    expected_medians = pd.DataFrame({
-        'gene1': [2, 6],
-        'gene2': [3, 7]
-    }, index=['A', 'B'])
+    # Group A: median for gene1 is (1+3)/2 = 2, for gene2 is (2+4)/2 = 3, for gene3 is (0+2)/2
+    # Group B: median for gene1 is (5+7)/2 = 6, for gene2 is (6+8)/2 = 7, for gene3 is (6+10)/2
+    expected_medians = pd.DataFrame({'gene1': [2, 6],
+                                     'gene2': [3, 7],
+                                     'gene3': [1, 8]},
+                                    index=['A', 'B'])
 
     # Compute aggregated expression using the function
     agg_result = agg_expression_cells(adata, 'group', agg_func='median')
