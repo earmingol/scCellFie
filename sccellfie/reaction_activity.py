@@ -49,7 +49,12 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
 
     ral_df = pd.DataFrame(ral, index=adata.obs_names, columns=rxns)
     drop_cols = [col for col in ral_df.columns if col in adata.obs.columns]
-    adata.reactions = sc.AnnData(ral_df, obs=adata.obs.drop(columns=drop_cols), obsm=adata.obsm, obsp=adata.obsp)
+    adata.reactions = sc.AnnData(ral_df,
+                                 obs=adata.obs.drop(columns=drop_cols),
+                                 obsm=adata.obsm,
+                                 obsp=adata.obsp,
+                                 uns=adata.uns
+                                 )
 
     rxn_max_genes = np.asarray(rxn_max_genes)
     rxn_max_genes = pd.DataFrame(rxn_max_genes, index=adata.obs_names, columns=rxns)
