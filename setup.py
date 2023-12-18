@@ -1,8 +1,16 @@
+import ast
+import re
 from setuptools import setup, find_packages
+
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+
+with open('cell2cell/__init__.py', 'rb') as f:
+    hit = _version_re.search(f.read().decode('utf-8')).group(1)
+    version = str(ast.literal_eval(hit))
 
 setup(
     name='scCellFie',
-    version='0.1.0',
+    version=version,
     author='Erick Armingol',
     author_email='erickarmingol@gmail.com',
     description="A tool for studying metabolic tasks from single-cell and spatial transcriptomics",

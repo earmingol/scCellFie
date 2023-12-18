@@ -9,7 +9,7 @@ originally developed in MATLAB by the [Lewis Lab](https://lewislab.ucsd.edu/). T
 compatible with single-cell and spatial data analysis using Scanpy.
 
 
-<img src="./scCellFie-Logo.png" width="350" height="350" alt="Logo" style="margin-right: 10px;">
+![sccellfie Logo](https://github.com/earmingol/scCellFie/blob/main/scCellFie-Logo.png?raw=true =350x350)
 
 
 ## Installation
