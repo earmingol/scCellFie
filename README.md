@@ -1,3 +1,6 @@
+![test-sccellfie](https://github.com/earmingol/scCellFie/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/earmingol/scCellFie/graph/badge.svg?token=22NENAKNKI)](https://codecov.io/gh/earmingol/scCellFie)
+
 # Metabolic functionalities of mammalian cells from single-cell and spatial transcriptomics
 
 ## About scCellFie
