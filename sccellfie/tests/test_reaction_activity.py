@@ -20,6 +20,13 @@ def test_compute_reaction_activity(use_specificity):
     glob_thresholds = create_global_threshold(threshold=threshold_val,
                                               n_vars=adata.shape[1])
 
+    # Run the function
+    compute_gene_scores(adata, glob_thresholds)
+    compute_reaction_activity(adata,
+                              gpr_dict,
+                              use_specificity=use_specificity,
+                              disable_pbar=True)
+
     # Expected reaction activity
     if use_specificity:
         denom = 2
@@ -47,13 +54,6 @@ def test_compute_reaction_activity(use_specificity):
                               5 * np.log(1 + 7 / (threshold_val + pcount)) / denom, # Cell4, Rxn4
                               ],
                              ])
-
-    # Run the function
-    compute_gene_scores(adata, glob_thresholds)
-    compute_reaction_activity(adata,
-                              gpr_dict,
-                              use_specificity=use_specificity,
-                              disable_pbar=True)
 
     # Verify the structure and values of reaction activity data
     assert hasattr(adata, 'reactions')

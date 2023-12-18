@@ -41,6 +41,17 @@ def create_controlled_gpr_dict():
     return gpr_dict
 
 
+def create_controlled_task_by_rxn():
+    task_by_rxn = pd.DataFrame(data=[[1, 0, 1, 0],
+                                     [0, 1, 0, 1],
+                                     [1, 0, 0, 0],
+                                     [1, 1, 1, 1],
+                                     ],
+                               index=['task1', 'task2', 'task3', 'task4'],
+                               columns=['rxn1', 'rxn2', 'rxn3', 'rxn4'])
+    return task_by_rxn
+
+
 def create_global_threshold(threshold=0.5, n_vars=4):
     thresholds = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
     thresholds['global'] = [threshold]*n_vars
