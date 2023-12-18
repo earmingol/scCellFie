@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 
-with open('cell2cell/__init__.py', 'rb') as f:
+with open('sccellfie/__init__.py', 'rb') as f:
     hit = _version_re.search(f.read().decode('utf-8')).group(1)
     version = str(ast.literal_eval(hit))
 
