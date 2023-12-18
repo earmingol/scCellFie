@@ -12,6 +12,8 @@ def create_random_adata(n_obs=100, n_vars=50, layers=None):
     adata = sc.AnnData(X=X, obs=obs, var=var)
 
     if layers:
+        if isinstance(layers, str):
+            layers = [layers]
         for layer in layers:
             adata.layers[layer] = np.random.rand(n_obs, n_vars)
     return adata

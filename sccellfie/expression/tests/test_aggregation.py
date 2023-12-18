@@ -27,10 +27,25 @@ def test_agg_expression_cells_specific_gene_present():
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
     gene_symbols = ['gene1', 'gene10']
 
+    # Test aggregation with one gene
+    agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols[0], agg_func='mean')
+    assert agg_result.shape == (len(adata.obs[groupby].unique()), 1), "Shape mismatch"
+    assert gene_symbols[0] in agg_result.columns, "Missing gene in result"
+
     # Test aggregation with specific genes
     agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols, agg_func='mean')
     assert agg_result.shape == (len(adata.obs[groupby].unique()), len(gene_symbols)), "Shape mismatch"
     assert all(gene in agg_result.columns for gene in gene_symbols), "Missing genes in result"
+
+
+def test_agg_expression_cells_layer():
+    adata = create_random_adata(layers='gene_scores')
+    groupby = 'group'
+    adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
+
+    # Test aggregation with one gene
+    agg_result = agg_expression_cells(adata, groupby, layer='gene_scores', agg_func='mean')
+    assert agg_result.shape == (len(adata.obs[groupby].unique()), adata.shape[1]), "Shape mismatch"
 
 
 def test_agg_expression_cells_invalid_agg_func():
