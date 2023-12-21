@@ -2,11 +2,11 @@ import pytest
 
 import numpy as np
 import pandas as pd
-import scanpy as sc
 
 from cobra.core.gene import GPR
 
 from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score
+from sccellfie.tests.toy_inputs import create_controlled_adata
 
 
 def test_gene_score():
@@ -24,23 +24,23 @@ def test_gene_score():
     np.testing.assert_allclose(actual_scores, expected_scores, rtol=1e-5)
 
 
-def test_compute_gene_scores():
+@pytest.mark.parametrize("use_raw", [False, True])
+def test_compute_gene_scores(use_raw):
     # Create a small, controlled AnnData object
-    gene_expression_data = np.array([
-        [1, 2],  # Cell1
-        [3, 4],  # Cell2
-    ])
-    adata = sc.AnnData(X=gene_expression_data)
-    adata.var_names = ['gene1', 'gene2']
+    adata = create_controlled_adata()
+    if use_raw:
+        X = adata.raw.X.toarray()
+    else:
+        X = adata.X.toarray()
 
     # Define known thresholds
-    thresholds = pd.DataFrame({'gene_threshold': [0.1, 0.2]}, index=['gene1', 'gene2'])
+    thresholds = pd.DataFrame({'gene_threshold': [0.5, 3, 5]}, index=['gene1', 'gene2', 'gene3'])
 
     # Expected gene scores based on the defined formula
-    expected_scores = 5 * np.log(1 + gene_expression_data / (thresholds.values.T + 0.01))
+    expected_scores = 5 * np.log(1 + X / (thresholds.values.T + 0.01))
 
     # Compute gene scores using the function
-    compute_gene_scores(adata, thresholds)
+    compute_gene_scores(adata, thresholds, use_raw=use_raw)
 
     # Retrieve the computed gene scores from adata
     computed_scores = adata.layers['gene_scores']

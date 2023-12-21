@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean'):
+def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', use_raw=False):
     """
     Aggregates gene expression data for specified cell groups in an `AnnData` object.
 
@@ -27,6 +27,9 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
         The aggregation function to apply. Options are 'mean', 'median',
         '25p' (25th percentile), and '75p' (75th percentile). The function
         must be one of the keys in the `AGG_FUNC` dictionary.
+
+    use_raw : bool (default=False)
+        Whether to use the data in adata.raw.X (True) or in adata.X (False).
 
     Returns
     -------
@@ -55,7 +58,10 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
     if layer is not None:
         X = adata.layers[layer]
     else:
-        X = adata.X
+        if use_raw:
+            X = adata.raw.X.toarray()
+        else:
+            X = adata.X.toarray()
 
     # Filter for specific genes if provided
     if gene_symbols is not None:

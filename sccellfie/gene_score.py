@@ -7,10 +7,12 @@ def gene_score(gene_expression, gene_threshold):
     return 5*np.log(1 + gene_expression/(gene_threshold+0.01)) # Added small value to threshold to avoid division by zero
 
 
-def compute_gene_scores(adata, thresholds):
+def compute_gene_scores(adata, thresholds, use_raw=False):
     genes = [g for g in thresholds.index if g in adata.var_names]
-
-    X = adata[:, genes].X.toarray()
+    if use_raw:
+        X = adata[:, genes].raw.X.toarray()
+    else:
+        X = adata[:, genes].X.toarray()
     _thresholds = thresholds.loc[genes, thresholds.columns[:1]] # Use only first column, to avoid issues
 
     gene_scores = gene_score(X, _thresholds.values.T)

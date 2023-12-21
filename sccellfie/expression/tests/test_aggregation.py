@@ -6,14 +6,15 @@ from sccellfie.expression.aggregation import agg_expression_cells
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata
 
 
-def test_agg_expression_cells_all_groups_present():
+@pytest.mark.parametrize("use_raw", [False, True])
+def test_agg_expression_cells_all_groups_present(use_raw):
     adata = create_random_adata()
     groupby = 'group'
     # Create two groups for simplicity
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
 
     # Test aggregation across all groups
-    agg_result = agg_expression_cells(adata, groupby, agg_func='mean')
+    agg_result = agg_expression_cells(adata, groupby, agg_func='mean', use_raw=use_raw)
 
     # Check if all groups are present in the result
     expected_groups = set(adata.obs[groupby].unique())
@@ -21,19 +22,20 @@ def test_agg_expression_cells_all_groups_present():
     assert expected_groups == result_groups, "Not all groups are present in the aggregation result"
 
 
-def test_agg_expression_cells_specific_gene_present():
+@pytest.mark.parametrize("use_raw", [False, True])
+def test_agg_expression_cells_specific_gene_present(use_raw):
     adata = create_random_adata()
     groupby = 'group'
     adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
     gene_symbols = ['gene1', 'gene10']
 
     # Test aggregation with one gene
-    agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols[0], agg_func='mean')
+    agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols[0], agg_func='mean', use_raw=use_raw)
     assert agg_result.shape == (len(adata.obs[groupby].unique()), 1), "Shape mismatch"
     assert gene_symbols[0] in agg_result.columns, "Missing gene in result"
 
     # Test aggregation with specific genes
-    agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols, agg_func='mean')
+    agg_result = agg_expression_cells(adata, groupby, gene_symbols=gene_symbols, agg_func='mean', use_raw=use_raw)
     assert agg_result.shape == (len(adata.obs[groupby].unique()), len(gene_symbols)), "Shape mismatch"
     assert all(gene in agg_result.columns for gene in gene_symbols), "Missing genes in result"
 

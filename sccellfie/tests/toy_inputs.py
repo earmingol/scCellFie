@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import scanpy as sc
+from scipy import sparse
 
 
 def create_random_adata(n_obs=100, n_vars=50, layers=None):
@@ -10,6 +11,8 @@ def create_random_adata(n_obs=100, n_vars=50, layers=None):
     obs = pd.DataFrame(index=[f'cell{i}' for i in range(1, n_obs+1)])
     var = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
     adata = sc.AnnData(X=X, obs=obs, var=var)
+    adata.X = sparse.csr_matrix(adata.X)
+    adata.raw = adata.copy()
 
     if layers:
         if isinstance(layers, str):
@@ -31,6 +34,8 @@ def create_controlled_adata():
     adata.var_names = ['gene1', 'gene2', 'gene3']
     adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
     adata.obs['group'] = ['A', 'A', 'B', 'B']
+    adata.X = sparse.csr_matrix(adata.X)
+    adata.raw = adata.copy()
     return adata
 
 
