@@ -16,7 +16,7 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upp
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
         columns = ['threshold-{}'.format(percentile)]
-    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
+    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns, dtype=float)
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
@@ -50,7 +50,7 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, up
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
         columns = ['threshold-{}'.format(percentile)]
-    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
+    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns, dtype=float)
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
@@ -81,7 +81,7 @@ def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_
     else:
         thresholds = np.nanmean(X, axis=0)
     columns = ['threshold-mean']
-    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
+    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns, dtype=float)
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
@@ -112,7 +112,7 @@ def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude
     else:
         thresholds = np.nanmean(X)
     columns = ['threshold-mean']
-    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns)
+    thresholds = pd.DataFrame(thresholds.T, index=adata.var_names, columns=columns, dtype=float)
 
     if lower_bound is not None:
         if type(lower_bound) not in (int, float, complex):
@@ -137,5 +137,5 @@ def set_manual_threshold(adata, threshold):
         assert len(adata.var_names) == len(threshold), "The len of threshold must be the same as gene number in adata"
         thresholds = pd.DataFrame(np.asarray(threshold).reshape(-1, 1), index=adata.var_names, columns=['threshold-manual'])
     else:
-        thresholds = pd.DataFrame(data={'threshold-manual': [threshold]}, index=adata.var_names)
+        thresholds = pd.DataFrame(data={'threshold-manual': [threshold]}, index=adata.var_names, dtype=float)
     return thresholds
