@@ -113,6 +113,9 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
             })
 
     markers = pd.DataFrame(marker_data)
+    if markers.shape == (0,0):
+        markers = pd.DataFrame(columns=['gene', 'cluster', 'tf', 'idf', 'tf_idf', 'gene_frequency_outside_cluster',
+                                        'gene_frequency_global', 'second_best_tf', 'second_best_cluster', 'pval', 'qval'])
 
     if r_output:
         cols = ['gene', 'cluster', 'tf', 'gene_frequency_outside_cluster', 'second_best_tf', 'gene_frequency_global', 'second_best_cluster', 'tf_idf', 'idf', 'qval']
