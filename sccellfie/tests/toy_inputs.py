@@ -5,11 +5,12 @@ import scanpy as sc
 from scipy import sparse
 
 
-def create_random_adata(n_obs=100, n_vars=50, layers=None):
+def create_random_adata(n_obs=100, n_vars=50, n_clusters=5, layers=None):
     # Create a simple AnnData object for testing
-    X = np.random.rand(n_obs, n_vars)
+    X = np.random.randint(low=0, high=100, size=(n_obs, n_vars))
     obs = pd.DataFrame(index=[f'cell{i}' for i in range(1, n_obs+1)])
     var = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
+    obs['cluster'] = pd.Categorical([f'cluster{i}' for i in np.random.randint(1, n_clusters+1, size=n_obs)])
     adata = sc.AnnData(X=X, obs=obs, var=var)
     adata.X = sparse.csr_matrix(adata.X)
     adata.raw = adata.copy()
