@@ -2,16 +2,16 @@ import numpy as np
 import pandas as pd
 
 
-def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None, exclude_zeros=False, use_raw=False):
+def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
     if use_raw:
         X = adata.raw.X.toarray()
     else:
         X = adata.X.toarray()
     if exclude_zeros:
         X = np.ma.masked_equal(X, 0)
-        thresholds = np.quantile(X, q=percentile, axis=0).data
+        thresholds = np.quantile(X, q=percentile, axis=0, method='midpoint').data
     else:
-        thresholds = np.quantile(X, q=percentile, axis=0)
+        thresholds = np.quantile(X, q=percentile, axis=0, method='midpoint')
     if isinstance(percentile, list):
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
@@ -30,22 +30,22 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upp
         if type(upper_bound) not in (int, float, complex):
             ub = upper_bound.copy()
             ub.columns = columns
-            thresholds[thresholds < ub] = ub[thresholds < ub]
+            thresholds[thresholds > ub] = ub[thresholds > ub]
         else:
-            thresholds[thresholds < upper_bound] = upper_bound
+            thresholds[thresholds > upper_bound] = upper_bound
     return thresholds
 
 
-def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, upper_bound=None, exclude_zeros=False, use_raw=False):
+def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
     if use_raw:
         X = adata.raw.X.toarray()
     else:
         X = adata.X.toarray()
     if exclude_zeros:
         X = np.ma.masked_equal(X, 0)
-        thresholds = np.quantile(X, q=percentile)
+        thresholds = np.quantile(X, q=percentile, method='midpoint')
     else:
-        thresholds = np.quantile(X, q=percentile)
+        thresholds = np.quantile(X, q=percentile, method='midpoint')
     if isinstance(percentile, list):
         columns = ['threshold-{}'.format(p) for p in percentile]
     else:
@@ -64,13 +64,13 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=0.25, up
         if type(upper_bound) not in (int, float, complex):
             ub = upper_bound.copy()
             ub.columns = columns
-            thresholds[thresholds < ub] = ub[thresholds < ub]
+            thresholds[thresholds > ub] = ub[thresholds > ub]
         else:
-            thresholds[thresholds < upper_bound] = upper_bound
+            thresholds[thresholds > upper_bound] = upper_bound
     return thresholds
 
 
-def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_zeros=False, use_raw=False):
+def get_local_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -95,13 +95,13 @@ def get_local_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_
         if type(upper_bound) not in (int, float, complex):
             ub = upper_bound.copy()
             ub.columns = columns
-            thresholds[thresholds < ub] = ub[thresholds < ub]
+            thresholds[thresholds > ub] = ub[thresholds > ub]
         else:
-            thresholds[thresholds < upper_bound] = upper_bound
+            thresholds[thresholds > upper_bound] = upper_bound
     return thresholds
 
 
-def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude_zeros=False, use_raw=False):
+def get_global_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -126,9 +126,9 @@ def get_global_mean_threshold(adata, lower_bound=0.25, upper_bound=None, exclude
         if type(upper_bound) not in (int, float, complex):
             ub = upper_bound.copy()
             ub.columns = columns
-            thresholds[thresholds < ub] = ub[thresholds < ub]
+            thresholds[thresholds > ub] = ub[thresholds > ub]
         else:
-            thresholds[thresholds < upper_bound] = upper_bound
+            thresholds[thresholds > upper_bound] = upper_bound
     return thresholds
 
 
