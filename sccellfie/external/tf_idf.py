@@ -7,7 +7,7 @@ from scipy.sparse import isspmatrix, csr_matrix
 
 def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, express_cut=0.9, r_output=False):
     """
-    Identify top N markers for each cluster in an AnnData object using a TF-IDF-based strategy.
+    Identifies top N markers for each cluster in an AnnData object using a TF-IDF-based strategy.
     Implemented as in the SoupX library for R.
 
     Parameters
@@ -18,25 +18,25 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
     cluster_key : str
         Key in adata.obs for the cluster labels.
 
-    cell_groups : list, default=None
+    cell_groups : list, optional (default: None)
         List of cell groups to be compared in the analysis.
 
-    n_markers : int, default=10
+    n_markers : int, optional (default: 10)
         Number of marker genes to return per cluster.
 
-    fdr : float, default=0.01
+    fdr : float, optional (default: 0.01)
         False discovery rate for the hypergeometric test.
 
-    express_cut : float, default=0.9
+    express_cut : float, optional (default: 0.9)
         Value above which a gene is considered expressed.
 
-    r_output : bool, default=False
+    r_output : bool, optional (default: False)
         Whether reporting the same exact column names as the SoupX version.
 
     Returns
     -------
-    markers : DataFrame
-        Data frame with top N markers for each cluster and their statistics.
+    markers : pandas.DataFrame
+        A pandas.DataFrame with top N markers for each cluster and their statistics.
     """
     if cell_groups is not None:
         adata_ = adata[adata.obs[cluster_key].isin(cell_groups)]

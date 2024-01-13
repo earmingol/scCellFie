@@ -2,6 +2,35 @@ import numpy as np
 import scanpy as sc
 
 def compute_mt_score(adata, task_by_rxn):
+    '''
+    Computes the metabolic task score for each cell in an AnnData object given
+    specific reaction activity levels.
+
+    Parameters
+    ----------
+    adata: AnnData object
+        Annotated data matrix.
+
+    task_by_rxn: pandas.DataFrame
+        A pandas.DataFrame object where rows are metabolic tasks and columns are
+        reactions. Each cell contains ones or zeros, indicating whether a reaction
+        is involved in a metabolic task.
+
+    Returns
+    -------
+    None
+        An AnnData object is added to the adata object in adata.metabolic_tasks. This object
+        contains the metabolic task scores for each cell in adata.obs_names. Here,
+        each metabolic task is an element of var_name in adata.metabolic_tasks. The metabolic task scores
+        are stored in adata.metabolic_tasks.X.
+
+    Notes
+    -----
+    This function assumes that reaction activity levels have been computed using
+    sccellfie.reaction_activity.compute_reaction_activity() and are stored in adata.reactions.X.
+
+    This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
+    '''
     assert hasattr(adata, 'reactions'), "You must run sccellfie.reaction_activity.compute_reaction_activity() first."
 
     # RAL matrix

@@ -10,7 +10,44 @@ from sccellfie.gene_score import compute_gpr_gene_score
 
 
 def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pbar=False):
-    '''Computing reaction activity from gene scores and GPRs'''
+    '''
+    Computes reaction activity from gene scores and GPRs.
+
+    Parameters
+    ----------
+    adata: AnnData object
+        Annotated data matrix.
+
+    gpr_dict: dict
+        A dictionary with reaction IDs as keys and Gene-Protein Rules (GPRs) as values.
+
+    use_specificity: bool, optional (default: True)
+        Whether to use the specificity of the determinant gene to compute reaction
+        activity levels. The specificity is the inverse of the number of reactions
+        that the determinant gene is involved in.
+
+    disable_pbar: bool, optional (default: False)
+        Whether to disable the progress bar.
+
+    Returns
+    -------
+    None
+        An AnnData object is added to the adata object in adata.reactions. This object
+        contains the reaction activity levels for each cell in adata.obs_names. Here,
+        each reaction is an element of var_name in adata.reactions. The reaction scores
+        are stored in adata.reactions.X, and the determinant gene for each reaction is
+        stored in adata.reactions.uns['Rxn-Max-Genes'].
+
+    Notes
+    -----
+    This function assumes that gene scores have been computed using
+    sccellfie.gene_score.compute_gene_scores() and are stored in adata.layers['gene_scores'].
+
+    This function assumes that the GPRs are valid in COBRApy. Also, that the GPRs are in the
+    form of a string, e.g., '(gene1 and gene2) or gene3'.
+
+    This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
+    '''
     genes = adata.var_names
     gene_scores = adata.layers['gene_scores']
     rxns = gpr_dict.keys()

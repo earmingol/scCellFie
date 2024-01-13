@@ -15,28 +15,28 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
         The key in the `adata.obs` DataFrame to group by. This could be any
         categorical annotation of cells (e.g., cell type, condition).
 
-    layer : str, optional (default=None)
+    layer : str, optional (default: None)
         The name of the layer in `adata` to use for aggregation. If `None`,
         the main expression matrix `adata.X` is used.
 
-    gene_symbols : str or list, optional (default=None)
+    gene_symbols : str or list, optional (default: None)
         Gene names to include in the aggregation. If a string is provided,
         it is converted to a single-element list. If `None`, all genes are included.
 
-    agg_func : str (default='mean')
+    agg_func : str, optional  (default: 'mean')
         The aggregation function to apply. Options are 'mean', 'median',
         '25p' (25th percentile), and '75p' (75th percentile). The function
         must be one of the keys in the `AGG_FUNC` dictionary.
 
-    use_raw : bool (default=False)
+    use_raw : bool, optional  (default: False)
         Whether to use the data in adata.raw.X (True) or in adata.X (False).
 
     Returns
     -------
-    agg_expression : pd.DataFrame
-        A DataFrame where rows correspond to genes and columns correspond to the
-         unique categories in `groupby`. Each cell in the DataFrame contains the
-         aggregated expression value for the corresponding gene and group.
+    agg_expression : pandas.DataFrame
+        A pandas.DataFrame where rows correspond to genes and columns correspond to the
+        unique categories in `groupby`. Each cell in the DataFrame contains the
+        aggregated expression value for the corresponding gene and group.
 
     Raises
     ------
