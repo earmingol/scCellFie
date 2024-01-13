@@ -18,7 +18,8 @@ from sccellfie.tests.toy_inputs import create_controlled_adata, create_controlle
                           (None, None, 2.5),
                           ('group', None, 0.0),
                           ('group', 'A', 1.25),
-                          ('group', 'B', 3.),
+                          ('group', 'B', 3.0),
+                          (None, 'B', 0.0),
                          ])
 def test_get_task_determinant_genes(groupby, group, min_activity):
     # Create a small, controlled AnnData object
