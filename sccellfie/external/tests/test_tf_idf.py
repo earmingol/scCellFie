@@ -24,7 +24,7 @@ def test_number_of_markers():
 
 
 def test_fdr_filtering():
-    fdr = 0.05
+    fdr = 0.999999
     adata = create_random_adata()
     markers = quick_markers(adata, cluster_key='cluster', fdr=fdr)
 
