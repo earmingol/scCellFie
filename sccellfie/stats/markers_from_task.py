@@ -3,6 +3,57 @@ import pandas as pd
 
 
 def get_task_determinant_genes(adata, metabolic_task, task_by_rxn, groupby=None, group=None, min_activity=0.0):
+    '''
+    Finds the genes that determine the activity of all reactions in a metabolic task. Returns determinant genes
+    for each reaction and their activity across specified cell groups. If no groups are specified, the analysis
+    is performed across all cells.
+
+    Parameters
+    ----------
+    adata: AnnData object
+        Annotated data matrix.
+
+    metabolic_task: str
+        Name of the metabolic task to analyze. Must be one of the tasks in the `task_by_rxn` DataFrame.
+        It must also be present in the `adata.metabolic_tasks` attribute.
+
+    task_by_rxn: pandas.DataFrame
+        A pandas.DataFrame object where rows are metabolic tasks and columns are
+        reactions. Each cell contains ones or zeros, indicating whether a reaction
+        is involved in a metabolic task.
+
+    groupby: str, optional (default: None)
+        The key in the `adata.obs` DataFrame to group by. This could be any
+        categorical annotation of cells (e.g., cell type, cluster).
+
+    group: str or list, optional (default: None)
+        The group(s) in the `adata.obs` DataFrame to analyze. If `None`, the analysis is performed
+        by treating all single cells as a group. If `groups` is specified, `groupby` must be specified.
+        The column referred by `groupby` must contain the groups specified in `group`.
+
+    min_activity: float, optional (default: 0.0)
+        Minimum reaction activity level to consider a reaction as active. Only genes that are
+        associated with active reactions are considered. If zero, all reactions and therefore
+        all genes are considered.
+
+    Returns
+    -------
+    df: pandas.DataFrame
+        A pandas.DataFrame reporting the determinant genes for each reaction in the metabolic task.
+        Determinant genes are specified for each cell group in `groupby` (or across all cells if `groupby` is None).
+        The DataFrame has the following columns:
+            - Group: The cell group.
+            - Rxn: The reaction.
+            - Det-Gene: The determinant gene for the reaction.
+            - RAL: The reaction activity level for the reaction.
+
+    Notes
+    -----
+    This function assumes that reaction activity levels have been computed using
+    sccellfie.reaction_activity.compute_reaction_activity() and are stored in adata.reactions.X.
+
+    Scores are computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
+    '''
     assert hasattr(adata, "metabolic_tasks"), "Please run scCellFie on your dataset before using this function."
 
     # Get list of rxns that belong to the metabolic task
@@ -43,5 +94,6 @@ def get_task_determinant_genes(adata, metabolic_task, task_by_rxn, groupby=None,
             dfs.append(df)
     df = pd.concat(dfs).reset_index().sort_values('RAL', ascending=False)
     if min_activity != 0.:
-        df = df[df['RAL'] > min_activity]
+        df = df[df['RAL'] >= min_activity]
+    df = df.reset_index(drop=True)
     return df
