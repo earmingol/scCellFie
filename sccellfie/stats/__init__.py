@@ -1,2 +1,1 @@
 from .markers_from_task import (get_task_determinant_genes)
-from .rank_metabolic_tasks import (rank_metabolic_tasks_groups, filter_rank_metabolic_tasks_groups)
