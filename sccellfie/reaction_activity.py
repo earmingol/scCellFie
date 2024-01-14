@@ -9,7 +9,7 @@ from tqdm import tqdm
 from sccellfie.gene_score import compute_gpr_gene_score
 
 
-def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pbar=False):
+def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene_score', disable_pbar=False):
     '''
     Computes reaction activity from gene scores and GPRs.
 
@@ -25,6 +25,9 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
         Whether to use the specificity of the determinant gene to compute reaction
         activity levels. The specificity is the inverse of the number of reactions
         that the determinant gene is involved in.
+
+    layer: str, optional (default: 'gene_score')
+        The name of the layer in adata where the gene scores are stored.
 
     disable_pbar: bool, optional (default: False)
         Whether to disable the progress bar.
@@ -49,7 +52,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, disable_pba
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
     '''
     genes = adata.var_names
-    gene_scores = adata.layers['gene_scores']
+    gene_scores = adata.layers[layer]
     rxns = gpr_dict.keys()
     ral = np.zeros((gene_scores.shape[0], len(rxns)))
     # This could be optimized by paralellization, returning multiple vectors (one per cell)
