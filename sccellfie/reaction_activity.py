@@ -9,7 +9,7 @@ from tqdm import tqdm
 from sccellfie.gene_score import compute_gpr_gene_score
 
 
-def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene_score', disable_pbar=False):
+def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene_scores', disable_pbar=False):
     '''
     Computes reaction activity from gene scores and GPRs.
 
@@ -26,7 +26,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
         activity levels. The specificity is the inverse of the number of reactions
         that the determinant gene is involved in.
 
-    layer: str, optional (default: 'gene_score')
+    layer: str, optional (default: 'gene_scores')
         The name of the layer in adata where the gene scores are stored.
 
     disable_pbar: bool, optional (default: False)
