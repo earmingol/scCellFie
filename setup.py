@@ -25,7 +25,11 @@ setup(
         'cobra',
         'tqdm',
         'scipy',
-        'anndata'
+        'anndata',
+        'squidpy',
+        'networkx',
+        'geopandas',
+        'esda'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
