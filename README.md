@@ -26,7 +26,7 @@ To install scCellFie, use pip:
 tasks using fully single cell resolution and in space.
 
 - **Speed:** This implementation further leverages the original CellFie. It is now memory
-efficient and run much faster! A dataset of ~70k single cells can be analyzed in ~30 min.
+efficient and run much faster! A dataset of ~70k single cells can be analyzed in ~5 min.
 
 - **New analyses:** From marker selection of relevant metabolic tasks to integration with
 inference of cell-cell communication.
