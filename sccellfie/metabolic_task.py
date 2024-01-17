@@ -55,7 +55,13 @@ def compute_mt_score(adata, task_by_rxn):
     mts = mts.divide(rxns_per_task).fillna(0.0)
 
     # Remove tasks with zeros across cells
+    old_cols = set(mts.columns)
     mts = mts.loc[:, (mts != 0).any(axis=0)]
+    new_cols = set(mts.columns)
+    removed_cols = old_cols.difference(new_cols)
+    print(f"Removed {len(removed_cols)} metabolic tasks with zeros across all cells.")
+
+    # Prepare output
     drop_cols = [col for col in mts.columns if col in adata.obs.columns]
     adata.metabolic_tasks = sc.AnnData(mts,
                                        obs=adata.obs.drop(columns=drop_cols),
