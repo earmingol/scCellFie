@@ -7,4 +7,4 @@ from . import spatial
 from . import stats as tl
 from .expression import thresholds, aggregation
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
