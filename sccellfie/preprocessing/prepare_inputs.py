@@ -73,7 +73,9 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, v
     task_by_rxn = task_by_rxn.loc[(task_by_rxn != 0).any(axis=1)]
 
     adata2 = adata[:, [True if g in genes else False for g in adata.var_names]]
-    adata2.raw = adata.raw.to_adata()[:, [True if g in genes else False for g in adata.var_names]]
+    if hasattr(adata, 'raw'):
+        if adata.raw is not None:
+            adata2.raw = adata.raw.to_adata()[:, [True if g in genes else False for g in adata.var_names]]
 
     if verbose:
         print(f'Shape of new adata object: {adata2.shape}\n'
