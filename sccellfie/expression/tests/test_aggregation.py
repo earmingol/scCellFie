@@ -99,3 +99,16 @@ def test_median_agg_known_values():
     # Compare the results with the expected values
     assert agg_result.shape == expected_medians.shape, "Shape mismatch"
     assert np.allclose(agg_result.values, expected_medians.values), "Median values do not match expected results"
+
+
+def test_X_in_agg_expression():
+    adata = create_random_adata(layers='gene_scores')
+    groupby = 'group'
+    adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
+
+    # Test aggregation with sparse X
+    agg_result = agg_expression_cells(adata, groupby, agg_func='mean')
+
+    # Test aggregation with dense X
+    adata.X = adata.X.toarray()
+    agg_result = agg_expression_cells(adata, groupby, agg_func='mean')

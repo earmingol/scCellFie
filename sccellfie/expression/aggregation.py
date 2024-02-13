@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from scipy.sparse import issparse
+
 
 def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', use_raw=False):
     """
@@ -59,9 +61,12 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
         X = adata.layers[layer]
     else:
         if use_raw:
-            X = adata.raw.X.toarray()
+            X = adata.raw.X
         else:
-            X = adata.X.toarray()
+            X = adata.X
+
+    if issparse(X):
+        X = X.toarray()
 
     # Filter for specific genes if provided
     if gene_symbols is not None:

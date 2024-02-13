@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+from scipy.sparse import issparse
 from tqdm import tqdm
 
 
@@ -33,6 +34,9 @@ def compute_var_assortativity(adata, var_name, use_raw=False):
         X = adata.raw.X
     else:
         X = adata.X
+
+    if issparse(X):
+        X = X.toarray()
 
     _idx = np.argwhere(adata.var_names == var_name).item()
 

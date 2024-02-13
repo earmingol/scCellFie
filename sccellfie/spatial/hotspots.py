@@ -6,6 +6,7 @@ from esda.getisord import G_Local
 from libpysal.weights.contiguity import Queen
 from shapely.geometry import Point
 
+from scipy.sparse import issparse
 from tqdm import tqdm
 
 
@@ -41,6 +42,10 @@ def obtain_hotspots(adata, spatial_key='X_spatial', use_raw=False):
             X = adata.raw.X
         else:
             X = adata.X
+
+        if issparse(X):
+            X = X.toarray()
+
         var_idx = np.argwhere(adata.var_names == var_).item()
 
         gdf = gpd.GeoDataFrame({'intensity': X[:, var_idx].flatten()},

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from scipy.stats import hypergeom
-from scipy.sparse import isspmatrix, csr_matrix
+from scipy.sparse import issparse, csr_matrix
 
 
 def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, express_cut=0.9, r_output=False):
@@ -44,7 +44,7 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
         adata_ = adata
 
     # Convert to CSR matrix if necessary and binarize the expression data
-    toc = csr_matrix(adata_.X) if not isspmatrix(adata_.X) else adata_.X
+    toc = csr_matrix(adata_.X) if not issparse(adata_.X) else adata_.X
     toc_bin = (toc > express_cut).astype(int)
 
     # Cluster information

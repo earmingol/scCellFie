@@ -2,6 +2,8 @@ import ast
 import cobra
 import numpy as np
 
+from scipy.sparse import issparse
+
 
 def gene_score(gene_expression, gene_threshold):
     '''
@@ -57,9 +59,13 @@ def compute_gene_scores(adata, thresholds, use_raw=False, layer='gene_scores'):
     '''
     genes = [g for g in thresholds.index if g in adata.var_names]
     if use_raw:
-        X = adata[:, genes].raw.X.toarray()
+        X = adata[:, genes].raw.X
     else:
-        X = adata[:, genes].X.toarray()
+        X = adata[:, genes].X
+
+    if issparse(X):
+        X = X.toarray()
+
     _thresholds = thresholds.loc[genes, thresholds.columns[:1]] # Use only first column, to avoid issues
 
     gene_scores = gene_score(X, _thresholds.values.T)

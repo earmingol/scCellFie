@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from cobra.core.gene import GPR
+from scipy.sparse import issparse
 
 from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score
 from sccellfie.tests.toy_inputs import create_controlled_adata
@@ -29,9 +30,12 @@ def test_compute_gene_scores(use_raw):
     # Create a small, controlled AnnData object
     adata = create_controlled_adata()
     if use_raw:
-        X = adata.raw.X.toarray()
+        X = adata.raw.X
     else:
-        X = adata.X.toarray()
+        X = adata.X
+
+    if issparse(X):
+        X = X.toarray()
 
     # Define known thresholds
     thresholds = pd.DataFrame({'gene_threshold': [0.5, 3, 5]}, index=['gene1', 'gene2', 'gene3'])
