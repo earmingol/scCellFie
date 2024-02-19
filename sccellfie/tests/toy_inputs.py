@@ -72,6 +72,28 @@ def create_controlled_task_by_rxn():
     return task_by_rxn
 
 
+def create_controlled_rxn_by_gene():
+    rxn_by_gene = pd.DataFrame(data=[[1, 0, 0],
+                                     [0, 1, 0],
+                                     [0, 1, 1],
+                                     [1, 0, 1],
+                                     ],
+                               index=['rxn1', 'rxn2', 'rxn3', 'rxn4'],
+                               columns=['gene1', 'gene2', 'gene3'])
+    return rxn_by_gene
+
+
+def create_controlled_task_by_gene():
+    task_by_gene = pd.DataFrame(data=[[1, 1, 1],
+                                      [1, 1, 1],
+                                      [1, 0, 0],
+                                      [1, 1, 1],
+                                      ],
+                                index=['task1', 'task2', 'task3', 'task4'],
+                                columns=['gene1', 'gene2', 'gene3'])
+    return task_by_gene
+
+
 def create_global_threshold(threshold=0.5, n_vars=4):
     thresholds = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
     thresholds['global'] = [threshold]*n_vars
