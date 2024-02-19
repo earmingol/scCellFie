@@ -23,6 +23,12 @@ def create_random_adata(n_obs=100, n_vars=50, n_clusters=5, layers=None):
     return adata
 
 
+def create_random_adata_with_spatial(n_obs=100, n_vars=50, n_clusters=5, layers=None, spatial_key='X_spatial'):
+    adata = create_random_adata(n_obs=n_obs, n_vars=n_vars, n_clusters=n_clusters, layers=layers)
+    adata.obsm[spatial_key] = np.random.rand(n_obs, 2)
+    return adata
+
+
 def create_controlled_adata():
     # Create a small, controlled AnnData object
     data = np.array([
@@ -37,6 +43,12 @@ def create_controlled_adata():
     adata.obs['group'] = ['A', 'A', 'B', 'B']
     adata.X = sparse.csr_matrix(adata.X)
     adata.raw = adata.copy()
+    return adata
+
+
+def create_controlled_adata_with_spatial():
+    adata = create_controlled_adata()
+    adata.obsm['X_spatial'] = np.array([[0, 0], [1.5, 1], [1, 0.5], [2, 0.5]])
     return adata
 
 
