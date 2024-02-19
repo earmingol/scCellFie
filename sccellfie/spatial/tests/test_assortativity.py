@@ -14,6 +14,12 @@ def test_compute_var_assortativity(use_raw):
     assert isinstance(assortativity, float), "Output is not a float"
 
 
+def test_compute_var_assortativity_fail():
+    adata = create_random_adata_with_spatial(spatial_key='X_spatial')
+    with pytest.raises(ValueError):
+        compute_var_assortativity(adata, var_name='gene1', use_raw=False)
+
+
 def test_compute_assortativity():
     adata = create_random_adata_with_spatial(spatial_key='X_spatial')
     create_knn_network(adata, n_neighbors=2, spatial_key='X_spatial')
