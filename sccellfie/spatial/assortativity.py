@@ -6,7 +6,7 @@ from scipy.sparse import issparse
 from tqdm import tqdm
 
 
-def compute_var_assortativity(adata, var_name, use_raw=False):
+def compute_var_assortativity(adata, var_name, spatial_network_key='spatial_network', use_raw=False):
     '''
     Computes the assortativity of a variable (e.g., a gene, a metabolic tasks, etc.) in a spatial network.
 
@@ -18,6 +18,9 @@ def compute_var_assortativity(adata, var_name, use_raw=False):
     var_name: str
         The name of the variable to compute assortativity.
 
+    spatial_network_key: str, optional (default: 'spatial_network')
+        The key in adata.uns where the spatial knn graph is stored.
+
     use_raw: bool, optional (default: False)
         Whether to use the raw data stored in adata.raw.X.
 
@@ -26,9 +29,9 @@ def compute_var_assortativity(adata, var_name, use_raw=False):
     assortativity: float
         The assortativity of the variable in the spatial network.
     '''
-    if 'spatial_network' not in adata.uns.keys():
-        raise ValueError('spatial_network not found in adata.uns. Run sccellfie.spatial.knn_network.create_knn_network() first.')
-    H = adata.uns['spatial_network']['graph'].copy()
+    if spatial_network_key not in adata.uns.keys():
+        raise ValueError(f'{spatial_network_key} not found in adata.uns. Run sccellfie.spatial.knn_network.create_knn_network() first.')
+    H = adata.uns[spatial_network_key]['graph'].copy()
 
     if use_raw:
         X = adata.raw.X
@@ -49,7 +52,7 @@ def compute_var_assortativity(adata, var_name, use_raw=False):
     return assortativity
 
 
-def compute_assortativity(adata, use_raw=False):
+def compute_assortativity(adata, spatial_network_key='spatial_network', use_raw=False):
     '''
     Computes the assortativity of all variables (e.g., genes, metabolic tasks, etc.) in a spatial network.
 
@@ -57,6 +60,9 @@ def compute_assortativity(adata, use_raw=False):
     ----------
     adata: AnnData object
         Annotated data matrix.
+
+    spatial_network_key: str, optional (default: 'spatial_network')
+        The key in adata.uns where the spatial knn graph is stored.
 
     use_raw: bool, optional (default: False)
         Whether to use the raw data stored in adata.raw.X.
@@ -69,8 +75,8 @@ def compute_assortativity(adata, use_raw=False):
     '''
     records = []
     for var_ in tqdm(adata.var_names):
-        assort = compute_var_assortativity(adata, var_name=var_, use_raw=use_raw)
+        assort = compute_var_assortativity(adata, var_name=var_, spatial_network_key=spatial_network_key, use_raw=use_raw)
         records.append((var_, assort))
 
     assortativity_df = pd.DataFrame.from_records(records, columns=['Var-Name', 'Assortativity'])
-    adata.uns['spatial_network']['assortativity'] = assortativity_df
+    adata.uns[spatial_network_key]['assortativity'] = assortativity_df
