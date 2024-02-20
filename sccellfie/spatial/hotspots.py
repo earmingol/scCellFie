@@ -127,8 +127,7 @@ def summarize_hotspots(hotspots, z_threshold=1.96):
 
     for k, v in hotspots.items():
         z_scores = v.Zs
-        mean_z, median_z, hotspot_proportion, coldspot_proportion, significant_proportion = calculate_aggregate_metric(
-            z_scores, z_threshold=z_threshold)
+        mean_z, median_z, hotspot_proportion, coldspot_proportion, significant_proportion = calculate_aggregate_metric(z_scores, z_threshold=z_threshold)
         records.append((k, mean_z, median_z, hotspot_proportion, coldspot_proportion, significant_proportion))
 
     hotspot_df = pd.DataFrame.from_records(records, columns=['Var-Name', 'Mean-Hotspot-Z', 'Median-Hotspot-Z',

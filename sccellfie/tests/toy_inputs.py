@@ -7,7 +7,7 @@ from scipy import sparse
 
 def create_random_adata(n_obs=100, n_vars=50, n_clusters=5, layers=None):
     # Create a simple AnnData object for testing
-    X = np.random.randint(low=0, high=100, size=(n_obs, n_vars))
+    X = np.random.randint(low=0, high=100, size=(n_obs, n_vars)).astype(float)
     obs = pd.DataFrame(index=[f'cell{i}' for i in range(1, n_obs+1)])
     var = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars+1)])
     obs['cluster'] = pd.Categorical([f'cluster{i}' for i in np.random.randint(1, n_clusters+1, size=n_obs)])
@@ -23,9 +23,23 @@ def create_random_adata(n_obs=100, n_vars=50, n_clusters=5, layers=None):
     return adata
 
 
-def create_random_adata_with_spatial(n_obs=100, n_vars=50, n_clusters=5, layers=None, spatial_key='X_spatial'):
-    adata = create_random_adata(n_obs=n_obs, n_vars=n_vars, n_clusters=n_clusters, layers=layers)
-    adata.obsm[spatial_key] = np.random.rand(n_obs, 2)
+def create_random_adata_with_spatial(n_obs=100, n_vars=50, n_clusters=5, layers=None, spatial_key='X_spatial', n_cols=5):
+    # Create a simple AnnData object for testing
+    X = np.random.randint(low=0, high=100, size=(n_obs, n_vars)).astype(float)
+    obs = pd.DataFrame(index=[f'cell{i}' for i in range(1, n_obs + 1)])
+    var = pd.DataFrame(index=[f'gene{i}' for i in range(1, n_vars + 1)])
+    obs['cluster'] = pd.Categorical([f'cluster{i}' for i in np.random.randint(1, n_clusters + 1, size=n_obs)])
+    adata = sc.AnnData(X=X, obs=obs, var=var)
+    adata.X = sparse.csr_matrix(adata.X)
+    grid = [[row, col] for row in range(1, int(np.ceil(n_obs / n_cols)) + 1) for col in range(1, n_cols + 1)]
+    adata.obsm[spatial_key] = np.array(grid[:n_obs]).astype(float)
+    adata.raw = adata.copy()
+
+    if layers:
+        if isinstance(layers, str):
+            layers = [layers]
+        for layer in layers:
+            adata.layers[layer] = np.random.rand(n_obs, n_vars)
     return adata
 
 
@@ -47,8 +61,20 @@ def create_controlled_adata():
 
 
 def create_controlled_adata_with_spatial():
-    adata = create_controlled_adata()
-    adata.obsm['X_spatial'] = np.array([[0, 0], [1, 1], [3, 3], [4, 4]])
+    # Create a small, controlled AnnData object
+    data = np.array([
+        [1, 2, 0],  # Cell1
+        [3, 4, 2],  # Cell2
+        [5, 6, 10],  # Cell3
+        [7, 8, 6],  # Cell4
+    ])
+    adata = sc.AnnData(X=data)
+    adata.var_names = ['gene1', 'gene2', 'gene3']
+    adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
+    adata.obs['group'] = ['A', 'A', 'B', 'B']
+    adata.X = sparse.csr_matrix(adata.X)
+    adata.obsm['X_spatial'] = np.array([[0, 0], [1, 1], [3, 3], [4, 4]]).astype(float)
+    adata.raw = adata.copy()
     return adata
 
 
