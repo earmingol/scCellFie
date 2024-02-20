@@ -48,7 +48,7 @@ def create_controlled_adata():
 
 def create_controlled_adata_with_spatial():
     adata = create_controlled_adata()
-    adata.obsm['X_spatial'] = np.array([[0, 0], [1.5, 1], [1, 0.5], [2, 0.5]])
+    adata.obsm['X_spatial'] = np.array([[0, 0], [1, 1], [3, 3], [4, 4]])
     return adata
 
 

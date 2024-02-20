@@ -1,13 +1,12 @@
 import warnings
 
 import pandas as pd
-import scanpy as sc
 import squidpy as sq
 import networkx as nx
 
 
 
-def find_spatial_neighbors(adata, n_neighbors=10, metric='euclidean', spatial_key='X_spatial'):
+def find_spatial_neighbors(adata, n_neighbors=10, spatial_key='X_spatial'):
     '''
     Finds the spatial neighbors of each cell in adata.
 
@@ -19,25 +18,19 @@ def find_spatial_neighbors(adata, n_neighbors=10, metric='euclidean', spatial_ke
     n_neighbors: int, optional (default: 10)
         The number of neighbors to use for k-nearest neighbors.
 
-    metric: str, optional (default: 'euclidean')
-        The distance metric to use for k-nearest neighbors.
-
     spatial_key: str, optional (default: 'X_spatial')
         The key in adata.obsm where the spatial coordinates are stored.
 
     Returns
     -------
     None
-        The spatial neighbors are added to adata.uns['spatial_neighbors'].
+        The spatial neighbors are added to adata.uns['spatial_neighbors'] and
+        the spatial connectivities are added to adata.obsp['spatial_connectivities'].
     '''
-    sc.pp.neighbors(adata, n_neighbors=n_neighbors, use_rep=spatial_key, metric=metric, key_added='spatial')
-    adata.uns['spatial_neighbors'] = {'connectivities_key': 'spatial_connectivities',
-                                      'distances_key': 'spatial_distances',
-                                      'params': {'n_neighbors': n_neighbors, 'metric': metric}
-                                      }
+    sq.gr.spatial_neighbors(adata, spatial_key=spatial_key, n_neighs=n_neighbors, key_added='spatial')
 
 
-def create_knn_network(adata, n_neighbors=10, spatial_key='X_spatial'):
+def create_knn_network(adata, n_neighbors=10, spatial_key='X_spatial', added_key='spatial_network'):
     '''
     Creates a k-nearest neighbor network from the spatial coordinates in adata.obsm[obsm_key].
 
@@ -51,6 +44,9 @@ def create_knn_network(adata, n_neighbors=10, spatial_key='X_spatial'):
 
     spatial_key: str, optional (default: 'X_spatial')
         The key in adata.obsm where the spatial coordinates are stored.
+
+    added_key: str, optional (default: 'spatial_network')
+        The key in adata.uns where the spatial network is stored.
 
     Returns
     -------
@@ -69,4 +65,4 @@ def create_knn_network(adata, n_neighbors=10, spatial_key='X_spatial'):
 
     # Create network
     G = nx.from_pandas_adjacency(A)
-    adata.uns['spatial_network'] = {'graph': G, 'params': {'n_neighbors': n_neighbors}}
+    adata.uns[added_key] = {'graph': G, 'params': {'n_neighbors': n_neighbors}}
