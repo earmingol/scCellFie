@@ -6,7 +6,7 @@ from sccellfie.tests.toy_inputs import create_random_adata_with_spatial
 
 @pytest.mark.parametrize("use_raw", [False, True])
 def test_obtain_hotspots(use_raw):
-    adata =  create_random_adata_with_spatial(layers=['random_layer']) # Layer just for coverage purposes
+    adata =  create_random_adata_with_spatial(layers='random_layer') # Layer just for coverage purposes
     hotspots = obtain_hotspots(adata, use_raw=use_raw)
     assert isinstance(hotspots, dict)
     assert len(hotspots) == adata.shape[1]
