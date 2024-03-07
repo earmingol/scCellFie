@@ -72,8 +72,6 @@ def test_different_neighbors_in_params():
     # Get the network graph
     G = adata.uns[added_key]['graph']
 
-    print(nx.adjacency_matrix(G).todense())
-
     # Check if the parameters in the graph are set correctly
     assert adata.uns[added_key]['params']['n_neighbors'] == n_neighbors, "n_neighbors in graph parameters is not equal to n_neighbors"
 

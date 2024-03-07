@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-import pandas as pd
 
 from sccellfie.gene_score import compute_gene_scores
 from sccellfie.reaction_activity import compute_reaction_activity

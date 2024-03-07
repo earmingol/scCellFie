@@ -64,9 +64,9 @@ def compute_mt_score(adata, task_by_rxn):
     # Prepare output
     drop_cols = [col for col in mts.columns if col in adata.obs.columns]
     adata.metabolic_tasks = sc.AnnData(mts,
-                                       obs=adata.obs.drop(columns=drop_cols),
-                                       obsm=adata.obsm,
-                                       obsp=adata.obsp,
-                                       uns=adata.uns
+                                       obs=adata.obs.drop(columns=drop_cols).copy(),
+                                       obsm=adata.obsm.copy(),
+                                       obsp=adata.obsp.copy(),
+                                       uns=adata.uns.copy()
                                        )
 

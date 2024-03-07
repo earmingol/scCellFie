@@ -91,15 +91,15 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
     ral_df = pd.DataFrame(ral, index=adata.obs_names, columns=rxns)
     drop_cols = [col for col in ral_df.columns if col in adata.obs.columns]
     adata.reactions = sc.AnnData(ral_df,
-                                 obs=adata.obs.drop(columns=drop_cols),
-                                 obsm=adata.obsm,
-                                 obsp=adata.obsp,
-                                 uns=adata.uns
+                                 obs=adata.obs.drop(columns=drop_cols).copy(),
+                                 obsm=adata.obsm.copy(),
+                                 obsp=adata.obsp.copy(),
+                                 uns=adata.uns.copy()
                                  )
 
     rxn_max_genes = np.asarray(rxn_max_genes)
     rxn_max_genes = pd.DataFrame(rxn_max_genes, index=adata.obs_names, columns=rxns)
-    adata.reactions.uns.update({'Rxn-Max-Genes' : rxn_max_genes})
+    adata.reactions.uns.update({'Rxn-Max-Genes' : rxn_max_genes.astype(str)})
 
 
 # THIS IS FOR PARALLEL PROCESSING - IT WORKS SLOWER THAN SINGLE CORE FUNCTIONS. TODO: TRY TO MAKE IT FASTER
