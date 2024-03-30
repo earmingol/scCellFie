@@ -8,7 +8,8 @@ def test_preprocess_inputs():
     # Create controlled inputs
     adata = create_controlled_adata()
     gpr_dict_expected = create_controlled_gpr_dict()
-    gpr_info = pd.DataFrame.from_dict(gpr_dict_expected, orient='index').reset_index()
+    str_gpr_dict_expected = {k : v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
     gpr_info.columns = ['Reaction', 'GPR-symbol']
     task_by_gene = create_controlled_task_by_gene()
     rxn_by_gene = create_controlled_rxn_by_gene()
@@ -29,7 +30,8 @@ def test_shapes():
     adata_controlled = create_controlled_adata()
     adata_random = create_random_adata(n_obs=10, n_vars=3)
     gpr_dict_expected = create_controlled_gpr_dict()
-    gpr_info = pd.DataFrame.from_dict(gpr_dict_expected, orient='index').reset_index()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
     gpr_info.columns = ['Reaction', 'GPR-symbol']
     task_by_gene = create_controlled_task_by_gene()
     rxn_by_gene = create_controlled_rxn_by_gene()

@@ -1,4 +1,5 @@
 import pytest
+import networkx as nx
 import pandas as pd
 
 from sccellfie.spatial.assortativity import compute_var_assortativity, compute_assortativity
@@ -11,6 +12,14 @@ def test_compute_var_assortativity(use_raw):
     adata = create_random_adata_with_spatial(spatial_key='X_spatial')
     create_knn_network(adata, n_neighbors=2, spatial_key='X_spatial')
     assortativity = compute_var_assortativity(adata, var_name='gene1', use_raw=use_raw)
+    assert isinstance(assortativity, float), "Output is not a float"
+
+
+def test_compute_var_assortativity_pandas_graph():
+    adata = create_random_adata_with_spatial(spatial_key='X_spatial')
+    create_knn_network(adata, n_neighbors=2, spatial_key='X_spatial')
+    adata.uns['spatial_network']['graph'] = nx.to_pandas_adjacency(adata.uns['spatial_network']['graph'])
+    assortativity = compute_var_assortativity(adata, var_name='gene1')
     assert isinstance(assortativity, float), "Output is not a float"
 
 

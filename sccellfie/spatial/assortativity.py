@@ -33,6 +33,9 @@ def compute_var_assortativity(adata, var_name, spatial_network_key='spatial_netw
         raise ValueError(f'{spatial_network_key} not found in adata.uns. Run sccellfie.spatial.knn_network.create_knn_network() first.')
     H = adata.uns[spatial_network_key]['graph'].copy()
 
+    if isinstance(H, pd.DataFrame):
+        H = nx.from_pandas_adjacency(H)
+
     if use_raw:
         X = adata.raw.X
     else:

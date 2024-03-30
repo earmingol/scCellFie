@@ -1,3 +1,4 @@
+import cobra
 import numpy as np
 import pandas as pd
 
@@ -84,6 +85,9 @@ def create_controlled_gpr_dict():
                 'rxn3': 'gene2 and gene3',
                 'rxn4': 'gene1 or gene3'
                 }
+
+    # Initialize GPRs
+    gpr_dict = {k: cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_dict.items()}
     return gpr_dict
 
 

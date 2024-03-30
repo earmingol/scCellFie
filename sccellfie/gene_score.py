@@ -3,6 +3,7 @@ import cobra
 import numpy as np
 
 from scipy.sparse import issparse
+from sccellfie.tests import PCOUNT
 
 
 def gene_score(gene_expression, gene_threshold):
@@ -26,7 +27,7 @@ def gene_score(gene_expression, gene_threshold):
     -----
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.cels.2019.05.012).
     '''
-    return 5*np.log(1 + gene_expression/(gene_threshold+0.01)) # Added small value to threshold to avoid division by zero
+    return 5*np.log(1 + gene_expression/(gene_threshold + PCOUNT)) # Added small value to threshold to avoid division by zero
 
 
 def compute_gene_scores(adata, thresholds, use_raw=False, layer='gene_scores'):

@@ -20,6 +20,8 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
 
     gpr_dict: dict
         A dictionary with reaction IDs as keys and Gene-Protein Rules (GPRs) as values.
+        GPRs are in the format of the ast library after initialization with cobra from strings
+        to tree format for AND and OR rules.
 
     use_specificity: bool, optional (default: True)
         Whether to use the specificity of the determinant gene to compute reaction
@@ -56,9 +58,6 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
     rxns = gpr_dict.keys()
     ral = np.zeros((gene_scores.shape[0], len(rxns)))
 
-    # Initialize GPRs
-    gpr_cobra_dict = {k : cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_dict.items()}
-
     # This could be optimized by paralellization, returning multiple vectors (one per cell)
     # And concatenating them later.
     rxn_max_genes = []
@@ -72,7 +71,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
         rxn_ids_gene = defaultdict(list)
 
         for j, k in enumerate(rxns):
-            gpr = gpr_cobra_dict[k]
+            gpr = gpr_dict[k]
             score, gene = compute_gpr_gene_score(gpr, scores)
             ral[i, j] = score
             selected_gene[gene] += 1

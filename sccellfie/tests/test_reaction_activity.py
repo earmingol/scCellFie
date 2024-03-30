@@ -4,6 +4,7 @@ import pandas as pd
 
 from sccellfie.gene_score import compute_gene_scores
 from sccellfie.reaction_activity import compute_reaction_activity
+from sccellfie.tests import PCOUNT
 from sccellfie.tests.toy_inputs import create_controlled_adata, create_controlled_gpr_dict, create_global_threshold
 
 
@@ -32,26 +33,25 @@ def test_compute_reaction_activity(use_specificity):
         denom = 2
     else:
         denom = 1
-    pcount = 0.01 # Pseudocount used in function sccellfie.gene_score.gene_score()
-    expected_ral = np.array([[5 * np.log(1 + 1 / (threshold_val + pcount)) / denom, # Cell1, Rxn1
-                              5 * np.log(1 + 2 / (threshold_val + pcount)), # Cell1, Rxn2
-                              5 * np.log(1 + 0 / (threshold_val + pcount)), # Cell1, Rxn3
-                              5 * np.log(1 + 1 / (threshold_val + pcount)) / denom, # Cell1, Rxn4
+    expected_ral = np.array([[5 * np.log(1 + 1 / (threshold_val + PCOUNT)) / denom, # Cell1, Rxn1
+                              5 * np.log(1 + 2 / (threshold_val + PCOUNT)), # Cell1, Rxn2
+                              5 * np.log(1 + 0 / (threshold_val + PCOUNT)), # Cell1, Rxn3
+                              5 * np.log(1 + 1 / (threshold_val + PCOUNT)) / denom, # Cell1, Rxn4
                               ],
-                             [5 * np.log(1 + 3 / (threshold_val + pcount)) / denom, # Cell2, Rxn1
-                              5 * np.log(1 + 4 / (threshold_val + pcount)), # Cell2, Rxn2
-                              5 * np.log(1 + 2 / (threshold_val + pcount)), # Cell2, Rxn3
-                              5 * np.log(1 + 3 / (threshold_val + pcount)) / denom, # Cell2, Rxn4
+                             [5 * np.log(1 + 3 / (threshold_val + PCOUNT)) / denom, # Cell2, Rxn1
+                              5 * np.log(1 + 4 / (threshold_val + PCOUNT)), # Cell2, Rxn2
+                              5 * np.log(1 + 2 / (threshold_val + PCOUNT)), # Cell2, Rxn3
+                              5 * np.log(1 + 3 / (threshold_val + PCOUNT)) / denom, # Cell2, Rxn4
                               ],
-                             [5 * np.log(1 + 5 / (threshold_val + pcount)), # Cell3, Rxn1
-                              5 * np.log(1 + 6 / (threshold_val + pcount)) / denom, # Cell3, Rxn2
-                              5 * np.log(1 + 6 / (threshold_val + pcount)) / denom, # Cell3, Rxn3
-                              5 * np.log(1 + 10 / (threshold_val + pcount)), # Cell3, Rxn4
+                             [5 * np.log(1 + 5 / (threshold_val + PCOUNT)), # Cell3, Rxn1
+                              5 * np.log(1 + 6 / (threshold_val + PCOUNT)) / denom, # Cell3, Rxn2
+                              5 * np.log(1 + 6 / (threshold_val + PCOUNT)) / denom, # Cell3, Rxn3
+                              5 * np.log(1 + 10 / (threshold_val + PCOUNT)), # Cell3, Rxn4
                               ],
-                             [5 * np.log(1 + 7 / (threshold_val + pcount)) / denom, # Cell4, Rxn1
-                              5 * np.log(1 + 8 / (threshold_val + pcount)), # Cell4, Rxn2
-                              5 * np.log(1 + 6 / (threshold_val + pcount)), # Cell4, Rxn3
-                              5 * np.log(1 + 7 / (threshold_val + pcount)) / denom, # Cell4, Rxn4
+                             [5 * np.log(1 + 7 / (threshold_val + PCOUNT)) / denom, # Cell4, Rxn1
+                              5 * np.log(1 + 8 / (threshold_val + PCOUNT)), # Cell4, Rxn2
+                              5 * np.log(1 + 6 / (threshold_val + PCOUNT)), # Cell4, Rxn3
+                              5 * np.log(1 + 7 / (threshold_val + PCOUNT)) / denom, # Cell4, Rxn4
                               ],
                              ])
 

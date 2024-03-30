@@ -1,4 +1,4 @@
-
+import cobra
 
 
 def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, verbose=True):
@@ -38,6 +38,8 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, v
 
     gpr_rules: dict
         A dictionary with reaction IDs as keys and Gene-Protein Rules (GPRs) as values.
+        GPRs are in the format of the ast library after initialization with cobra from strings
+        to tree format for AND and OR rules.
 
     task_by_gene: pandas.DataFrame
         A pandas.DataFrame object where rows are metabolic tasks and columns are
@@ -64,7 +66,10 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, v
     rxn_by_gene = rxn_by_gene.loc[:, genes]
     rxn_by_gene = rxn_by_gene.loc[(rxn_by_gene != 0).any(axis=1)]
 
-    gpr_rules = {k: v for k, v in gpr_rules.items() if k in rxn_by_gene.index.tolist()}
+    gpr_rules = {k: v.replace(' AND ', ' and ').replace(' OR ', ' or ') for k, v in gpr_rules.items() if k in rxn_by_gene.index.tolist()}
+
+    # Initialize GPRs
+    gpr_rules = {k: cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_rules.items()}
 
     tasks = task_by_gene.index.tolist()
     rxns = list(gpr_rules.keys())

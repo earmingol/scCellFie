@@ -55,12 +55,12 @@ def test_get_task_determinant_genes(groupby, group, min_activity):
         expected_df = pd.DataFrame(data={'Group': ['All-Groups', 'All-Groups', 'All-Groups'],
                                          'Rxn': ['rxn3', 'rxn3', 'rxn1'],
                                          'Det-Gene': ['gene2', 'gene3', 'gene1'],
-                                         'RAL': [2.740987, 2.676485, 2.585926]})
+                                         'RAL': [2.746531, 2.682397, 2.591538]})
     else:
         expected_df = pd.DataFrame(data={'Group': ['B', 'B', 'B', 'A', 'A'],
                                         'Rxn': ['rxn3', 'rxn1', 'rxn3', 'rxn3', 'rxn1'],
                                         'Det-Gene': ['gene3', 'gene1', 'gene2', 'gene3', 'gene1'],
-                                        'RAL': [5.481975, 3.948932, 2.740987, 1.273740, 1.22920]})
+                                        'RAL': [5.493061, 3.957039, 2.746531, 1.277064, 1.226037]})
         if group is not None:
             if isinstance(group, list):
                 groups = group

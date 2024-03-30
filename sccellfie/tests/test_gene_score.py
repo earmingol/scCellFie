@@ -7,6 +7,7 @@ from cobra.core.gene import GPR
 from scipy.sparse import issparse
 
 from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score
+from sccellfie.tests import PCOUNT
 from sccellfie.tests.toy_inputs import create_controlled_adata
 
 
@@ -16,7 +17,7 @@ def test_gene_score():
     gene_threshold = np.array([0.1, 0.2, 0.3])
 
     # Expected results
-    expected_scores = 5 * np.log(1 + gene_expression / (gene_threshold + 0.01))
+    expected_scores = 5 * np.log(1 + gene_expression / (gene_threshold + PCOUNT))
 
     # Actual results
     actual_scores = gene_score(gene_expression, gene_threshold)
@@ -41,7 +42,7 @@ def test_compute_gene_scores(use_raw):
     thresholds = pd.DataFrame({'gene_threshold': [0.5, 3, 5]}, index=['gene1', 'gene2', 'gene3'])
 
     # Expected gene scores based on the defined formula
-    expected_scores = 5 * np.log(1 + X / (thresholds.values.T + 0.01))
+    expected_scores = 5 * np.log(1 + X / (thresholds.values.T + PCOUNT))
 
     # Compute gene scores using the function
     compute_gene_scores(adata, thresholds, use_raw=use_raw)

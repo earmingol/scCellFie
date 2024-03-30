@@ -34,7 +34,6 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
     '''
     # Check folder path
     Path(folder).mkdir(parents=True, exist_ok=True)
-
     if spatial_network_key in adata.uns.keys():
         if isinstance(adata.uns[spatial_network_key]['graph'], nx.Graph):
             adata.uns[spatial_network_key]['graph'] = nx.to_pandas_adjacency(adata.uns[spatial_network_key]['graph'])
