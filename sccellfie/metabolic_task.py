@@ -1,7 +1,7 @@
 import numpy as np
 import scanpy as sc
 
-def compute_mt_score(adata, task_by_rxn):
+def compute_mt_score(adata, task_by_rxn, verbose=True):
     '''
     Computes the metabolic task score for each cell in an AnnData object given
     specific reaction activity levels.
@@ -15,6 +15,9 @@ def compute_mt_score(adata, task_by_rxn):
         A pandas.DataFrame object where rows are metabolic tasks and columns are
         reactions. Each cell contains ones or zeros, indicating whether a reaction
         is involved in a metabolic task.
+
+    verbose: bool, optional (default: True)
+        Whether to print information about the analysis.
 
     Returns
     -------
@@ -59,7 +62,8 @@ def compute_mt_score(adata, task_by_rxn):
     mts = mts.loc[:, (mts != 0).any(axis=0)]
     new_cols = set(mts.columns)
     removed_cols = old_cols.difference(new_cols)
-    print(f"Removed {len(removed_cols)} metabolic tasks with zeros across all cells.")
+    if verbose:
+        print(f"Removed {len(removed_cols)} metabolic tasks with zeros across all cells.")
 
     # Prepare output
     drop_cols = [col for col in mts.columns if col in adata.obs.columns]
