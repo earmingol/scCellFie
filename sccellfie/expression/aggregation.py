@@ -27,8 +27,8 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
 
     agg_func : str, optional  (default: 'mean')
         The aggregation function to apply. Options are 'mean', 'median',
-        '25p' (25th percentile), and '75p' (75th percentile). The function
-        must be one of the keys in the `AGG_FUNC` dictionary.
+        '25p' (25th percentile), '75p' (75th percentile), and 'em' (0.5*Q2 + 0.25(Q1+Q3)).
+        The function must be one of the keys in the `AGG_FUNC` dictionary.
 
     use_raw : bool, optional  (default: False)
         Whether to use the data in adata.raw.X (True) or in adata.X (False).
@@ -95,4 +95,5 @@ AGG_FUNC = {'mean' : np.nanmean,
             'median' : np.nanmedian,
             '25p' : lambda x, axis: np.percentile(x, q=25, axis=axis),
             '75p' : lambda x, axis: np.percentile(x, q=75, axis=axis),
+            'trimean' : lambda x, axis: 0.5*np.percentile(x, q=50, axis=axis) + 0.25*(np.percentile(x, q=25, axis=axis) + np.percentile(x, q=75, axis=axis))
             }
