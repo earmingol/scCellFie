@@ -107,7 +107,7 @@ def compute_gpr_gene_score(gpr, gene_scores):
     elif isinstance(gpr, ast.BoolOp):
         op = gpr.op
         if isinstance(op, ast.Or):
-            max_score = 0
+            max_score = float('-inf')
             max_gene = None
             for value in gpr.values:
                 score, gene = compute_gpr_gene_score(value, gene_scores)
