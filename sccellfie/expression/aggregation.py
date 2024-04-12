@@ -93,7 +93,7 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
 
 AGG_FUNC = {'mean' : np.nanmean,
             'median' : np.nanmedian,
-            '25p' : lambda x, axis: np.percentile(x, q=25, axis=axis),
-            '75p' : lambda x, axis: np.percentile(x, q=75, axis=axis),
-            'trimean' : lambda x, axis: 0.5*np.percentile(x, q=50, axis=axis) + 0.25*(np.percentile(x, q=25, axis=axis) + np.percentile(x, q=75, axis=axis))
+            '25p' : lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
+            '75p' : lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
+            'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis))
             }
