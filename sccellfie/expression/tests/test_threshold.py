@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 from pandas.testing import assert_frame_equal
-from sccellfie.expression.thresholds import get_local_mean_threshold, get_global_mean_threshold, get_global_percentile_threshold, get_local_percentile_threshold, set_manual_threshold
+from sccellfie.expression.thresholds import get_local_mean_threshold, get_global_mean_threshold, get_local_percentile_threshold, get_global_percentile_threshold, get_local_trimean_threshold, get_global_trimean_threshold, set_manual_threshold
 from sccellfie.tests.toy_inputs import create_controlled_adata
 
 
@@ -243,6 +243,118 @@ def test_percentile_list():
     # Test output structure
     assert all(col in local_thresholds.columns for col in columns), "Missing columns"
     assert all(col in global_thresholds.columns for col in columns), "Missing columns"
+
+
+@pytest.mark.parametrize("use_raw, lower_bound, upper_bound, exclude_zeros",
+                         [(False, 1e-5, None, False),
+                          (True, 1e-5, None, False),
+                          (False, 10, None, False),
+                          (False, 1e-5, 4, False),
+                          (False, 1e-5, None, True),
+                          (False, pd.DataFrame({f'threshold-trimean': [10, 8, 12]}, index=['gene1', 'gene2', 'gene3'], dtype=float), None, False),
+                          (False, 1e-5, pd.DataFrame({f'threshold-trimean': [1, 2, 3]}, index=['gene1', 'gene2', 'gene3'], dtype=float), False),
+                         ])
+def test_get_local_trimean_threshold(use_raw, lower_bound, upper_bound, exclude_zeros):
+    # Create a small, controlled AnnData object
+    adata = create_controlled_adata()
+
+    # Run the function
+    thresholds = get_local_trimean_threshold(adata,
+                                             use_raw=use_raw,
+                                             lower_bound=lower_bound,
+                                             upper_bound=upper_bound,
+                                             exclude_zeros=exclude_zeros)
+
+    # Expected values
+    expected_values = pd.DataFrame({'threshold-trimean': [4., 5., 4.25]},
+                                   index=['gene1', 'gene2', 'gene3'],
+                                   dtype=float)
+
+    if exclude_zeros:
+        expected_values.loc['gene3', 'threshold-trimean'] = 6.0
+
+    if lower_bound is not None:
+        if isinstance(lower_bound, (int, float, complex)):
+            expected_values[expected_values < lower_bound] = lower_bound
+        else:
+            lb = lower_bound.copy()
+            expected_values[expected_values < lb] = lb[expected_values < lb]
+
+    if upper_bound is not None:
+        if isinstance(upper_bound, (int, float, complex)):
+            expected_values[expected_values > upper_bound] = upper_bound
+        else:
+            ub = upper_bound.copy()
+            expected_values[expected_values > ub] = ub[expected_values > ub]
+
+    # Test output structure
+    assert isinstance(thresholds, pd.DataFrame)
+    assert 'threshold-trimean' in thresholds.columns
+    assert thresholds.shape == expected_values.shape
+
+    # Test correctness of values
+    assert_frame_equal(thresholds, expected_values, check_exact=False), "Threshold values do not match expected results"
+    if lower_bound is not None:
+        assert (thresholds >= lower_bound).all().all(), "Lower bound not respected"
+    if upper_bound is not None:
+        assert (thresholds <= upper_bound).all().all(), "Upper bound not respected"
+
+
+@pytest.mark.parametrize("use_raw, lower_bound, upper_bound, exclude_zeros",
+                         [(False, 1e-5, None, False),
+                          (True, 1e-5, None, False),
+                          (False, 10, None, False),
+                          (False, 1e-5, 4, False),
+                          (False, 1e-5, None, True),
+                          (False, pd.DataFrame({f'threshold-trimean': [10, 8, 12]}, index=['gene1', 'gene2', 'gene3'], dtype=float), None, False),
+                          (False, 1e-5, pd.DataFrame({f'threshold-trimean': [1, 2, 3]}, index=['gene1', 'gene2', 'gene3'], dtype=float), False),
+                         ])
+def test_get_global_trimean_threshold(use_raw, lower_bound, upper_bound, exclude_zeros):
+    # Create a small, controlled AnnData object
+    adata = create_controlled_adata()
+
+    # Run the function
+    thresholds = get_global_trimean_threshold(adata,
+                                              use_raw=use_raw,
+                                              lower_bound=lower_bound,
+                                              upper_bound=upper_bound,
+                                              exclude_zeros=exclude_zeros)
+
+    # Expected values
+    expected_values = pd.DataFrame({'threshold-trimean': [4.375, 4.375, 4.375]},
+                                   index=['gene1', 'gene2', 'gene3'],
+                                   dtype=float)
+
+    if exclude_zeros:
+        expected_values = pd.DataFrame({'threshold-trimean': [4.75, 4.75, 4.75]},
+                                       index=['gene1', 'gene2', 'gene3'],
+                                       dtype=float)
+
+    if lower_bound is not None:
+        if isinstance(lower_bound, (int, float, complex)):
+            expected_values[expected_values < lower_bound] = lower_bound
+        else:
+            lb = lower_bound.copy()
+            expected_values[expected_values < lb] = lb[expected_values < lb]
+
+    if upper_bound is not None:
+        if isinstance(upper_bound, (int, float, complex)):
+            expected_values[expected_values > upper_bound] = upper_bound
+        else:
+            ub = upper_bound.copy()
+            expected_values[expected_values > ub] = ub[expected_values > ub]
+
+    # Test output structure
+    assert isinstance(thresholds, pd.DataFrame)
+    assert 'threshold-trimean' in thresholds.columns
+    assert thresholds.shape == expected_values.shape
+
+    # Test correctness of values
+    assert_frame_equal(thresholds, expected_values, check_exact=False), "Threshold values do not match expected results"
+    if lower_bound is not None:
+        assert (thresholds >= lower_bound).all().all(), "Lower bound not respected"
+    if upper_bound is not None:
+        assert (thresholds <= upper_bound).all().all(), "Upper bound not respected"
 
 
 def test_set_manual_threshold():
