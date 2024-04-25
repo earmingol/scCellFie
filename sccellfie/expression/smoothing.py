@@ -137,9 +137,11 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
         chunk_indices = np.arange(start_idx, end_idx)
         subset_mapping = dict(zip(chunk_and_neighbors, range(len(chunk_and_neighbors))))
         smoothed_chunk_indices = [subset_mapping[i] for i in chunk_indices]
-        smoothed_matrix[chunk_indices, :] = chunk_smoothed[smoothed_chunk_indices, :]
+
+        # Smooth by alpha
+        smoothed_matrix[chunk_indices, :] = (1. - alpha) * adata.X[chunk_indices, :].toarray() + alpha * chunk_smoothed[smoothed_chunk_indices, :]
 
     # Store the smoothed expression matrix in adata.layers
     if sp.issparse(adata.X):
         smoothed_matrix = sp.csr_matrix(smoothed_matrix)
-    adata.layers[key_added] = (1. - alpha) * adata.X + alpha * smoothed_matrix
+    adata.layers[key_added] = smoothed_matrix
