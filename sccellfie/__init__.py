@@ -6,6 +6,6 @@ from . import preprocessing
 from . import reaction_activity
 from . import spatial
 from . import stats as tl
-from .expression import thresholds, aggregation
+from .expression import aggregation, smoothing, thresholds
 
 __version__ = "0.1.8"
