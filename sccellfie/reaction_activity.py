@@ -61,7 +61,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
     # This could be optimized by paralellization, returning multiple vectors (one per cell)
     # And concatenating them later.
     rxn_max_genes = []
-    for i in tqdm(range(gene_scores.shape[0]), disable=disable_pbar, desc='Cell Rxn Activities', leave=False): # Iterate through single cells
+    for i in tqdm(range(gene_scores.shape[0]), disable=disable_pbar, desc='Cell Rxn Activities', leave=True): # Iterate through single cells
         max_gene_vector = []
         scores = defaultdict(float)
         scores.update({name: value for name, value in zip(genes, gene_scores[i, :])})
