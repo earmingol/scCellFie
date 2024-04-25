@@ -15,6 +15,7 @@ compatible with single-cell and spatial data analysis using Scanpy.
 
 
 <img src="https://github.com/earmingol/scCellFie/blob/main/scCellFie-Logo.png?raw=true" width="350" height="350" alt="Logo" style="margin-right: 10px;">
+<p style="font-size:10px;">This image was created with the assistance of DALL·E</p>
 
 ## Installation
 To install scCellFie, use pip:
