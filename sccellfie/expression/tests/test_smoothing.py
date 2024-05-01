@@ -80,3 +80,31 @@ def test_smooth_expression_knn_alpha(alpha):
 
     # Check the smoothed expression values for each alpha
     np.testing.assert_allclose(adata.layers[f'smoothed_X_alpha_{alpha}'].toarray(), expected_smoothed_X[alpha])
+
+
+@pytest.mark.parametrize("use_raw", [False, True])
+def test_smooth_expression_knn_raw(use_raw):
+    # Create a controlled adata object with known expression values
+    adata = create_controlled_adata()
+    adata.obsp['distances'] = csr_matrix([[0., 3.464, 0., 0.],
+                                          [3.464, 0., 0., 0.],
+                                          [0., 0., 0., 4.899],
+                                          [0., 0., 4.899, 0.]])
+    adata.obsp['connectivities'] = csr_matrix([[0., 1., 0., 0.585],
+                                               [1., 0., 0.585, 0.828],
+                                               [0., 0.585, 0., 1.],
+                                               [0.585, 0.828, 1., 0.]])
+
+    # Test smoothing with varying alpha values
+    alpha = 0.5
+    smooth_expression_knn(adata, key_added=f'smoothed_X_alpha_{alpha}', alpha=alpha, use_raw=use_raw)
+
+    # Expected smoothed expression values for each alpha
+    expected_smoothed_X = np.array([[2.73817035, 3.73817035, 1.73817035],
+                                    [3.51429755, 4.51429755, 3.24160796],
+                                    [5.26182965, 6.26182965, 7.26182965],
+                                    [5.17198508, 6.17198508, 5.41525073]
+                                    ])
+
+    # Check the smoothed expression values for each alpha
+    np.testing.assert_allclose(adata.layers[f'smoothed_X_alpha_{alpha}'].toarray(), expected_smoothed_X)

@@ -49,7 +49,7 @@ def get_smoothing_matrix(adata, mode):
 
 
 def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', alpha=0.33, n_chunks=None,
-                          chunk_size=None):
+                          chunk_size=None, use_raw=False):
     '''
     Smooth expression values based on KNNs of single cells using Scanpy.
 
@@ -72,6 +72,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
 
     chunk_size : int, optional (default: None)
         The size of each chunk of cells to process. If not provided, n_chunks is used.
+
+    use_raw: bool, optional (default: False)
+        Whether to use the raw data stored in adata.raw.X.
 
     Returns
     -------
@@ -105,6 +108,11 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
     # Initialize the smoothed expression matrix
     smoothed_matrix = np.zeros(adata.X.shape)
 
+    if use_raw:
+        X = adata.raw.X
+    else:
+        X = adata.X
+
     # Iterate over chunks of cells
     for i in tqdm(range(n_chunks)):
         start_idx = i * chunk_size
@@ -126,11 +134,11 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
         smoothing_mat = get_smoothing_matrix(subset_adata, mode)
 
         # Get the expression data for the current chunk and its neighbors
-        chunk_expression = adata.X[chunk_and_neighbors, :]
+        chunk_expression = X[chunk_and_neighbors, :]
 
         # Compute the expression data purely based on cell neighbors
         chunk_smoothed = smoothing_mat @ chunk_expression
-        if sp.issparse(adata.X):
+        if sp.issparse(X):
             chunk_smoothed = chunk_smoothed.toarray()
 
         # Extract the smoothed expression for the cells in the current chunk
