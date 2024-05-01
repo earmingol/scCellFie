@@ -49,7 +49,7 @@ def get_smoothing_matrix(adata, mode):
 
 
 def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', alpha=0.33, n_chunks=None,
-                          chunk_size=None, use_raw=False):
+                          chunk_size=None, use_raw=False, disable_pbar=False):
     '''
     Smooth expression values based on KNNs of single cells using Scanpy.
 
@@ -75,6 +75,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
 
     use_raw: bool, optional (default: False)
         Whether to use the raw data stored in adata.raw.X.
+
+    disable_pbar: bool, optional (default: False)
+        Whether to disable the progress bar.
 
     Returns
     -------
@@ -106,15 +109,18 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
         n_chunks = int(np.ceil(n_cells / chunk_size))
 
     # Initialize the smoothed expression matrix
-    smoothed_matrix = np.zeros(adata.X.shape)
-
     if use_raw:
         X = adata.raw.X
     else:
         X = adata.X
 
+    if isinstance(X, sp.coo_matrix):
+        X = X.tocsr()
+
+    smoothed_matrix = np.zeros(X.shape)
+
     # Iterate over chunks of cells
-    for i in tqdm(range(n_chunks)):
+    for i in tqdm(range(n_chunks), disable=disable_pbar):
         start_idx = i * chunk_size
         end_idx = min((i + 1) * chunk_size, n_cells)
 
