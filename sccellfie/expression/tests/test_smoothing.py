@@ -8,6 +8,12 @@ from sccellfie.tests.toy_inputs import create_controlled_adata, create_controlle
 def test_get_smoothing_matrix():
     # Create a controlled adata object with known connectivities
     adata = create_controlled_adata()
+    adata.uns['neighbors'] = {'connectivities_key': 'connectivities',
+                              'distances_key': 'distances',
+                              'params': {'method': 'manual',
+                                         'metric': 'euclidean',
+                                         'n_neighbors': 2,
+                                         }}
     adata.obsp['distances'] = csr_matrix([[0., 3.464, 0., 0.],
                                           [3.464, 0., 0., 0.],
                                           [0., 0., 0., 4.899],
@@ -42,6 +48,12 @@ def test_get_smoothing_matrix():
 def test_smooth_expression_knn_alpha(alpha):
     # Create a controlled adata object with known expression values
     adata = create_controlled_adata()
+    adata.uns['neighbors'] = {'connectivities_key': 'connectivities',
+                              'distances_key': 'distances',
+                              'params': {'method': 'manual',
+                                         'metric': 'euclidean',
+                                         'n_neighbors': 2,
+                                         }}
     adata.obsp['distances'] = csr_matrix([[0., 3.464, 0., 0.],
                                           [3.464, 0., 0., 0.],
                                           [0., 0., 0., 4.899],
@@ -86,6 +98,12 @@ def test_smooth_expression_knn_alpha(alpha):
 def test_smooth_expression_knn_raw(use_raw):
     # Create a controlled adata object with known expression values
     adata = create_controlled_adata()
+    adata.uns['neighbors'] = {'connectivities_key': 'connectivities',
+                              'distances_key': 'distances',
+                              'params': {'method': 'manual',
+                                         'metric': 'euclidean',
+                                         'n_neighbors': 2,
+                                         }}
     adata.obsp['distances'] = csr_matrix([[0., 3.464, 0., 0.],
                                           [3.464, 0., 0., 0.],
                                           [0., 0., 0., 4.899],

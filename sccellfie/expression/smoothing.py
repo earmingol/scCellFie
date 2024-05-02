@@ -4,7 +4,7 @@ import scipy.sparse as sp
 from tqdm import tqdm
 
 
-def get_smoothing_matrix(adata, mode):
+def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
     '''
     Calculate the smoothing matrix S based on the nearest neighbor graph in adata.obsp.
 
@@ -15,6 +15,11 @@ def get_smoothing_matrix(adata, mode):
 
     mode : str
         The mode for calculating the smoothing matrix. Can be either 'adjacency' or 'connectivity'.
+
+    neighbors_key : str, optional (default: 'neighbors')
+        The key in adata.uns where the information about the pre-run KNN analysis was stored.
+        This key points to a dictionary containing the 'connectivities_key', 'distances_key',
+        and 'params' from the analysis.
 
     Returns
    -------
@@ -29,9 +34,11 @@ def get_smoothing_matrix(adata, mode):
         If an unknown mode is provided.
     '''
     if mode == 'adjacency':
-        A = (adata.obsp['distances'] > 0).astype(int)
+        distances_key = adata.uns[neighbors_key]['distances_key']
+        A = (adata.obsp[distances_key] > 0).astype(int)
     elif mode == 'connectivity':
-        A = adata.obsp['connectivities']
+        connectivities_key = adata.uns[neighbors_key]['connectivities_key']
+        A = adata.obsp[connectivities_key]
     else:
         raise ValueError(f'unknown mode {mode}')
 
@@ -48,8 +55,8 @@ def get_smoothing_matrix(adata, mode):
     return S
 
 
-def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', alpha=0.33, n_chunks=None,
-                          chunk_size=None, use_raw=False, disable_pbar=False):
+def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbors', mode='connectivity', alpha=0.33,
+                          n_chunks=None, chunk_size=None, use_raw=False, disable_pbar=False):
     '''
     Smooth expression values based on KNNs of single cells using Scanpy.
 
@@ -60,6 +67,11 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
 
     key_added : str, optional (default: 'smoothed_X')
         The key in adata.layers where the smoothed expression matrix will be stored.
+
+    neighbors_key : str, optional (default: 'neighbors')
+        The key in adata.uns where the information about the pre-run KNN analysis was stored.
+        This key points to a dictionary containing the 'connectivities_key', 'distances_key',
+        and 'params' from the analysis.
 
     mode : str, optional (default: 'connectivity')
         The mode for calculating the smoothing matrix. Can be either 'adjacency' or 'connectivity'.
@@ -97,7 +109,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
     The smoothed expression matrix is stored in adata.layers[key_added].
     '''
     # Get the connectivities matrix
-    connectivities = adata.obsp['connectivities']
+    connectivities = adata.obsp[adata.uns[neighbors_key]['connectivities_key']]
 
     # Determine the number of chunks and chunk size
     n_cells = adata.n_obs
@@ -137,7 +149,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', mode='connectivity', al
         subset_adata = adata[chunk_and_neighbors, :]
 
         # Get the smoothing matrix for the current chunk and its neighbors
-        smoothing_mat = get_smoothing_matrix(subset_adata, mode)
+        smoothing_mat = get_smoothing_matrix(subset_adata, mode, neighbors_key=neighbors_key)
 
         # Get the expression data for the current chunk and its neighbors
         chunk_expression = X[chunk_and_neighbors, :]
