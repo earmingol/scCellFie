@@ -3,7 +3,7 @@ import pytest
 
 from scipy.sparse import csr_matrix
 from sccellfie.expression.smoothing import get_smoothing_matrix, smooth_expression_knn
-from sccellfie.tests.toy_inputs import create_controlled_adata, create_controlled_adata_with_spatial
+from sccellfie.tests.toy_inputs import create_controlled_adata
 
 def test_get_smoothing_matrix():
     # Create a controlled adata object with known connectivities
