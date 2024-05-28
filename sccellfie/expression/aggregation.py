@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.sparse import issparse
 
 
-def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', use_raw=False):
+def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', exclude_zeros=False, use_raw=False):
     """
     Aggregates gene expression data for specified cell groups in an `AnnData` object.
 
@@ -29,6 +29,9 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
         The aggregation function to apply. Options are 'mean', 'median',
         '25p' (25th percentile), '75p' (75th percentile), and 'trimean' (0.5*Q2 + 0.25(Q1+Q3)).
         The function must be one of the keys in the `AGG_FUNC` dictionary.
+
+    exclude_zeros: bool, optional (default: False)
+        Whether to exclude zeros when aggregating the values.
 
     use_raw : bool, optional  (default: False)
         Whether to use the data in adata.raw.X (True) or in adata.X (False).
@@ -67,6 +70,9 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
 
     if issparse(X):
         X = X.toarray()
+
+    if exclude_zeros:
+        X = np.where(X==0, np.nan, X)
 
     # Filter for specific genes if provided
     if gene_symbols is not None:
