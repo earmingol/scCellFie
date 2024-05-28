@@ -8,4 +8,4 @@ from . import spatial
 from . import stats as tl
 from .expression import aggregation, smoothing, thresholds
 
-__version__ = "0.1.13"
+__version__ = "0.1.14"
