@@ -1,14 +1,19 @@
-.. image:: https://badge.fury.io/py/sccellfie.svg
+|PYPI| |Issues| |Codecov| |Downloads|
+
+.. |PYPI| image:: https://badge.fury.io/py/sccellfie.svg
    :target: https://pypi.org/project/sccellfie/
 
-.. image:: https://github.com/earmingol/scCellFie/actions/workflows/tests.yml/badge.svg
+.. |Issues| image:: https://github.com/earmingol/scCellFie/actions/workflows/tests.yml/badge.svg
    :alt: test-sccellfie
 
-.. image:: https://codecov.io/gh/earmingol/scCellFie/graph/badge.svg?token=22NENAKNKI
+.. |Codecov| image:: https://codecov.io/gh/earmingol/scCellFie/graph/badge.svg?token=22NENAKNKI
    :target: https://codecov.io/gh/earmingol/scCellFie
 
-.. image:: https://pepy.tech/badge/sccellfie/month
+.. |Downloads| image:: https://pepy.tech/badge/sccellfie/month
    :target: https://pepy.tech/project/sccellfie
+
+Metabolic functionalities of mammalian cells from single-cell and spatial transcriptomics
+-----------------------------------------------------------------------------------------
 
 Single-cell CellFie is a computational tool for studying metabolic tasks using Python, inspired by the original implementation of
 `CellFie <https://github.com/LewisLabUCSD/CellFie>`_, another tool originally developed in MATLAB by the `Lewis Lab <https://lewislab.ucsd.edu/>`_. This version is designed to be
@@ -23,7 +28,7 @@ compatible with single-cell and spatial data analysis using Scanpy, while includ
 This image was created with the assistance of DALL·E
 
 Installation
-----------
+------------
 
 To install scCellFie, use pip::
 
