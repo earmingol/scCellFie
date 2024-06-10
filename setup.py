@@ -14,8 +14,8 @@ setup(
     author='Erick Armingol',
     author_email='erickarmingol@gmail.com',
     description="A tool for studying metabolic tasks from single-cell and spatial transcriptomics",
-    long_description=open('README.md').read(),
-    long_description_content_type='text/markdown',
+    long_description=open('README.rst').read(),
+    long_description_content_type='text/x-rst',
     url='https://github.com/earmingol/scCellFie',
     packages=find_packages(),
     install_requires=[
