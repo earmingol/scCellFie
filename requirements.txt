@@ -7,5 +7,5 @@ scipy
 anndata
 pytest
 pytest-cov
-pytest-randomly
+pytest-randomly;
 python_version >= "3.6"
