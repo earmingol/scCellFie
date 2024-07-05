@@ -1,8 +1,9 @@
 import pytest
 import numpy as np
 import pandas as pd
+import scipy.sparse as sparse
 
-from sccellfie.expression.aggregation import agg_expression_cells
+from sccellfie.expression.aggregation import agg_expression_cells, top_mean
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata
 
 
@@ -112,3 +113,117 @@ def test_X_in_agg_expression():
     # Test aggregation with dense X
     adata.X = adata.X.toarray()
     agg_result = agg_expression_cells(adata, groupby, agg_func='mean')
+
+
+def test_top_mean_basic():
+    matrix = np.array([[1, 2, np.nan, 4],
+                       [5, 6, 7, 8],
+                       [9, 10, np.nan, np.nan]])
+
+    result_columns = top_mean(matrix, axis=0, percent=50)
+    expected_columns = np.array([7., 8., 7., 6.])
+    assert np.allclose(result_columns, expected_columns, equal_nan=True)
+
+
+def test_top_mean_all_nan():
+    matrix = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+    result = top_mean(matrix, axis=0, percent=50)
+    assert np.isnan(result).all()
+
+
+def test_top_mean_mixed_nan():
+    matrix = np.array([[1, np.nan, 3],
+                       [np.nan, np.nan, 6],
+                       [7, 8, np.nan]])
+    result = top_mean(matrix, axis=0, percent=50)
+    expected = np.array([4., 8., 4.5])
+    assert np.allclose(result, expected, equal_nan=True)
+
+
+def test_top_mean_single_value():
+    matrix = np.array([[1], [2], [3]])
+    result = top_mean(matrix, axis=0, percent=10)
+    assert result[0] == 3
+
+
+def test_top_mean_exclude_zeros():
+    matrix = np.array([[0, 2, 0],
+                       [3, 0, 2],
+                       [5, 6, 0],
+                       [0, 8, 6]])
+    result = top_mean(matrix, axis=0, percent=50)
+    expected = np.array([4., 7., 4.])
+    assert np.allclose(result, expected)
+
+
+def test_top_mean_high_percentage_with_nan():
+    matrix = np.array([[1, np.nan, 3],
+                       [4, 5, np.nan],
+                       [7, 8, 9]])
+    result = top_mean(matrix, axis=0, percent=90)
+    expected = np.array([4., 6.5, 6.])
+    assert np.allclose(result, expected, equal_nan=True)
+
+
+@pytest.mark.parametrize("percent", [1, 25, 50, 75, 100])
+def test_top_mean_various_percentages(percent):
+    matrix = np.array([[1, 2, 3, 4, 5],
+                       [6, 7, 8, 9, 10]])
+    result = top_mean(matrix, axis=1, percent=percent)
+    expected = np.array([5, 10]) if percent == 1 else np.array([4.5, 9.5]) if percent == 25 else np.array(
+        [4., 9.]) if percent == 50 else np.array([3.5, 8.5]) if percent == 75 else np.array([3., 8.])
+    assert np.allclose(result, expected)
+
+
+def test_top_mean_all_zeros():
+    matrix = np.zeros((3, 3))
+    result = top_mean(matrix, axis=0, percent=50)
+    assert np.allclose(result, np.zeros(3))
+
+
+def test_top_mean_negative_numbers():
+    matrix = np.array([[-1, -2, -3],
+                       [-4, -5, -6],
+                       [-7, -8, -9]])
+    result = top_mean(matrix, axis=0, percent=50)
+    expected = np.array([-2.5, -3.5, -4.5])
+    assert np.allclose(result, expected)
+
+
+def test_top_mean_large_matrix():
+    np.random.seed(0)
+    large_matrix = np.random.rand(1000, 1000)
+    result = top_mean(large_matrix, axis=0, percent=10)
+    assert result.shape == (1000,)
+    assert np.all(result > 0.9)  # The top 10% of random numbers between 0 and 1 should all be > 0.9
+
+
+def test_agg_expression_cells_topmean():
+    adata = create_controlled_adata()
+
+    expected_topmean = pd.DataFrame({'gene1': [3, 7],
+                                     'gene2': [4, 8],
+                                     'gene3': [2, 10]},
+                                    index=['A', 'B'])
+
+    agg_result = agg_expression_cells(adata, 'group', agg_func='topmean')
+    assert np.allclose(agg_result.values, expected_topmean.values)
+
+
+def test_top_mean_use_raw():
+    adata = create_controlled_adata()
+    adata.X = sparse.csr_matrix(np.array([
+        [10, 20, 0],
+        [30, 40, 20],
+        [50, 60, 100],
+        [70, 80, 60]
+    ]))
+
+    agg_result = agg_expression_cells(adata, 'group', agg_func='topmean', use_raw=True)
+
+    expected_result = pd.DataFrame({'gene1': [3, 7],
+                                    'gene2': [4, 8],
+                                    'gene3': [2, 10]},
+                                   index=['A', 'B'])
+
+    assert np.allclose(agg_result.values, expected_result.values)

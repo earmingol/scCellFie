@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import scipy
 from scipy.sparse import issparse
 
 
@@ -27,7 +27,8 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
 
     agg_func : str, optional  (default: 'mean')
         The aggregation function to apply. Options are 'mean', 'median',
-        '25p' (25th percentile), '75p' (75th percentile), and 'trimean' (0.5*Q2 + 0.25(Q1+Q3)).
+        '25p' (25th percentile), '75p' (75th percentile), 'trimean' (0.5*Q2 + 0.25(Q1+Q3)),
+        and 'topmean' (computed among the top 10% of values)
         The function must be one of the keys in the `AGG_FUNC` dictionary.
 
     exclude_zeros: bool, optional (default: False)
@@ -97,9 +98,59 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
     return agg_expression.transpose()
 
 
+def top_mean(x, axis, percent=10):
+    """
+    Computes the mean of the top x% values along the specified axis of a matrix, handling NaN values.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        The input matrix containing the data to be aggregated.
+
+    axis : int
+        The axis along which to compute the mean. Use 0 for columns, 1 for rows.
+
+    percent : float, (default: 10)
+        The percentage of top values to consider, ranging from 0 to 100.
+        For example, 10 would compute the mean of the top 10% of values.
+
+    Returns
+    -------
+    numpy.ndarray
+        An array containing the mean of the top x% values for each row or column,
+        depending on the specified axis. The shape of the output array will be
+        (n_rows,) if axis=1, or (n_columns,) if axis=0.
+    """
+
+    def top_nanmean(arr, p):
+        # Ensure the input is a numpy array
+        arr = np.asarray(arr)
+
+        # Remove NaN values
+        non_nan = arr[~np.isnan(arr)]
+
+        # If all values are NaN, return NaN
+        if len(non_nan) == 0:
+            return np.nan
+
+        # Calculate the number of elements to keep
+        n = max(1, int(np.ceil(len(arr) * p / 100)))
+
+        # Sort non-NaN values and select top n
+        sorted_arr = np.sort(non_nan)
+        top_values = sorted_arr[-n:]
+
+        # Return the mean of the top values
+        return np.mean(top_values)
+
+    # Apply the function along the specified axis
+    return np.apply_along_axis(top_nanmean, axis, x, percent)
+
+
 AGG_FUNC = {'mean' : np.nanmean,
             'median' : np.nanmedian,
             '25p' : lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
             '75p' : lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
-            'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis))
+            'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis)),
+            'topmean' : lambda x, axis: top_mean(x, axis=axis, percent=10)
             }
