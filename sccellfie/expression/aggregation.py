@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-import scipy
 from scipy.sparse import issparse
 
 
-def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', exclude_zeros=False, use_raw=False):
+def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func='mean', top_percent=10, exclude_zeros=False, use_raw=False):
     """
     Aggregates gene expression data for specified cell groups in an `AnnData` object.
 
@@ -28,8 +27,12 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
     agg_func : str, optional  (default: 'mean')
         The aggregation function to apply. Options are 'mean', 'median',
         '25p' (25th percentile), '75p' (75th percentile), 'trimean' (0.5*Q2 + 0.25(Q1+Q3)),
-        and 'topmean' (computed among the top 10% of values)
+        and 'topmean' (computed among the top `top_percent`% of values)
         The function must be one of the keys in the `AGG_FUNC` dictionary.
+
+    top_percent : float, optional (default: 10)
+        The percentage of top values to consider when `agg_func` is 'topmean'.
+        Ranging from 0 to 100.
 
     exclude_zeros: bool, optional (default: False)
         Whether to exclude zeros when aggregating the values.
@@ -93,7 +96,11 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
     for group in sorted(np.unique(grouped)):
         group_mask = grouped == group
         group_data = X[group_mask, :]
-        agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0)
+
+        if agg_func == 'topmean':
+            agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0, percent=top_percent)
+        else:
+            agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0)
 
     return agg_expression.transpose()
 
@@ -152,5 +159,5 @@ AGG_FUNC = {'mean' : np.nanmean,
             '25p' : lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
             '75p' : lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
             'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis)),
-            'topmean' : lambda x, axis: top_mean(x, axis=axis, percent=10)
+            'topmean' : top_mean
             }
