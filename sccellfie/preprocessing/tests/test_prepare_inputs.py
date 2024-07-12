@@ -1,6 +1,6 @@
 import pandas as pd
 
-from sccellfie.preprocessing import preprocess_inputs
+from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, clean_gene_names, find_genes_gpr
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
 
 
@@ -56,3 +56,34 @@ def test_shapes():
     assert task_by_gene.shape != task_by_gene2.shape, "task_by_gene2 has the same shape as task_by_gene"
     assert rxn_by_gene.shape != rxn_by_gene2.shape, "rxn_by_gene2 has the same shape as rxn_by_gene"
     assert task_by_rxn.shape != task_by_rxn2.shape, "task_by_rxn2 has the same shape as task_by_rxn"
+
+
+def test_clean_gene_names():
+    test_cases = [
+        ("(1 ) AND (2)", "(1) AND (2)"),
+        ("( 3 ) OR ( 4 )", "(3) OR (4)"),
+        ("(5) AND ( 6 ) OR (7 )", "(5) AND (6) OR (7)"),
+        ("gene1 AND (8 )", "gene1 AND (8)"),
+        ("( 9 ) OR gene2", "(9) OR gene2"),
+        ("No parentheses here", "No parentheses here")
+    ]
+
+    for input_rule, expected_output in test_cases:
+        result = clean_gene_names(input_rule)
+        assert result == expected_output, f"For input '{input_rule}', expected '{expected_output}', but got '{result}'"
+
+
+def test_find_genes_gpr():
+    test_cases = [
+        ("gene1 AND gene2", ["gene1", "gene2"]),
+        ("gene3 OR (gene4 AND gene5)", ["gene3", "gene4", "gene5"]),
+        ("(gene6 OR gene7) AND gene8", ["gene6", "gene7", "gene8"]),
+        ("gene9 AND gene10 OR gene11", ["gene9", "gene10", "gene11"]),
+        ("gene12", ["gene12"]),
+        ("gene13 AND (gene14 OR (gene15 AND gene16))", ["gene13", "gene14", "gene15", "gene16"]),
+        ("NO_GENES_HERE", ["NO_GENES_HERE"])
+    ]
+
+    for input_rule, expected_output in test_cases:
+        result = find_genes_gpr(input_rule)
+        assert result == expected_output, f"For input '{input_rule}', expected {expected_output}, but got {result}"
