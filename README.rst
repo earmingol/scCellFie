@@ -51,6 +51,11 @@ Features
 - **Scanpy compatibility:** Fully integrated with Scanpy, the popular single cell
   analysis toolkit.
 
+How to cite
+-----------
+
+*Preprint is coming soon!*
+
 Acknowledgments
 ---------------
 
