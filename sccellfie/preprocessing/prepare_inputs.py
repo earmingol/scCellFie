@@ -2,98 +2,133 @@ import cobra
 import re
 
 
-def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, verbose=True):
-    '''
-    Preprocess inputs for sccellfie.
+def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
+                      gene_fraction_threshold=0.0, reaction_fraction_threshold=0.0, verbose=True):
+    """
+    Preprocess inputs for metabolic analysis.
 
-    Parameters
-    ----------
-    adata: AnnData object
+    Parameters:
+    -----------
+    adata : AnnData
         Annotated data matrix.
 
-    gpr_info: pandas.DataFrame
-        A pandas.DataFrame object with the GPR information for each reaction.
+    gpr_info : pandas.DataFrame
+        DataFrame containing reaction IDs and their corresponding Gene-Protein-Reaction (GPR) rules.
 
-    task_by_gene: pandas.DataFrame
-        A pandas.DataFrame object where rows are metabolic tasks and columns are
-        genes. Each cell contains ones or zeros, indicating whether a gene
-        is involved in a metabolic task.
+    task_by_gene : pandas.DataFrame
+        DataFrame representing the relationship between tasks and genes.
 
-    rxn_by_gene: pandas.DataFrame
-        A pandas.DataFrame object where rows are reactions and columns are
-        genes. Each cell contains ones or zeros, indicating whether a gene
-        is involved in a reaction.
+    rxn_by_gene : pandas.DataFrame
+        DataFrame representing the relationship between reactions and genes.
 
-    task_by_rxn: pandas.DataFrame
-        A pandas.DataFrame object where rows are metabolic tasks and columns are
-        reactions. Each cell contains ones or zeros, indicating whether a reaction
-        is involved in a metabolic task.
+    task_by_rxn : pandas.DataFrame
+        DataFrame representing the relationship between tasks and reactions.
 
-    verbose: bool, optional (default: True)
-        Whether to print information about the preprocessing.
+    gene_fraction_threshold : float, optional (default=0.0)
+        The minimum fraction of genes in a reaction's GPR that must be present in adata to keep the reaction.
+        Range is 0 to 1.
+        1.0 means all genes must be present.
+        Any value > 0 and < 1 keeps reactions with at least that fraction of genes present.
+        0 means keep reactions with at least one gene present.
 
-    Returns
-    -------
-    adata2: AnnData object
-        Annotated data matrix with only genes present in task_by_gene, rxn_by_gene, and adata.var_names.
+    reaction_fraction_threshold : float, optional (default=0.0)
+        The minimum fraction of reactions in a task that must be present after gene filtering to keep the task.
+        Range is 0 to 1.
+        1.0 means all reactions must be present.
+        Any value > 0 and < 1 keeps tasks with at least that fraction of reactions present.
+        0 means keep tasks with at least one reaction present.
 
-    gpr_rules: dict
-        A dictionary with reaction IDs as keys and Gene-Protein Rules (GPRs) as values.
-        GPRs are in the format of the ast library after initialization with cobra from strings
-        to tree format for AND and OR rules.
+    verbose : bool, optional (default=True)
+        If True, prints information about the preprocessing results.
 
-    task_by_gene: pandas.DataFrame
-        A pandas.DataFrame object where rows are metabolic tasks and columns are
-        genes. Each cell contains ones or zeros, indicating whether a gene
-        is involved in a metabolic task.
+    Returns:
+    --------
+    adata2 : AnnData
+        Filtered annotated data matrix.
+    gpr_rules : dict
+        Dictionary of GPR rules for the filtered reactions.
+    task_by_gene : pandas.DataFrame
+        Filtered DataFrame representing the relationship between tasks and genes.
+    rxn_by_gene : pandas.DataFrame
+        Filtered DataFrame representing the relationship between reactions and genes.
+    task_by_rxn : pandas.DataFrame
+        Filtered DataFrame representing the relationship between tasks and reactions.
+    """
+    if not 0 <= gene_fraction_threshold <= 1:
+        raise ValueError("gene_fraction_threshold must be between 0 and 1")
+    if not 0 <= reaction_fraction_threshold <= 1:
+        raise ValueError("reaction_fraction_threshold must be between 0 and 1")
 
-    rxn_by_gene: pandas.DataFrame
-        A pandas.DataFrame object where rows are reactions and columns are
-        genes. Each cell contains ones or zeros, indicating whether a gene
-        is involved in a reaction.
-
-    task_by_rxn: pandas.DataFrame
-        A pandas.DataFrame object where rows are metabolic tasks and columns are
-        reactions. Each cell contains ones or zeros, indicating whether a reaction
-        is involved in a metabolic task.
-    '''
-    # Initialize GPRs
-    gpr_rules = gpr_info.dropna().set_index('Reaction').to_dict()['GPR-symbol']
+        # Initialize GPRs
+    gpr_rules = gpr_info.set_index('Reaction')['GPR-symbol'].to_dict()
+    gpr_rules = {k: cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_rules.items()}
 
     valid_genes = set()
     valid_reactions = set()
 
-    # Iterate through GPR rules
-    for reaction, gpr_rule in gpr_rules.items():
+    for reaction, gpr in gpr_rules.items():
         if reaction in rxn_by_gene.index and reaction in task_by_rxn.columns:
-            clean_gpr_rule = clean_gene_names(gpr_rule)
-            genes_in_rule = find_genes_gpr(clean_gpr_rule)
-            if all(gene in adata.var_names for gene in genes_in_rule):
-                valid_genes.update(genes_in_rule)
-                valid_reactions.add(reaction)
+            genes_in_rule = find_genes_gpr(gpr.to_string())
+            genes_present = [gene for gene in genes_in_rule if gene in adata.var_names]
+
+            if len(genes_in_rule) > 0:
+                if gene_fraction_threshold == 0:
+                    # Keep reaction if at least one gene is present
+                    if len(genes_present) > 0:
+                        valid_genes.update(genes_present)
+                        valid_reactions.add(reaction)
+                else:
+                    # Keep reaction if the fraction of present genes meets or exceeds the threshold
+                    fraction_present = len(genes_present) / len(genes_in_rule)
+                    if fraction_present >= gene_fraction_threshold:
+                        valid_genes.update(genes_present)
+                        valid_reactions.add(reaction)
+    valid_genes = sorted(valid_genes)
+    valid_reactions = sorted(valid_reactions)
 
     # Filter adata
-    adata2 = adata[:, sorted(valid_genes)]
+    adata2 = adata[:, valid_genes]
 
-    # Filter tables
-    task_by_gene = task_by_gene.loc[:, sorted(valid_genes)]
-    rxn_by_gene = rxn_by_gene.loc[sorted(valid_reactions), sorted(valid_genes)]
-    task_by_rxn = task_by_rxn.loc[:, sorted(valid_reactions)]
+    # Filter gene tables
+    task_by_gene = task_by_gene.loc[:, valid_genes]
+    rxn_by_gene = rxn_by_gene.loc[valid_reactions, valid_genes]
 
-    # Remove tasks with no non-zero values
-    task_by_gene = task_by_gene.loc[(task_by_gene != 0).any(axis=1)]
-    task_by_rxn = task_by_rxn.loc[(task_by_rxn != 0).any(axis=1)]
+    # Filter tasks based on reaction presence
+    valid_tasks = set()
+    for task in task_by_rxn.index:
+        reactions_in_task = task_by_rxn.loc[task]
+        reactions_present = reactions_in_task[reactions_in_task.index.isin(valid_reactions)]
 
-    # Ensure consistency across all tables
-    common_tasks = set(task_by_gene.index) & set(task_by_rxn.index)
-    task_by_gene = task_by_gene.loc[sorted(common_tasks)]
-    task_by_rxn = task_by_rxn.loc[sorted(common_tasks)]
+        if len(reactions_in_task) > 0:
+            if reaction_fraction_threshold == 0:
+                # Keep task if at least one reaction is present
+                if len(reactions_present) > 0:
+                    valid_tasks.add(task)
+            else:
+                # Keep task if the fraction of present reactions meets or exceeds the threshold
+                fraction_present = len(reactions_present) / len(reactions_in_task)
+                if fraction_present >= reaction_fraction_threshold:
+                    valid_tasks.add(task)
+    valid_tasks = sorted(valid_tasks)
+
+    # Final filtering of task tables
+    task_by_gene = task_by_gene.loc[valid_tasks]
+    task_by_rxn = task_by_rxn.loc[valid_tasks, valid_reactions]
+
+    # Remove genes and reactions with no non-zero values
+    task_by_gene = task_by_gene.loc[:, (task_by_gene != 0).any(axis=0)]
+    rxn_by_gene = rxn_by_gene.loc[(rxn_by_gene != 0).any(axis=1), (rxn_by_gene != 0).any(axis=0)]
+    task_by_rxn = task_by_rxn.loc[:, (task_by_rxn != 0).any(axis=0)]
+
+    # Update valid genes and reactions
+    valid_genes = set(task_by_gene.columns)
+    valid_reactions = set(task_by_rxn.columns)
 
     # Update GPR rules
     gpr_rules = {k: v for k, v in gpr_rules.items() if k in valid_reactions}
 
-    # Initialize GPRs
-    gpr_rules = {k: cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_rules.items()}
+    # Final update of adata
+    adata2 = adata2[:, sorted(valid_genes)]
 
     if verbose:
         print(f'Shape of new adata object: {adata2.shape}\n'

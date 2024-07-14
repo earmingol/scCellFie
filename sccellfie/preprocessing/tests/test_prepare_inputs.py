@@ -58,6 +58,80 @@ def test_shapes():
     assert task_by_rxn.shape != task_by_rxn2.shape, "task_by_rxn2 has the same shape as task_by_rxn"
 
 
+def test_preprocess_inputs_all_genes_half_reactions():
+    # Create controlled inputs
+    adata = create_controlled_adata()
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+    task_by_gene = create_controlled_task_by_gene()
+    rxn_by_gene = create_controlled_rxn_by_gene()
+    task_by_rxn = create_controlled_task_by_rxn()
+
+    # Preprocess inputs
+    adata2, gpr_rules, task_by_gene2, rxn_by_gene2, task_by_rxn2 = preprocess_inputs(
+        adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
+        gene_fraction_threshold=1.0, reaction_fraction_threshold=0.5
+    )
+
+    # Check if the outputs are as expected
+    assert len(gpr_rules) == len(gpr_dict_expected), "Number of GPR rules should remain the same"
+    assert task_by_gene2.shape[0] <= task_by_gene.shape[0], "Number of tasks should be less than or equal to the original"
+    assert task_by_rxn2.shape[0] == task_by_gene2.shape[0], "Number of tasks should be consistent across task_by_gene and task_by_rxn"
+    assert task_by_rxn2.shape[1] == rxn_by_gene2.shape[0], "Number of reactions should be consistent across task_by_rxn and rxn_by_gene"
+    assert adata2.shape == adata.shape, "adata shape should remain the same"
+
+
+def test_preprocess_inputs_half_genes_all_reactions():
+    # Create controlled inputs
+    adata = create_controlled_adata()
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+    task_by_gene = create_controlled_task_by_gene()
+    rxn_by_gene = create_controlled_rxn_by_gene()
+    task_by_rxn = create_controlled_task_by_rxn()
+
+    # Preprocess inputs
+    adata2, gpr_rules, task_by_gene2, rxn_by_gene2, task_by_rxn2 = preprocess_inputs(
+        adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
+        gene_fraction_threshold=0.5, reaction_fraction_threshold=1.0
+    )
+
+    # Check if the outputs are as expected
+    assert len(gpr_rules) <= len(gpr_dict_expected), "Number of GPR rules should be less than or equal to the original"
+    assert rxn_by_gene2.shape[0] <= rxn_by_gene.shape[0], "Number of reactions should be less than or equal to the original"
+    assert task_by_gene2.shape[1] <= task_by_gene.shape[1], "Number of genes should be less than or equal to the original"
+    assert task_by_rxn2.shape[0] == task_by_gene2.shape[0], "Number of tasks should be consistent across task_by_gene and task_by_rxn"
+    assert adata2.shape[1] <= adata.shape[1], "Number of genes in adata should be less than or equal to the original"
+
+def test_preprocess_inputs_one_gene_one_reaction():
+    # Create controlled inputs
+    adata = create_controlled_adata()
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+    task_by_gene = create_controlled_task_by_gene()
+    rxn_by_gene = create_controlled_rxn_by_gene()
+    task_by_rxn = create_controlled_task_by_rxn()
+
+    # Preprocess inputs
+    adata2, gpr_rules, task_by_gene2, rxn_by_gene2, task_by_rxn2 = preprocess_inputs(
+        adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
+        gene_fraction_threshold=0, reaction_fraction_threshold=0
+    )
+
+    # Check if the outputs are as expected
+    assert len(gpr_rules) == len(gpr_dict_expected), "Number of GPR rules should remain the same"
+    assert task_by_gene2.shape[0] == task_by_gene.shape[0], "Number of tasks should remain the same"
+    assert rxn_by_gene2.shape[0] == rxn_by_gene.shape[0], "Number of reactions should remain the same"
+    assert task_by_rxn2.shape == task_by_rxn.shape, "task_by_rxn shape should remain the same"
+    assert adata2.shape == adata.shape, "adata shape should remain the same"
+
+
 def test_clean_gene_names():
     test_cases = [
         ("(1 ) AND (2)", "(1) AND (2)"),
