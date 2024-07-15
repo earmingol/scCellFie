@@ -71,15 +71,17 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
             genes_in_rule = find_genes_gpr(gpr.to_string())
             genes_present = [gene for gene in genes_in_rule if gene in adata.var_names]
 
-            if len(genes_in_rule) > 0:
+            n_genes_in_rule = len(genes_in_rule)
+            n_genes_present = len(genes_present)
+            if n_genes_in_rule > 0:
                 if gene_fraction_threshold == 0:
                     # Keep reaction if at least one gene is present
-                    if len(genes_present) > 0:
+                    if n_genes_present > 0:
                         valid_genes.update(genes_present)
                         valid_reactions.add(reaction)
                 else:
                     # Keep reaction if the fraction of present genes meets or exceeds the threshold
-                    fraction_present = len(genes_present) / len(genes_in_rule)
+                    fraction_present = n_genes_present / n_genes_in_rule
                     if fraction_present >= gene_fraction_threshold:
                         valid_genes.update(genes_present)
                         valid_reactions.add(reaction)
@@ -96,17 +98,19 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
     # Filter tasks based on reaction presence
     valid_tasks = set()
     for task in task_by_rxn.index:
-        reactions_in_task = task_by_rxn.loc[task]
-        reactions_present = reactions_in_task[reactions_in_task.index.isin(valid_reactions)]
+        rxns_in_task = task_by_rxn.loc[task]
+        rxns_present = rxns_in_task[rxns_in_task.index.isin(valid_reactions)]
 
-        if len(reactions_in_task) > 0:
+        n_rxns_in_task = rxns_in_task.sum()
+        n_rxns_present = rxns_present.sum()
+        if n_rxns_in_task > 0:
             if reaction_fraction_threshold == 0:
                 # Keep task if at least one reaction is present
-                if len(reactions_present) > 0:
+                if n_rxns_present > 0:
                     valid_tasks.add(task)
             else:
                 # Keep task if the fraction of present reactions meets or exceeds the threshold
-                fraction_present = len(reactions_present) / len(reactions_in_task)
+                fraction_present = n_rxns_present / n_rxns_in_task
                 if fraction_present >= reaction_fraction_threshold:
                     valid_tasks.add(task)
     valid_tasks = sorted(valid_tasks)
@@ -121,14 +125,17 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
     task_by_rxn = task_by_rxn.loc[:, (task_by_rxn != 0).any(axis=0)]
 
     # Update valid genes and reactions
-    valid_genes = set(task_by_gene.columns)
-    valid_reactions = set(task_by_rxn.columns)
+    valid_genes = sorted(set(task_by_gene.columns))
+    valid_reactions = sorted(set(task_by_rxn.columns))
 
     # Update GPR rules
     gpr_rules = {k: v for k, v in gpr_rules.items() if k in valid_reactions}
 
-    # Final update of adata
-    adata2 = adata2[:, sorted(valid_genes)]
+    # Final update
+    rxn_by_gene = rxn_by_gene.loc[valid_reactions, valid_genes]
+    task_by_gene = task_by_gene.loc[valid_tasks, valid_genes]
+    task_by_rxn = task_by_rxn.loc[valid_tasks, valid_reactions]
+    adata2 = adata2[:, valid_genes]
 
     if verbose:
         print(f'Shape of new adata object: {adata2.shape}\n'
