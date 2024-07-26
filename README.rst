@@ -14,10 +14,10 @@
 
 
 
-Metabolic functionalities of mammalian cells from single-cell and spatial transcriptomics
+Metabolic activity from single-cell and spatial transcriptomics
 -----------------------------------------------------------------------------------------
 
-Single-cell CellFie is a computational tool for studying metabolic tasks using Python, inspired by the original implementation of
+scCellFie is a computational tool for studying metabolic tasks using Python, inspired by the original implementation of
 `CellFie <https://github.com/LewisLabUCSD/CellFie>`_, another tool originally developed in MATLAB by the `Lewis Lab <https://lewislab.ucsd.edu/>`_. This version is designed to be
 compatible with single-cell and spatial data analysis using Scanpy, while including a series of improvements and new analyses.
 
@@ -51,6 +51,8 @@ Features
 
 - **Scanpy compatibility:** Fully integrated with Scanpy, the popular single cell
   analysis toolkit.
+
+- **Organisms:** Metabolic database and analysis available for human and mouse.
 
 How to cite
 -----------
