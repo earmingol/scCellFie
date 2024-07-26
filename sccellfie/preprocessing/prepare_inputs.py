@@ -2,7 +2,7 @@ import cobra
 import re
 
 
-def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
+def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, correction_organism='human',
                       gene_fraction_threshold=0.0, reaction_fraction_threshold=0.0, verbose=True):
     """
     Preprocess inputs for metabolic analysis.
@@ -23,6 +23,10 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
 
     task_by_rxn : pandas.DataFrame
         DataFrame representing the relationship between tasks and reactions.
+
+    correction_organism : str, optional (default='human')
+        Organism of the input data. This is important to correct gene names that are present in
+        scCellFie's or custom database. Check options in `sccellfie.preprocessing.prepare_inputs.CORRECT_GENES.keys()`
 
     gene_fraction_threshold : float, optional (default=0.0)
         The minimum fraction of genes in a reaction's GPR that must be present in adata to keep the reaction.
@@ -59,7 +63,21 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
     if not 0 <= reaction_fraction_threshold <= 1:
         raise ValueError("reaction_fraction_threshold must be between 0 and 1")
 
-        # Initialize GPRs
+    adata_var = adata.var.copy()
+
+    correction_col = 'corrected'
+    if correction_organism in CORRECT_GENES.keys():
+        correction_dict = CORRECT_GENES[correction_organism]
+        correction_dict = {k : v for k, v in correction_dict.items() if v in rxn_by_gene.columns}
+        adata_var[correction_col] = [correction_dict[g] if g in correction_dict.keys() else g for g in adata_var.index]
+        if verbose:
+            print('Gene names corrected to match database: {}'.format(len(correction_dict)))
+    else:
+        adata_var[correction_col] = list(adata_var.index)
+
+
+
+    # Initialize GPRs
     gpr_rules = gpr_info.set_index('Reaction')['GPR-symbol'].to_dict()
     gpr_rules = {k: cobra.core.gene.GPR().from_string(gpr) for k, gpr in gpr_rules.items()}
 
@@ -69,7 +87,7 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
     for reaction, gpr in gpr_rules.items():
         if reaction in rxn_by_gene.index and reaction in task_by_rxn.columns:
             genes_in_rule = find_genes_gpr(gpr.to_string())
-            genes_present = [gene for gene in genes_in_rule if gene in adata.var_names]
+            genes_present = [gene for gene in genes_in_rule if gene in adata_var[correction_col].values]
 
             n_genes_in_rule = len(genes_in_rule)
             n_genes_present = len(genes_present)
@@ -89,7 +107,8 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn,
     valid_reactions = sorted(valid_reactions)
 
     # Filter adata
-    adata2 = adata[:, valid_genes]
+    adata2 = adata[:, adata_var[correction_col].isin(valid_genes)]
+    adata2.var_names = adata_var[adata_var[correction_col].isin(valid_genes)][correction_col].values.tolist()
 
     # Filter gene tables
     task_by_gene = task_by_gene.loc[:, valid_genes]
@@ -158,3 +177,28 @@ def clean_gene_names(gpr_rule):
 def find_genes_gpr(gpr_rule):
     elements = re.findall(r'\b[^\s(),]+\b', gpr_rule)
     return [e for e in elements if e.lower() not in ('and', 'or')]
+
+
+CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
+                            'ADSSL1': 'ADSS1',
+                            'COL4A3BP': 'CERT1',
+                            'MT-CO1': 'COX1',
+                            'MT-CO2': 'COX2',
+                            'MT-CO3': 'COX3',
+                            'MT-CYB': 'CYTB',
+                            'ATP5S': 'DMAC2L',
+                            'FUK': 'FCSK',
+                            'G6PC': 'G6PC1',
+                            'WRB': 'GET1',
+                            'ASNA1': 'GET3',
+                            'MARCH6': 'MARCHF6',
+                            'MUT': 'MMUT',
+                            'MT-ND1': 'ND1',
+                            'MT-ND2': 'ND2',
+                            'MT-ND3': 'ND3',
+                            'MT-ND4': 'ND4',
+                            'MT-ND4L': 'ND4L',
+                            'MT-ND5': 'ND5',
+                            'MT-ND6': 'ND6',
+                            'ZADH2': 'PTGR3'},
+                 }
