@@ -12,6 +12,8 @@
 .. |Downloads| image:: https://pepy.tech/badge/sccellfie/month
    :target: https://pepy.tech/project/sccellfie
 
+
+
 Metabolic functionalities of mammalian cells from single-cell and spatial transcriptomics
 -----------------------------------------------------------------------------------------
 
@@ -22,10 +24,9 @@ compatible with single-cell and spatial data analysis using Scanpy, while includ
 .. image:: https://github.com/earmingol/scCellFie/blob/main/scCellFie-Logo.png?raw=true
    :alt: Logo
    :width: 350
-   :height: 350
+   :height: 188.31
    :align: center
 
-This image was created with the assistance of DALL·E
 
 Installation
 ------------
