@@ -14,7 +14,7 @@
 
 
 
-Metabolic activity from single-cell and spatial transcriptomics
+Metabolic activity from single-cell and spatial transcriptomics with scCellFie
 -----------------------------------------------------------------------------------------
 
 scCellFie is a computational tool for studying metabolic tasks using Python, inspired by the original implementation of
