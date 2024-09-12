@@ -1,196 +1,197 @@
-Task,System,Subsystem
-(R)-3-Hydroxybutanoate synthesis,CARBOHYDRATES METABOLISM,KETOGENESIS
-3'-Phospho-5'-adenylyl sulfate synthesis,NUCLEOTIDE METABOLISM,COFACTOR
-AMP salvage from adenine,NUCLEOTIDE METABOLISM,SALVAGE
-ATP generation from glucose (hypoxic conditions) - glycolysis,ENERGY METABOLISM,ATP GENERATION
-Acetoacetate synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
-Alanine degradation,AMINO ACIDS METABOLISM,ALANINE METABOLISM
-Arachidonate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Arachidonate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Arginine degradation,AMINO ACIDS METABOLISM,ARGININE METABOLISM
-Aspartate degradation,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
-Beta-alanine to 3-oxopropanoate,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
-Biosynthesis of g3m8masn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
-Biosynthesis of m4mpdol_U,GLYCAN METABOLISM,N-GLYCAN METABOLISM
-Branching (N-acetylglucosaminyltransferases),Processing in the Golgi,N-glycan processing (Golgi)
-CMP-N-acetylneuraminate synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
-Calnexin/calreticulin cycle,Processing in the ER,Protein folding
-Cardiolipin synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Ceramide synthesis,LIPIDS METABOLISM,SPHINGOLIPID METABOLISM
-Cholesterol synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
-Co-translational translocation,Translocation,Translocation
-"Conversion of 1-phosphatidyl-1D-myo-inositol 4,5-bisphosphate to 1D-myo-inositol 1,4,5-trisphosphate",CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
-Conversion of GABA into succinate,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
-Conversion of asparate to asparagine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
-Conversion of aspartate to arginine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
-Conversion of aspartate to beta-alanine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
-Conversion of carnosine to beta-alanine,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
-Conversion of glutamate to glutamine,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
-Conversion of glutamate to proline,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
-Conversion of glycine to pyruvate,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
-Conversion of histidine to glutamate,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
-Conversion of histidine to histamine,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
-Conversion of leucine to acetyl-coA,AMINO ACIDS METABOLISM,LEUCINE METABOLISM
-Conversion of lysine to L-2-Aminoadipate,AMINO ACIDS METABOLISM,LYSINE METABOLISM
-Conversion of lysine to L-Saccharopine,AMINO ACIDS METABOLISM,LYSINE METABOLISM
-Cysteine degradation,AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
-Cysteine synthesis (need serine and methionine),AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
-Cytidine triphosphate synthesis (CTP),NUCLEOTIDE METABOLISM,UMP SYNTHESIS
-Degradation of adenine to urate,NUCLEOTIDE METABOLISM,PURINE CATABOLISM
-Degradation of cytosine,NUCLEOTIDE METABOLISM,PYRIMIDINE CATABOLISM
-Degradation of guanine to urate,NUCLEOTIDE METABOLISM,PURINE CATABOLISM
-Degradation of n2m2nmasn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
-Degradation of s2l2fn2m2masn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
-Degradation of uracil,NUCLEOTIDE METABOLISM,PYRIMIDINE CATABOLISM
-Deoxyadenosine triphosphate synthesis (dATP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
-Deoxycytidine triphosphate synthesis (dCTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
-Deoxyguanosine triphosphate synthesis (dGTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
-Deoxythymidine triphosphate synthesis (dTTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
-Deoxyuridine triphosphate synthesis (dUTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
-Disulfide bond formation,Processing in the ER,PTMs
-Elaidate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Elaidate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Ethanol to acetaldehyde,CARBOHYDRATES METABOLISM,GLYCOLYSIS/GLUCONEOGENESIS
-Fructose degradation (to glucose-3-phosphate),CARBOHYDRATES METABOLISM,FRUCTOSE METABOLISM
-Fructose to glucose conversion (via fructose-6-phosphate),CARBOHYDRATES METABOLISM,FRUCTOSE METABOLISM
-Fucosylation (addition of fucose),Processing in the Golgi,N-glycan processing (Golgi)
-GDP-L-fucose synthesis,CARBOHYDRATES METABOLISM,FUCOSE METABOLISM
-GDP-mannose synthesis,CARBOHYDRATES METABOLISM,MANNOSE METABOLISM
-GMP salvage from guanine,NUCLEOTIDE METABOLISM,SALVAGE
-GPI-anchor,Processing in the ER,PTMs
-Galactosylation (addition of galactose),Processing in the Golgi,N-glycan processing (Golgi)
-Gluconeogenesis from Alanine,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
-Gluconeogenesis from Glutamine,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
-Gluconeogenesis from Glycerol,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
-Gluconeogenesis from Lactate,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
-Gluconeogenesis from pyruvate,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
-Glucosaminyl-acylphosphatidylinositoll to deacylated-glycophosphatidylinositol (GPI)-anchored protein,GLYCAN METABOLISM,GPI ANCHOR BIOSYNTHESIS
-Glucuronate synthesis (via inositol),CARBOHYDRATES METABOLISM,PENTOSE AND GLUCURONATE INTERCONVERSION
-Glucuronate synthesis (via udp-glucose),CARBOHYDRATES METABOLISM,PENTOSE AND GLUCURONATE INTERCONVERSION
-Glutamate degradation,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
-Glutamine degradation,AMINO ACIDS METABOLISM,GLUTAMINE METABOLISM
-Glutaminolysis (glutamine to lactate),AMINO ACIDS METABOLISM,GLUTAMINE METABOLISM
-Glutathionate synthesis,AMINO ACIDS METABOLISM,GLUTATHIONE METABOLISM
-Glycerol-3-phosphate synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Glycine degradation,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
-Glycine synthesis,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
-Glycochenodeoxycholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
-Glycogen biosynthesis,CARBOHYDRATES METABOLISM,GLYCOGEN METABOLISM
-Glycogen degradation,CARBOHYDRATES METABOLISM,GLYCOGEN METABOLISM
-Guanosine triphosphate synthesis (GTP),NUCLEOTIDE METABOLISM,IMP SYNTHESIS / PURINE METABOLISM
-Heme synthesis,VITAMIN & COFACTOR METABOLISM,HEME METABOLISM
-Histidine degradation,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
-Homocysteine degradation,AMINO ACIDS METABOLISM,HOMOCYSTEINE METABOLISM
-Homocysteine synthesis (need methionine),AMINO ACIDS METABOLISM,HOMOCYSTEINE METABOLISM
-Hydroxymethylglutaryl-CoA synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
-IMP salvage from hypoxanthine,NUCLEOTIDE METABOLISM,SALVAGE
-Inosine monophosphate synthesis (IMP),NUCLEOTIDE METABOLISM,IMP SYNTHESIS / PURINE METABOLISM
-Inositol as input for glucuronate-xylulose pathway,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
-Isoleucine degradation,AMINO ACIDS METABOLISM,ISOLEUCINE METABOLISM
-Keratan sulfate biosynthesis from N-glycan,GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
-Keratan sulfate biosynthesis from O-glycan (core 2-linked),GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
-Keratan sulfate biosynthesis from O-glycan (core 4-linked),GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
-Keratan sulfate degradation,GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
-Krebs cycle - NADH generation,ENERGY METABOLISM,KREBS CYCLE
-Krebs cycle - oxidative decarboxylation of pyruvate,ENERGY METABOLISM,KREBS CYCLE
-Leucine degradation,AMINO ACIDS METABOLISM,LEUCINE METABOLISM
-Link between glyoxylate metabolism and pentose phosphate pathway (Xylulose to glycolate),CARBOHYDRATES METABOLISM,GLYOXYLATE METABOLISM
-Linoleate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Linolenate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Lysine degradation,AMINO ACIDS METABOLISM,LYSINE METABOLISM
-Malate to pyruvate conversion,CARBOHYDRATES METABOLISM,PYRUVATE METABOLISM
-Mannose degradation (to fructose-6-phosphate),CARBOHYDRATES METABOLISM,MANNOSE METABOLISM
-Mannose trimming (mannosidase),Processing in the Golgi,N-glycan processing (Golgi)
-Methionine degradation,AMINO ACIDS METABOLISM,METHIONINE METABOLISM
-N-Acetylglucosamine synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
-N-glycan processing (ER),Processing in the ER,Protein folding
-N-linked glycosylation,Processing in the ER,PTMs
-NAD synthesis from nicotinamide,VITAMIN & COFACTOR METABOLISM,COENZYME NAD BIOSYNTHESIS
-O-linked glycosylation,Processing in the Golgi,O-glycan processing (Golgi)
-Ornithine degradation,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
-Oxidative phosphorylation via NADH-coenzyme Q oxidoreductase (COMPLEX I),ENERGY METABOLISM,OXYDATIVE PHOSPHORYLATION
-Oxidative phosphorylation via succinate-coenzyme Q oxidoreductase (COMPLEX II),ENERGY METABOLISM,OXYDATIVE PHOSPHORYLATION
-Palmitate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Palmitate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Palmitolate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Palmitolate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Phenylalanine degradation,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
-Phenylalanine to phenylacetaldehyde,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
-Phenylalanine to phenylacetyl-L-glutaminate,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
-Phenylalanine to tyrosine,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
-Phosphatidyl-choline synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Phosphatidyl-ethanolamine synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Phosphatidyl-inositol synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Phosphatidyl-inositol to glucosaminyl-acylphosphatidylinositol,GLYCAN METABOLISM,GPI ANCHOR BIOSYNTHESIS
-Phosphatidyl-serine synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
-Post translational translocation,Translocation,Translocation
-Presence of the thioredoxin system through the thioredoxin reductase activity,ENERGY METABOLISM,REDOX METABOLISM
-Proline degradation,AMINO ACIDS METABOLISM,PROLINE METABOLISM
-Proteasome degradation,Proteostasis,ERAD
-Pyridoxal-phosphate synthesis,VITAMIN & COFACTOR METABOLISM,VITAMIN B6 METABOLISM
-Reactive oxygen species detoxification (H2O2 to H2O),ENERGY METABOLISM,OXIDATIVE PHOSPHORYLATION & ROS DETOXIFICATION
-Recognition of misfolded protein,Proteostasis,ERAD
-Retro-translocation & substrate ubiquitination,Proteostasis,ERAD
-S-adenosyl-L-methionine synthesis,AMINO ACIDS METABOLISM,METHIONINE METABOLISM
-Serine degradation,AMINO ACIDS METABOLISM,SERINE METABOLISM
-Serine synthesis,AMINO ACIDS METABOLISM,SERINE METABOLISM
-Sialylation (addition of sialic acid),Processing in the Golgi,N-glycan processing (Golgi)
-Sphingomyelin synthesis,LIPIDS METABOLISM,SPHINGOLIPID METABOLISM
-Starch degradation,CARBOHYDRATES METABOLISM,STARCH DEGRADATION
-Synthesis of L-kynurenine from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of N-formylanthranilate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of acetone,CARBOHYDRATES METABOLISM,KETOGENESIS
-Synthesis of alanine from glutamine,AMINO ACIDS METABOLISM,ALANINE METABOLISM
-Synthesis of anthranilate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of arginine from glutamine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
-Synthesis of aspartate from glutamine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
-Synthesis of bilirubin,VITAMIN & COFACTOR METABOLISM,HEME METABOLISM
-Synthesis of coenzyme A,VITAMIN & COFACTOR METABOLISM,COENZYME A BIOSYNTHESIS
-Synthesis of creatine from arginine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
-Synthesis of fructose-6-phosphate from erythrose-4-phosphate (HMP shunt),CARBOHYDRATES METABOLISM,PENTOSE PHOSPHATE PATHWAY
-Synthesis of galactosyl glucosyl ceramide (link with ganglioside metabolism),LIPIDS METABOLISM,GANGLIOSIDE METABOLISM
-Synthesis of globoside (link with globoside metabolism),LIPIDS METABOLISM,GLOBOSIDE METABOLISM
-Synthesis of glucocerebroside,LIPIDS METABOLISM,GANGLIOSIDE METABOLISM
-Synthesis of inositol,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
-Synthesis of kynate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of lactose,CARBOHYDRATES METABOLISM,GALACTOSE METABOLISM
-Synthesis of malonyl-coa,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Synthesis of methylglyoxal,CARBOHYDRATES METABOLISM,METHYLGLYOXAL METABOLISM
-Synthesis of nitric oxide from arginine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
-Synthesis of ornithine from glutamine,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
-Synthesis of palmitoyl-CoA,LIPIDS METABOLISM,FATTY ACID METABOLISM
-Synthesis of phosphatidylinositol from inositol,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
-Synthesis of proline from glutamine,AMINO ACIDS METABOLISM,PROLINE METABOLISM
-Synthesis of quinolinate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of ribose-5-phosphate,CARBOHYDRATES METABOLISM,PENTOSE PHOSPHATE PATHWAY
-Synthesis of serotonin from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Synthesis of spermidine from ornithine,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
-Synthesis of taurine from cysteine,AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
-Synthesis of thromboxane from arachidonate,LIPIDS METABOLISM,EICOSANOID METABOLISM
-Synthesis of ubiquinone from tyrosine,VITAMIN & COFACTOR METABOLISM,UBIQUINONE 10 BIOSYNTHESIS
-Taurochenodeoxycholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
-Tetrahydrofolate synthesis,VITAMIN & COFACTOR METABOLISM,FOLATE METABOLISM
-Threonine degradation,AMINO ACIDS METABOLISM,THREONINE METABOLISM
-Trafficking to endosomes (Clathrin Vesicles),Vesicle trafficking,Endosomal trafficking
-Triacylglycerol synthesis,LIPIDS METABOLISM,TRIACYLGLYCEROL METABOLISM
-Tryptophan degradation,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
-Tyrosine degradation,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
-Tyrosine synthesis (need phenylalanine),AMINO ACIDS METABOLISM,TYROSINE METABOLISM
-Tyrosine to acetoacetate and fumarate,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
-Tyrosine to adrenaline,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
-Tyrosine to dopamine,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
-UDP-N-acetyl D-galactosamine synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
-UDP-galactose synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
-UDP-glucose synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
-UDP-glucuronate synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
-Uridine triphosphate synthesis (UTP),NUCLEOTIDE METABOLISM,UMP SYNTHESIS
-Valine degradation,AMINO ACIDS METABOLISM,VALINE METABOLISM
-Valine to succinyl-coA,AMINO ACIDS METABOLISM,VALINE METABOLISM
-Vesicle secretion,Vesicle trafficking,Vesicle secretion
-beta-Alanine degradation,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
-cis-vaccenic acid degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-cis-vaccenic acid synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-gamma-Linolenate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
-gamma-Linolenate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
-glyco-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
-tauro-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
+,Task,System,Subsystem
+0,(R)-3-Hydroxybutanoate synthesis,CARBOHYDRATES METABOLISM,KETOGENESIS
+1,3'-Phospho-5'-adenylyl sulfate synthesis,NUCLEOTIDE METABOLISM,COFACTOR
+2,AMP salvage from adenine,NUCLEOTIDE METABOLISM,SALVAGE
+3,ATP generation from glucose (hypoxic conditions) - glycolysis,ENERGY METABOLISM,ATP GENERATION
+4,Acetoacetate synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
+5,Alanine degradation,AMINO ACIDS METABOLISM,ALANINE METABOLISM
+6,Arachidonate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+7,Arachidonate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+8,Arginine degradation,AMINO ACIDS METABOLISM,ARGININE METABOLISM
+9,Aspartate degradation,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
+10,Beta-alanine to 3-oxopropanoate,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
+11,Biosynthesis of g3m8masn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
+12,Biosynthesis of m4mpdol_U,GLYCAN METABOLISM,N-GLYCAN METABOLISM
+13,Branching (N-acetylglucosaminyltransferases),Processing in the Golgi,N-glycan processing (Golgi)
+14,CMP-N-acetylneuraminate synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
+15,Calnexin/calreticulin cycle,Processing in the ER,Protein folding
+16,Cardiolipin synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+17,Ceramide synthesis,LIPIDS METABOLISM,SPHINGOLIPID METABOLISM
+18,Cholesterol synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
+19,Co-translational translocation,Translocation,Translocation
+20,"Conversion of 1-phosphatidyl-1D-myo-inositol 4,5-bisphosphate to 1D-myo-inositol 1,4,5-trisphosphate",CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
+21,Conversion of GABA into succinate,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
+22,Conversion of asparate to asparagine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
+23,Conversion of aspartate to arginine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
+24,Conversion of aspartate to beta-alanine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
+25,Conversion of carnosine to beta-alanine,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
+26,Conversion of glutamate to glutamine,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
+27,Conversion of glutamate to proline,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
+28,Conversion of glycine to pyruvate,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
+29,Conversion of histidine to glutamate,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
+30,Conversion of histidine to histamine,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
+31,Conversion of leucine to acetyl-coA,AMINO ACIDS METABOLISM,LEUCINE METABOLISM
+32,Conversion of lysine to L-2-Aminoadipate,AMINO ACIDS METABOLISM,LYSINE METABOLISM
+33,Conversion of lysine to L-Saccharopine,AMINO ACIDS METABOLISM,LYSINE METABOLISM
+34,Cysteine degradation,AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
+35,Cysteine synthesis (need serine and methionine),AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
+36,Cytidine triphosphate synthesis (CTP),NUCLEOTIDE METABOLISM,UMP SYNTHESIS
+37,Degradation of adenine to urate,NUCLEOTIDE METABOLISM,PURINE CATABOLISM
+38,Degradation of cytosine,NUCLEOTIDE METABOLISM,PYRIMIDINE CATABOLISM
+39,Degradation of guanine to urate,NUCLEOTIDE METABOLISM,PURINE CATABOLISM
+40,Degradation of n2m2nmasn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
+41,Degradation of s2l2fn2m2masn,GLYCAN METABOLISM,N-GLYCAN METABOLISM
+42,Degradation of uracil,NUCLEOTIDE METABOLISM,PYRIMIDINE CATABOLISM
+43,Deoxyadenosine triphosphate synthesis (dATP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
+44,Deoxycytidine triphosphate synthesis (dCTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
+45,Deoxyguanosine triphosphate synthesis (dGTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
+46,Deoxythymidine triphosphate synthesis (dTTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
+47,Deoxyuridine triphosphate synthesis (dUTP),NUCLEOTIDE METABOLISM,DEOXYNUCLEOTIDES SYNTHESIS
+48,Disulfide bond formation,Processing in the ER,PTMs
+49,Elaidate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+50,Elaidate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+51,Ethanol to acetaldehyde,CARBOHYDRATES METABOLISM,GLYCOLYSIS/GLUCONEOGENESIS
+52,Fructose degradation (to glucose-3-phosphate),CARBOHYDRATES METABOLISM,FRUCTOSE METABOLISM
+53,Fructose to glucose conversion (via fructose-6-phosphate),CARBOHYDRATES METABOLISM,FRUCTOSE METABOLISM
+54,Fucosylation (addition of fucose),Processing in the Golgi,N-glycan processing (Golgi)
+55,GDP-L-fucose synthesis,CARBOHYDRATES METABOLISM,FUCOSE METABOLISM
+56,GDP-mannose synthesis,CARBOHYDRATES METABOLISM,MANNOSE METABOLISM
+57,GMP salvage from guanine,NUCLEOTIDE METABOLISM,SALVAGE
+58,GPI-anchor,Processing in the ER,PTMs
+59,Galactosylation (addition of galactose),Processing in the Golgi,N-glycan processing (Golgi)
+60,Gluconeogenesis from Alanine,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
+61,Gluconeogenesis from Glutamine,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
+62,Gluconeogenesis from Glycerol,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
+63,Gluconeogenesis from Lactate,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
+64,Gluconeogenesis from pyruvate,CARBOHYDRATES METABOLISM,GLUCONEOGENESIS
+66,Glucuronate synthesis (via inositol),CARBOHYDRATES METABOLISM,PENTOSE AND GLUCURONATE INTERCONVERSION
+67,Glucuronate synthesis (via udp-glucose),CARBOHYDRATES METABOLISM,PENTOSE AND GLUCURONATE INTERCONVERSION
+68,Glutamate degradation,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
+69,Glutamine degradation,AMINO ACIDS METABOLISM,GLUTAMINE METABOLISM
+70,Glutaminolysis (glutamine to lactate),AMINO ACIDS METABOLISM,GLUTAMINE METABOLISM
+71,Glutathionate synthesis,AMINO ACIDS METABOLISM,GLUTATHIONE METABOLISM
+72,Glycerol-3-phosphate synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+73,Glycine degradation,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
+74,Glycine synthesis,AMINO ACIDS METABOLISM,GLYCINE METABOLISM
+75,Glycochenodeoxycholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
+76,Glycogen biosynthesis,CARBOHYDRATES METABOLISM,GLYCOGEN METABOLISM
+77,Glycogen degradation,CARBOHYDRATES METABOLISM,GLYCOGEN METABOLISM
+78,Guanosine triphosphate synthesis (GTP),NUCLEOTIDE METABOLISM,IMP SYNTHESIS / PURINE METABOLISM
+79,Heme synthesis,VITAMIN & COFACTOR METABOLISM,HEME METABOLISM
+80,Histidine degradation,AMINO ACIDS METABOLISM,HISTIDINE METABOLISM
+81,Homocysteine degradation,AMINO ACIDS METABOLISM,HOMOCYSTEINE METABOLISM
+82,Homocysteine synthesis (need methionine),AMINO ACIDS METABOLISM,HOMOCYSTEINE METABOLISM
+83,Hydroxymethylglutaryl-CoA synthesis,LIPIDS METABOLISM,CHOLESTEROL METABOLISM
+84,IMP salvage from hypoxanthine,NUCLEOTIDE METABOLISM,SALVAGE
+85,Inosine monophosphate synthesis (IMP),NUCLEOTIDE METABOLISM,IMP SYNTHESIS / PURINE METABOLISM
+86,Inositol as input for glucuronate-xylulose pathway,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
+87,Isoleucine degradation,AMINO ACIDS METABOLISM,ISOLEUCINE METABOLISM
+88,Keratan sulfate biosynthesis from N-glycan,GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
+89,Keratan sulfate biosynthesis from O-glycan (core 2-linked),GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
+90,Keratan sulfate biosynthesis from O-glycan (core 4-linked),GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
+91,Keratan sulfate degradation,GLYCAN METABOLISM,KERATAN SULFATE METABOLISM
+92,Krebs cycle - NADH generation,ENERGY METABOLISM,KREBS CYCLE
+93,Krebs cycle - oxidative decarboxylation of pyruvate,ENERGY METABOLISM,KREBS CYCLE
+94,Leucine degradation,AMINO ACIDS METABOLISM,LEUCINE METABOLISM
+95,Link between glyoxylate metabolism and pentose phosphate pathway (Xylulose to glycolate),CARBOHYDRATES METABOLISM,GLYOXYLATE METABOLISM
+96,Linoleate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+97,Linolenate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+98,Lysine degradation,AMINO ACIDS METABOLISM,LYSINE METABOLISM
+99,Malate to pyruvate conversion,CARBOHYDRATES METABOLISM,PYRUVATE METABOLISM
+100,Mannose degradation (to fructose-6-phosphate),CARBOHYDRATES METABOLISM,MANNOSE METABOLISM
+101,Mannose trimming (mannosidase),Processing in the Golgi,N-glycan processing (Golgi)
+102,Methionine degradation,AMINO ACIDS METABOLISM,METHIONINE METABOLISM
+103,N-Acetylglucosamine synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
+104,N-glycan processing (ER),Processing in the ER,Protein folding
+105,N-linked glycosylation,Processing in the ER,PTMs
+106,NAD synthesis from nicotinamide,VITAMIN & COFACTOR METABOLISM,COENZYME NAD BIOSYNTHESIS
+107,O-linked glycosylation,Processing in the Golgi,O-glycan processing (Golgi)
+108,Ornithine degradation,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
+109,Oxidative phosphorylation via NADH-coenzyme Q oxidoreductase (COMPLEX I),ENERGY METABOLISM,OXYDATIVE PHOSPHORYLATION
+110,Oxidative phosphorylation via succinate-coenzyme Q oxidoreductase (COMPLEX II),ENERGY METABOLISM,OXYDATIVE PHOSPHORYLATION
+111,Palmitate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+112,Palmitate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+113,Palmitolate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+114,Palmitolate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+115,Phenylalanine degradation,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
+116,Phenylalanine to phenylacetaldehyde,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
+117,Phenylalanine to phenylacetyl-L-glutaminate,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
+118,Phenylalanine to tyrosine,AMINO ACIDS METABOLISM,PHENYLALANINE METABOLISM
+119,Phosphatidyl-choline synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+120,Phosphatidyl-ethanolamine synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+121,Phosphatidyl-inositol synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+122,Phosphatidyl-inositol to glucosaminyl-acylphosphatidylinositol,GLYCAN METABOLISM,GPI ANCHOR BIOSYNTHESIS
+123,Phosphatidyl-serine synthesis,LIPIDS METABOLISM,GLYCEROPHOSPHOLIPID METABOLISM
+124,Post translational translocation,Translocation,Translocation
+125,Presence of the thioredoxin system through the thioredoxin reductase activity,ENERGY METABOLISM,REDOX METABOLISM
+126,Proline degradation,AMINO ACIDS METABOLISM,PROLINE METABOLISM
+127,Proteasome degradation,Proteostasis,ERAD
+128,Pyridoxal-phosphate synthesis,VITAMIN & COFACTOR METABOLISM,VITAMIN B6 METABOLISM
+129,Reactive oxygen species detoxification (H2O2 to H2O),ENERGY METABOLISM,OXIDATIVE PHOSPHORYLATION & ROS DETOXIFICATION
+130,Recognition of misfolded protein,Proteostasis,ERAD
+131,Retro-translocation & substrate ubiquitination,Proteostasis,ERAD
+132,S-adenosyl-L-methionine synthesis,AMINO ACIDS METABOLISM,METHIONINE METABOLISM
+133,Serine degradation,AMINO ACIDS METABOLISM,SERINE METABOLISM
+134,Serine synthesis,AMINO ACIDS METABOLISM,SERINE METABOLISM
+135,Sialylation (addition of sialic acid),Processing in the Golgi,N-glycan processing (Golgi)
+136,Sphingomyelin synthesis,LIPIDS METABOLISM,SPHINGOLIPID METABOLISM
+137,Starch degradation,CARBOHYDRATES METABOLISM,STARCH DEGRADATION
+196,Synthesis of GABA,AMINO ACIDS METABOLISM,GLUTAMATE METABOLISM
+138,Synthesis of L-kynurenine from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+139,Synthesis of N-formylanthranilate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+140,Synthesis of acetone,CARBOHYDRATES METABOLISM,KETOGENESIS
+141,Synthesis of alanine from glutamine,AMINO ACIDS METABOLISM,ALANINE METABOLISM
+142,Synthesis of anthranilate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+143,Synthesis of arginine from glutamine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
+144,Synthesis of aspartate from glutamine,AMINO ACIDS METABOLISM,ASPARTATE METABOLISM
+145,Synthesis of bilirubin,VITAMIN & COFACTOR METABOLISM,HEME METABOLISM
+146,Synthesis of coenzyme A,VITAMIN & COFACTOR METABOLISM,COENZYME A BIOSYNTHESIS
+147,Synthesis of creatine from arginine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
+148,Synthesis of fructose-6-phosphate from erythrose-4-phosphate (HMP shunt),CARBOHYDRATES METABOLISM,PENTOSE PHOSPHATE PATHWAY
+149,Synthesis of galactosyl glucosyl ceramide (link with ganglioside metabolism),LIPIDS METABOLISM,GANGLIOSIDE METABOLISM
+150,Synthesis of globoside (link with globoside metabolism),LIPIDS METABOLISM,GLOBOSIDE METABOLISM
+151,Synthesis of glucocerebroside,LIPIDS METABOLISM,GANGLIOSIDE METABOLISM
+152,Synthesis of inositol,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
+153,Synthesis of kynate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+154,Synthesis of lactose,CARBOHYDRATES METABOLISM,GALACTOSE METABOLISM
+155,Synthesis of malonyl-coa,LIPIDS METABOLISM,FATTY ACID METABOLISM
+156,Synthesis of methylglyoxal,CARBOHYDRATES METABOLISM,METHYLGLYOXAL METABOLISM
+157,Synthesis of nitric oxide from arginine,AMINO ACIDS METABOLISM,ARGININE METABOLISM
+158,Synthesis of ornithine from glutamine,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
+159,Synthesis of palmitoyl-CoA,LIPIDS METABOLISM,FATTY ACID METABOLISM
+160,Synthesis of phosphatidylinositol from inositol,CARBOHYDRATES METABOLISM,PHOSPHATE INOSITOL METABOLISM
+161,Synthesis of proline from glutamine,AMINO ACIDS METABOLISM,PROLINE METABOLISM
+162,Synthesis of quinolinate from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+163,Synthesis of ribose-5-phosphate,CARBOHYDRATES METABOLISM,PENTOSE PHOSPHATE PATHWAY
+164,Synthesis of serotonin from tryptophan,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+165,Synthesis of spermidine from ornithine,AMINO ACIDS METABOLISM,ORNITHINE METABOLISM
+166,Synthesis of taurine from cysteine,AMINO ACIDS METABOLISM,CYSTEINE METABOLISM
+167,Synthesis of thromboxane from arachidonate,LIPIDS METABOLISM,EICOSANOID METABOLISM
+168,Synthesis of ubiquinone from tyrosine,VITAMIN & COFACTOR METABOLISM,UBIQUINONE 10 BIOSYNTHESIS
+169,Taurochenodeoxycholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
+170,Tetrahydrofolate synthesis,VITAMIN & COFACTOR METABOLISM,FOLATE METABOLISM
+171,Threonine degradation,AMINO ACIDS METABOLISM,THREONINE METABOLISM
+172,Trafficking to endosomes (Clathrin Vesicles),Vesicle trafficking,Endosomal trafficking
+173,Triacylglycerol synthesis,LIPIDS METABOLISM,TRIACYLGLYCEROL METABOLISM
+174,Tryptophan degradation,AMINO ACIDS METABOLISM,TRYPTOPHAN METABOLISM
+175,Tyrosine degradation,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+176,Tyrosine synthesis (need phenylalanine),AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+177,Tyrosine to acetoacetate and fumarate,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+178,Tyrosine to adrenaline,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+179,Tyrosine to dopamine,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+195,Tyrosine to melanin,AMINO ACIDS METABOLISM,TYROSINE METABOLISM
+180,UDP-N-acetyl D-galactosamine synthesis,CARBOHYDRATES METABOLISM,AMINO SUGARS METABOLISM
+181,UDP-galactose synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
+182,UDP-glucose synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
+183,UDP-glucuronate synthesis,CARBOHYDRATES METABOLISM,NUCLEOTIDE SUGAR
+184,Uridine triphosphate synthesis (UTP),NUCLEOTIDE METABOLISM,UMP SYNTHESIS
+185,Valine degradation,AMINO ACIDS METABOLISM,VALINE METABOLISM
+186,Valine to succinyl-coA,AMINO ACIDS METABOLISM,VALINE METABOLISM
+187,Vesicle secretion,Vesicle trafficking,Vesicle secretion
+188,beta-Alanine degradation,AMINO ACIDS METABOLISM,BETA-ALANINE METABOLISM
+189,cis-vaccenic acid degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+190,cis-vaccenic acid synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+191,gamma-Linolenate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
+192,gamma-Linolenate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
+193,glyco-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
+194,tauro-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
