@@ -1,5 +1,7 @@
 import cobra
-import re
+import pandas as pd
+
+from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
 
 def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, correction_organism='human',
@@ -63,7 +65,7 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     if not 0 <= reaction_fraction_threshold <= 1:
         raise ValueError("reaction_fraction_threshold must be between 0 and 1")
 
-    adata_var = adata.var.copy()
+    adata_var = pd.DataFrame(index=adata.var.index)
 
     correction_col = 'corrected'
     if correction_organism in CORRECT_GENES.keys():
@@ -74,7 +76,6 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
             print('Gene names corrected to match database: {}'.format(len(correction_dict)))
     else:
         adata_var[correction_col] = list(adata_var.index)
-
 
 
     # Initialize GPRs
@@ -164,19 +165,6 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
               f'Shape of tasks by reactions: {task_by_rxn.shape}')
 
     return adata2, gpr_rules, task_by_gene, rxn_by_gene, task_by_rxn
-
-
-def clean_gene_names(gpr_rule):
-    # Regular expression pattern to match spaces between numbers and parentheses
-    pattern = r'(\()\s*(\d+)\s*(\))'
-    # Replace the matched pattern with parentheses directly around the numbers
-    cleaned_rule = re.sub(pattern, r'(\2)', gpr_rule)
-    return cleaned_rule
-
-
-def find_genes_gpr(gpr_rule):
-    elements = re.findall(r'\b[^\s(),]+\b', gpr_rule)
-    return [e for e in elements if e.lower() not in ('and', 'or')]
 
 
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
