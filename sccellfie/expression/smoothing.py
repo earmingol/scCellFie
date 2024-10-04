@@ -77,7 +77,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         The mode for calculating the smoothing matrix. Can be either 'adjacency' or 'connectivity'.
 
     alpha : float, optional (default: 0.33)
-        The weight of the smoothed expression matrix in the final smoothed expression.
+        The weight or fraction of the smoothed expression to use in the final expression matrix.
+        The final expression matrix is computed as (1 - alpha) * X + alpha * (S @ X), where X is the
+        original expression matrix and S is the smoothed matrix.
 
     n_chunks : int, optional (default: None)
         The number of chunks to split the cells into for processing. If not provided, chunk_size is used.
