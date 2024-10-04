@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 
-from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, clean_gene_names, find_genes_gpr
+from sccellfie.preprocessing.gpr_rules import clean_gene_names, find_genes_gpr
+from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
 
 
@@ -161,3 +163,31 @@ def test_find_genes_gpr():
     for input_rule, expected_output in test_cases:
         result = find_genes_gpr(input_rule)
         assert result == expected_output, f"For input '{input_rule}', expected {expected_output}, but got {result}"
+
+
+def test_stratified_subsample_adata():
+    # Create a random AnnData object
+    n_obs = 1000
+    n_vars = 50
+    n_clusters = 5
+    adata = create_random_adata(n_obs=n_obs, n_vars=n_vars, n_clusters=n_clusters)
+
+    # Perform stratified subsampling
+    target_fraction = 0.2
+    subsampled_adata = stratified_subsample_adata(adata, group_column='cluster', target_fraction=target_fraction)
+
+    # Check if the subsampled data has approximately the correct size
+    expected_size = int(n_obs * target_fraction)
+    assert abs(len(subsampled_adata) - expected_size) <= n_clusters  # Allow for small rounding differences
+
+    # Check if all clusters are represented in the subsampled data
+    original_clusters = set(adata.obs['cluster'])
+    subsampled_clusters = set(subsampled_adata.obs['cluster'])
+    assert original_clusters == subsampled_clusters
+
+    # Check if the proportion of each cluster is roughly maintained
+    original_proportions = adata.obs['cluster'].value_counts(normalize=True)
+    subsampled_proportions = subsampled_adata.obs['cluster'].value_counts(normalize=True)
+
+    for cluster in original_clusters:
+        assert np.isclose(original_proportions[cluster], subsampled_proportions[cluster], atol=0.05)
