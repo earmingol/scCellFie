@@ -3,7 +3,8 @@ import numpy as np
 
 
 def clean_gene_names(gpr_rule):
-    '''Remove spaces between parentheses and gene IDs in a GPR rule.
+    """
+    Remove spaces between parentheses and gene IDs in a GPR rule.
 
     Parameters
     ----------
@@ -14,14 +15,15 @@ def clean_gene_names(gpr_rule):
     -------
     cleaned_gpr : str
         Cleaned GPR rule, without spaces between parentheses and gene IDs.
-    '''
+    """
     # Remove spaces between parentheses and gene IDs
     cleaned_gpr = re.sub(r'\(\s*(\w+)\s*\)', r'(\1)', gpr_rule)
     return cleaned_gpr
 
 
 def find_genes_gpr(gpr_rule):
-    '''Find all gene IDs in a GPR rule.
+    """
+    Find all gene IDs in a GPR rule.
 
     Parameters
     ----------
@@ -32,14 +34,15 @@ def find_genes_gpr(gpr_rule):
     -------
     genes : list of str
         List of gene IDs found in the GPR rule.
-    '''
+    """
     elements = re.findall(r'\b[^\s(),]+\b', gpr_rule)
     genes = [e for e in elements if e.lower() not in ('and', 'or')]
     return genes
 
 
 def replace_gene_ids_in_gpr(gpr_rule, gene_id_mapping):
-    '''Replace gene IDs in a GPR rule with new IDs (different nomenclature).
+    """
+    Replace gene IDs in a GPR rule with new IDs (different nomenclature).
 
     Parameters
     ----------
@@ -53,7 +56,7 @@ def replace_gene_ids_in_gpr(gpr_rule, gene_id_mapping):
     -------
     updated_gpr_rule : str
         GPR rule with gene IDs replaced by new IDs.
-    '''
+    """
     updated_gpr_rule = gpr_rule
     for gene_id, new_id in gene_id_mapping.items():
         # Replace gene_id when it's surrounded by parentheses, removing the parentheses
@@ -64,7 +67,8 @@ def replace_gene_ids_in_gpr(gpr_rule, gene_id_mapping):
 
 
 def convert_gpr_nomenclature(gpr_rules, id_mapping):
-    '''Convert gene IDs in multiple GPR rules to a different nomenclature.
+    """
+    Convert gene IDs in multiple GPR rules to a different nomenclature.
 
     Parameters
     ----------
@@ -78,7 +82,7 @@ def convert_gpr_nomenclature(gpr_rules, id_mapping):
     -------
     converted_rules : list of str
         List of GPR rules with gene IDs replaced by new IDs.
-    '''
+    """
     converted_rules = []
     for gpr in gpr_rules:
         if isinstance(gpr, str):
