@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
-    '''
+    """
     Calculate the smoothing matrix S based on the nearest neighbor graph in adata.obsp.
 
     Parameters
@@ -32,7 +32,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
     ------
     ValueError
         If an unknown mode is provided.
-    '''
+    """
     if mode == 'adjacency':
         distances_key = adata.uns[neighbors_key]['distances_key']
         A = (adata.obsp[distances_key] > 0).astype(int)
@@ -57,7 +57,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
 
 def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbors', mode='connectivity', alpha=0.33,
                           n_chunks=None, chunk_size=None, use_raw=False, disable_pbar=False):
-    '''
+    """
     Smooth expression values based on KNNs of single cells using Scanpy.
 
     Parameters
@@ -107,7 +107,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
     can be specified using the n_chunks or chunk_size parameters, respectively.
 
     The smoothed expression matrix is stored in adata.layers[key_added].
-    '''
+    """
     # Get the connectivities matrix
     connectivities = adata.obsp[adata.uns[neighbors_key]['connectivities_key']]
 
