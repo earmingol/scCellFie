@@ -1,4 +1,5 @@
 import cobra
+import numpy as np
 import pandas as pd
 
 from sccellfie.preprocessing.gpr_rules import find_genes_gpr
@@ -7,7 +8,7 @@ from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, correction_organism='human',
                       gene_fraction_threshold=0.0, reaction_fraction_threshold=0.0, verbose=True):
     """
-    Preprocess inputs for metabolic analysis.
+    Preprocesses inputs for metabolic analysis.
 
     Parameters:
     -----------
@@ -165,6 +166,58 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
               f'Shape of tasks by reactions: {task_by_rxn.shape}')
 
     return adata2, gpr_rules, task_by_gene, rxn_by_gene, task_by_rxn
+
+
+def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random_state=0):
+    """
+    Stratified subsampling of an AnnData object.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix.
+
+    group_column : str
+        Column name in adata.obs containing the group information.
+
+    target_fraction : float, optional (default=0.20)
+        Fraction of cells to sample from each group.
+
+    random_state : int, optional (default=0)
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    adata_subsampled : AnnData
+        Subsampled AnnData object
+    """
+    np.random.seed(random_state)
+
+    # Get the group categories
+    categories = adata.obs[group_column].cat.categories
+
+    # Initialize an empty list to store subsampled indices
+    subsampled_indices = []
+
+    # Perform stratified subsampling
+    for category in categories:
+        # Get indices for the current category
+        category_indices = adata.obs[adata.obs[group_column] == category].index
+
+        # Calculate the number of cells to sample from this category
+        n_sample = int(len(category_indices) * target_fraction)
+
+        # Randomly sample indices
+        sampled_indices = np.random.choice(category_indices, size=n_sample, replace=False)
+
+        # Add sampled indices to the list
+        subsampled_indices.extend(sampled_indices)
+
+    # Convert the list of indices to a pandas Index
+    subsampled_indices = pd.Index(subsampled_indices)
+
+    # Return the subsampled AnnData object
+    return adata[subsampled_indices]
 
 
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
