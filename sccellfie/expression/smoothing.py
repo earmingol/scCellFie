@@ -158,6 +158,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         chunk_smoothed = smoothing_mat @ chunk_expression
         if sp.issparse(X):
             chunk_smoothed = chunk_smoothed.toarray()
+            X_ = X.toarray()
+        else:
+            X_ = X
 
         # Extract the smoothed expression for the cells in the current chunk
         chunk_indices = np.arange(start_idx, end_idx)
@@ -165,7 +168,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         smoothed_chunk_indices = [subset_mapping[i] for i in chunk_indices]
 
         # Smooth by alpha
-        smoothed_matrix[chunk_indices, :] = (1. - alpha) * adata.X[chunk_indices, :].toarray() + alpha * chunk_smoothed[smoothed_chunk_indices, :]
+        smoothed_matrix[chunk_indices, :] = (1. - alpha) * X_[chunk_indices, :] + alpha * chunk_smoothed[smoothed_chunk_indices, :]
 
     # Store the smoothed expression matrix in adata.layers
     if sp.issparse(adata.X):
