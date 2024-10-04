@@ -217,7 +217,8 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     subsampled_indices = pd.Index(subsampled_indices)
 
     # Return the subsampled AnnData object
-    return adata[subsampled_indices]
+    adata_subsampled = adata[subsampled_indices]
+    return adata_subsampled
 
 
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
