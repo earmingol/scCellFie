@@ -73,15 +73,15 @@ def test_compare_adata_features(tmp_path):
                                         condition_key='group',
                                         celltype='A',
                                         cell_type_key='cell_type',  # We're using 'group' as both condition and cell type for this test
-                                        x_label='Genes',
-                                        y_label='Expression',
+                                        xlabel='Genes',
+                                        ylabel='Expression',
                                         title='Test Plot',
                                         figsize=(10, 5),
                                         fontsize=8,
                                         palette=['red', 'blue'],
                                         filename=str(tmp_path / "test_plot.png"),
                                         dpi=100
-                                       )
+                                        )
 
     # Check that the function returns the expected objects
     assert isinstance(fig, Figure)

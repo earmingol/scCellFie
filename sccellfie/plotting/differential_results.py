@@ -104,7 +104,7 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 
 
 def create_comparative_violin(adata, significant_features, group1, group2, condition_key,
-                              celltype, cell_type_key, x_label='Feature', y_label='Metabolic Activity',
+                              celltype, cell_type_key, xlabel='Feature', ylabel='Metabolic Activity',
                               title=None, figsize=(16, 7), fontsize=10,
                               palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
     """
@@ -134,10 +134,10 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     cell_type_key : str
         The column name in adata.obs containing the cell type information.
 
-    x_label : str, optional (default: 'Feature')
+    xlabel : str, optional (default: 'Feature')
         The label for the x-axis.
 
-    y_label : str, optional (default: 'Metabolic Activity')
+    ylabel : str, optional (default: 'Metabolic Activity')
         The label for the y-axis.
 
     title : str, optional (default: None)
@@ -180,7 +180,7 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
         series2 = adata[cells_group2].to_df()[feature]
         df = pd.concat([series1, series2], axis=0)
         df = df.reset_index(level=0)
-        df = df.rename(columns={feature: y_label})
+        df = df.rename(columns={feature: ylabel})
         df['Feature'] = feature
         df['Group'] = pd.Series([group1] * len(series1) + [group2] * len(series2))
         feature_dfs.append(df)
@@ -189,12 +189,12 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
 
     # Create the violin plot
     fig, ax = plt.subplots(figsize=figsize)
-    sns.violinplot(data=feature_df, x='Feature', y=y_label, hue='Group',
+    sns.violinplot(data=feature_df, x='Feature', y=ylabel, hue='Group',
                    split=True, inner="quart", linewidth=0.5, density_norm="width",
                    palette=palette, order=feature_names, ax=ax)
 
-    ax.set_xlabel(x_label, fontsize=fontsize)
-    ax.set_ylabel(y_label, fontsize=fontsize)
+    ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_ylabel(ylabel, fontsize=fontsize)
     ax.set_xticklabels(labels=ax.get_xticklabels(), rotation=90, rotation_mode='anchor', ha='right', va='center',
                        fontsize=fontsize - 4)
     ax.tick_params(axis='both', which='major', labelsize=fontsize - 4)
