@@ -1,6 +1,10 @@
 import cobra
+import warnings
 import numpy as np
 import pandas as pd
+import scanpy as sc
+
+from scipy import sparse
 
 from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
@@ -219,6 +223,65 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     # Return the subsampled AnnData object
     adata_subsampled = adata[subsampled_indices]
     return adata_subsampled
+
+
+def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=False):
+    """
+    Preprocesses an AnnData object by normalizing the data to a target sum.
+    Original adata object is updated in place.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix containing the expression data.
+
+    target_sum : int, optional (default=10_000)
+        The target sum to which the data will be normalized.
+
+    n_counts_key : str, optional (default='n_counts')
+        The key in adata.obs containing the total counts for each cell.
+
+    copy : bool, optional (default=False)
+        If True, returns a copy of adata with the normalized data.
+    """
+    if copy:
+        adata = adata.copy()
+
+    # Check if total counts are already calculated
+    if n_counts_key not in adata.obs.columns:
+        warnings.warn(f"{n_counts_key} not found in adata.obs. Calculating total counts.", UserWarning)
+        sc.pp.calculate_qc_metrics(adata, layer=None, inplace=True)
+        n_counts_key = 'total_counts'  # scanpy uses 'total_counts' as the key
+
+    # Input data
+    X_view = adata.X
+
+    warnings.warn("Normalizing data.", UserWarning)
+
+    # Check if matrix is sparse
+    is_sparse = sparse.issparse(X_view)
+
+    # Convert to dense if sparse
+    if is_sparse:
+        X_view = X_view.toarray()
+
+    # Normalize
+    n_counts = adata.obs[n_counts_key].values[:, None]
+    X_norm = X_view / n_counts * target_sum
+
+    # Convert back to sparse if original was sparse
+    if is_sparse:
+        X_norm = sparse.csr_matrix(X_norm)
+
+    # Update adata
+    adata.X = X_norm
+    adata.uns['normalization'] = {
+        'method': 'total_count',
+        'target_sum': target_sum,
+        'n_counts_key': n_counts_key
+    }
+    if copy:
+        return adata
 
 
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',

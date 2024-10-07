@@ -1,8 +1,11 @@
+import scanpy as sc
 import numpy as np
 import pandas as pd
 
+from scipy import sparse
+
 from sccellfie.preprocessing.gpr_rules import clean_gene_names, find_genes_gpr
-from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata
+from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata, normalize_adata
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
 
 
@@ -191,3 +194,45 @@ def test_stratified_subsample_adata():
 
     for cluster in original_clusters:
         assert np.isclose(original_proportions[cluster], subsampled_proportions[cluster], atol=0.05)
+
+
+def test_normalize_adata():
+    # Create controlled test data
+    adata = create_controlled_adata()
+
+    # Add total counts to the adata object
+    adata.obs['n_counts'] = np.array([3, 9, 21, 21])
+
+    # Run the preprocessing function
+    adata_processed = normalize_adata(adata, target_sum=1000, n_counts_key='n_counts', copy=True)
+
+    # Check that the data are still sparse
+    assert sparse.issparse(adata_processed.X)
+
+    # Check that the normalization was performed correctly
+    expected_normalized_X = np.array([
+        [333.33, 666.67, 0],
+        [333.33, 444.44, 222.22],
+        [238.10, 285.71, 476.19],
+        [333.33, 380.95, 285.71]
+    ])
+
+    np.testing.assert_array_almost_equal(adata_processed.X.toarray(), expected_normalized_X, decimal=2)
+
+    # Check that the normalization info was added to uns
+    assert 'normalization' in adata_processed.uns
+    assert adata_processed.uns['normalization']['method'] == 'total_count'
+    assert adata_processed.uns['normalization']['target_sum'] == 1000
+    assert adata_processed.uns['normalization']['n_counts_key'] == 'n_counts'
+
+    # Check that the original data is preserved in .raw
+    assert adata_processed.raw is not None
+    if sparse.issparse(adata.X):
+        X = adata.X.toarray()
+    else:
+        X = adata.X
+    if sparse.issparse(adata_processed.raw.X):
+        raw_X = adata_processed.raw.X.toarray()
+    else:
+        raw_X = adata_processed.raw.X
+    np.testing.assert_array_equal(raw_X, X)
