@@ -196,9 +196,9 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     ax.set_xlabel(x_label, fontsize=fontsize)
     ax.set_ylabel(y_label, fontsize=fontsize)
     ax.set_xticklabels(labels=ax.get_xticklabels(), rotation=90, rotation_mode='anchor', ha='right', va='center',
-                       fontsize=fontsize)
-    ax.tick_params(axis='both', which='major', labelsize=fontsize)
-    plt.legend(frameon=False, fontsize=fontsize)
+                       fontsize=fontsize - 4)
+    ax.tick_params(axis='both', which='major', labelsize=fontsize - 4)
+    plt.legend(frameon=False, fontsize=fontsize - 2)
 
     if title is None:
         title = f"Feature Comparison: {group1} vs {group2} ({celltype})"
