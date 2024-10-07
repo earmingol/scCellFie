@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 
 from scipy import sparse
 
-from sccellfie.stats.differential_analysis import cohens_d, scanpy_differential_analysis, create_volcano_plot
-from sccellfie.tests.toy_inputs import create_controlled_adata, create_random_adata
+from sccellfie.plotting.differential_results import create_volcano_plot
+from sccellfie.stats.differential_analysis import cohens_d, scanpy_differential_analysis
+from sccellfie.tests.toy_inputs import create_random_adata
 
 
 def test_cohens_d():
@@ -63,55 +64,6 @@ def test_scanpy_differential_analysis():
     # Test error handling
     with pytest.raises(KeyError):
         scanpy_differential_analysis(adata, 'TypeX', 'non_existent_key', 'group')
-
-
-def test_create_volcano_plot():
-    # Create a sample DataFrame similar to the output of scanpy_differential_analysis
-    de_results = pd.DataFrame({
-        'cell_type': ['TypeA'] * 5 + ['TypeB'] * 5,
-        'feature': ['gene1', 'gene2', 'gene3', 'gene4', 'gene5'] * 2,
-        'contrast': ['A vs B'] * 10,
-        'log2FC': [1.5, -0.5, 3.0, -2.0, 0.1] * 2,
-        'test_statistic': [2.5, -1.0, 4.0, -3.5, 0.2] * 2,
-        'p_value': [0.01, 0.1, 0.001, 0.005, 0.5] * 2,
-        'cohens_d': [0.8, -0.3, 1.5, -1.2, 0.05] * 2,
-        'adj_p_value': [0.02, 0.15, 0.003, 0.01, 0.6] * 2
-    }).set_index(['cell_type', 'feature'])
-
-    # Test with default parameters
-    significant_points = create_volcano_plot(de_results)
-    assert len(significant_points) == 6  # genes 1, 3, and 4 should be significant for both cell types
-    assert set(significant_points) == {('TypeA', 'gene1'), ('TypeA', 'gene3'), ('TypeA', 'gene4'),
-                                       ('TypeB', 'gene1'), ('TypeB', 'gene3'), ('TypeB', 'gene4')}
-
-    # Test with custom thresholds
-    significant_points = create_volcano_plot(de_results, effect_threshold=1.0, padj_threshold=0.01)
-    assert len(significant_points) == 2  # only gene 3 should be significant for both cell types
-    assert set(significant_points) == {('TypeA', 'gene3'), ('TypeB', 'gene3')}
-
-    # Test with a specific contrast and cell type
-    de_results['contrast'] = ['A vs B', 'B vs C', 'A vs B', 'B vs C', 'A vs B'] * 2
-    de_results_ct_A = de_results[de_results.index.get_level_values('cell_type') == 'TypeA']
-    significant_points = create_volcano_plot(de_results_ct_A, contrast='B vs C')
-    assert len(significant_points) == 1  # only gene 4 should be significant for this contrast and cell type
-    assert significant_points[0] == ('TypeA', 'gene4')
-
-    # Test with log2FC as effect size
-    significant_points = create_volcano_plot(de_results, effect_col='log2FC', effect_title='log2 Fold Change')
-    assert len(significant_points) == 6  # genes 1, 3, and 4 should be significant for both cell types
-    assert set(significant_points) == {('TypeA', 'gene1'), ('TypeA', 'gene3'), ('TypeA', 'gene4'),
-                                       ('TypeB', 'gene1'), ('TypeB', 'gene3'), ('TypeB', 'gene4')}
-
-    # Test saving the plot
-    import tempfile
-    import os
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        save_path = os.path.join(tmpdirname, 'volcano_plot.png')
-        create_volcano_plot(de_results, save=save_path)
-        assert os.path.exists(save_path)
-
-    # Clean up the plot
-    plt.close()
 
 
 def test_full_differential_analysis_workflow():
