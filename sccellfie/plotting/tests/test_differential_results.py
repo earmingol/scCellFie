@@ -66,37 +66,26 @@ def test_compare_adata_features(tmp_path):
     significant_features = [('A', 'gene1'), ('A', 'gene2')]
 
     # Call the function
-    fig, ax, feature_df = create_comparative_violin(
-        adata=adata,
-        significant_features=significant_features,
-        group1='A',
-        group2='B',
-        condition_key='group',
-        celltype='A',
-        cell_type_key='cell_type',  # We're using 'group' as both condition and cell type for this test
-        x_label='Genes',
-        y_label='Expression',
-        title='Test Plot',
-        figsize=(10, 5),
-        fontsize=8,
-        palette=['red', 'blue'],
-        filename=str(tmp_path / "test_plot.png"),
-        dpi=100
-    )
+    fig, ax = create_comparative_violin(adata=adata,
+                                        significant_features=significant_features,
+                                        group1='A',
+                                        group2='B',
+                                        condition_key='group',
+                                        celltype='A',
+                                        cell_type_key='cell_type',  # We're using 'group' as both condition and cell type for this test
+                                        x_label='Genes',
+                                        y_label='Expression',
+                                        title='Test Plot',
+                                        figsize=(10, 5),
+                                        fontsize=8,
+                                        palette=['red', 'blue'],
+                                        filename=str(tmp_path / "test_plot.png"),
+                                        dpi=100
+                                       )
 
     # Check that the function returns the expected objects
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
-    assert isinstance(feature_df, pd.DataFrame)
-
-    # Check that the DataFrame has the expected structure
-    assert set(feature_df.columns) == {'Expression', 'Feature', 'Group'}
-    assert set(feature_df['Feature'].unique()) == {'gene1', 'gene2'}
-    assert set(feature_df['Group'].unique()) == {'A', 'B'}
-
-    # Check that the DataFrame contains the correct data
-    assert feature_df[feature_df['Group'] == 'A']['Expression'].tolist() == [1, 3, 2, 4]
-    assert feature_df[feature_df['Group'] == 'B']['Expression'].tolist() == [5, 7, 6, 8]
 
     # Check that the plot has the correct labels and title
     assert ax.get_xlabel() == 'Genes'

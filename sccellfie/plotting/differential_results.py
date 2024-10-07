@@ -185,7 +185,7 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
         df['Group'] = pd.Series([group1] * len(series1) + [group2] * len(series2))
         feature_dfs.append(df)
 
-    feature_df = pd.concat(feature_dfs, axis=0).drop(columns='index')
+    feature_df = pd.concat(feature_dfs, axis=0)
 
     # Create the violin plot
     fig, ax = plt.subplots(figsize=figsize)
@@ -209,4 +209,4 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     if filename:
         plt.savefig(filename, dpi=dpi, bbox_inches='tight')
 
-    return fig, ax, feature_df
+    return fig, ax
