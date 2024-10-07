@@ -103,10 +103,10 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
     return significant_points.sort_values(effect_col, ascending=True).index.tolist()
 
 
-def compare_adata_features(adata, significant_features, group1, group2, condition_key,
-                           celltype, cell_type_key, x_label='Feature', y_label='Metabolic Activity',
-                           title=None, figsize=(16, 7), fontsize=10,
-                           palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
+def create_comparative_violin(adata, significant_features, group1, group2, condition_key,
+                              celltype, cell_type_key, x_label='Feature', y_label='Metabolic Activity',
+                              title=None, figsize=(16, 7), fontsize=10,
+                              palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
     """
     Compares features between two groups for a specific cell type in an AnnData object and creates a violin plot.
 

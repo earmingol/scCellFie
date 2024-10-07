@@ -1,1 +1,1 @@
-from .differential_results import create_volcano_plot
+from .differential_results import (create_volcano_plot, create_comparative_violin)

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from sccellfie.plotting.differential_results import create_volcano_plot, compare_adata_features
+from sccellfie.plotting.differential_results import create_volcano_plot, create_comparative_violin
 from sccellfie.tests.toy_inputs import create_controlled_adata
 
 def test_create_volcano_plot():
@@ -66,7 +66,7 @@ def test_compare_adata_features(tmp_path):
     significant_features = [('A', 'gene1'), ('A', 'gene2')]
 
     # Call the function
-    fig, ax, feature_df = compare_adata_features(
+    fig, ax, feature_df = create_comparative_violin(
         adata=adata,
         significant_features=significant_features,
         group1='A',

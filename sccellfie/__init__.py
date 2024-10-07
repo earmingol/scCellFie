@@ -2,6 +2,7 @@ from . import external
 from . import gene_score
 from . import io
 from . import metabolic_task
+from . import plotting as pl
 from . import preprocessing
 from . import reaction_activity
 from . import spatial
