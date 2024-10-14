@@ -195,3 +195,10 @@ gamma-Linolenate degradation,LIPIDS METABOLISM,FATTY ACID METABOLISM
 gamma-Linolenate synthesis,LIPIDS METABOLISM,FATTY ACID METABOLISM
 glyco-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
 tauro-cholate synthesis,LIPIDS METABOLISM,BILE ACID SYNTHESIS
+Conversion of estrone (E1) to estradiol-17beta (E2),HORMONES METABOLISM,ESTROGEN METABOLISM
+Conversion of estrone (E1) to estrone sulfate (E1S),HORMONES METABOLISM,ESTROGEN METABOLISM
+Synthesis of androstenedione from cholesterol,HORMONES METABOLISM,ANDROGEN METABOLISM
+Synthesis of estradiol-17beta (E2) from androstenedione,HORMONES METABOLISM,ESTROGEN METABOLISM
+Synthesis of estrone (E1) from androstenedione,HORMONES METABOLISM,ESTROGEN METABOLISM
+Synthesis of progesterone from cholesterol,HORMONES METABOLISM,PROGESTERONE METABOLISM
+Synthesis of testosterone from androstenedione,HORMONES METABOLISM,ANDROGEN METABOLISM
