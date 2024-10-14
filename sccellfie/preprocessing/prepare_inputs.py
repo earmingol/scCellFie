@@ -56,12 +56,16 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     --------
     adata2 : AnnData
         Filtered annotated data matrix.
+
     gpr_rules : dict
         Dictionary of GPR rules for the filtered reactions.
+
     task_by_gene : pandas.DataFrame
         Filtered DataFrame representing the relationship between tasks and genes.
+
     rxn_by_gene : pandas.DataFrame
         Filtered DataFrame representing the relationship between reactions and genes.
+
     task_by_rxn : pandas.DataFrame
         Filtered DataFrame representing the relationship between tasks and reactions.
     """
@@ -284,6 +288,7 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
         return adata
 
 
+# Gene name in dataset to gene name in scCellFie's DB.
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
                             'ADSSL1': 'ADSS1',
                             'COL4A3BP': 'CERT1',
@@ -305,5 +310,19 @@ CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
                             'MT-ND4L': 'ND4L',
                             'MT-ND5': 'ND5',
                             'MT-ND6': 'ND6',
-                            'ZADH2': 'PTGR3'},
+                            'ZADH2': 'PTGR3',
+                            },
+                 'mouse' : {'Gars1': 'Gars',
+                            'Srpr' : 'Srpra',
+                            'mt-Cytb' : 'Cytb',
+                            'mt-Nd1' : 'Nd1',
+                            'mt-Nd2' : 'Nd2',
+                            'mt-Nd3' : 'Nd3',
+                            'mt-Nd4' : 'Nd4',
+                            'mt-Nd4l' : 'Nd4l',
+                            'mt-Nd5' : 'Nd5',
+                            'mt-Nd6' : 'Nd6',
+                            'Sdr42e2' : 'Gm5737',
+                            'Klk1b26' : 'Egfbp2',
+                            }
                  }
