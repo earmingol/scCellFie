@@ -324,5 +324,6 @@ CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
                             'mt-Nd6' : 'Nd6',
                             'Sdr42e2' : 'Gm5737',
                             'Klk1b26' : 'Egfbp2',
+                            'Il4i1' : 'Il4i1b',
                             }
                  }
