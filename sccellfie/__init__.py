@@ -1,3 +1,4 @@
+from . import datasets
 from . import external
 from . import gene_score
 from . import io

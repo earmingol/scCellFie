@@ -6,6 +6,7 @@ import scanpy as sc
 
 from scipy import sparse
 
+from sccellfie.datasets.gene_info import retrieve_ensembl2symbol_data
 from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
 
@@ -286,6 +287,81 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
     }
     if copy:
         return adata
+
+
+def transform_adata_gene_names(adata, filename=None, organism='human', copy=True, drop_unmapped=False):
+    """
+    Transforms gene names in an AnnData object from Ensembl IDs to gene symbols.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix containing the expression data. All gene names
+        must be in Ensembl ID format.
+
+    filename : str, optional
+        The file path to a custom CSV file containing Ensembl IDs and gene symbols.
+        One column must be 'ensembl_id' and the other 'symbol'.
+
+    organism : str, optional (default: 'human')
+        The organism to retrieve data for. Choose 'human' or 'mouse'.
+
+    copy : bool, optional (default: True)
+        If True, return a copy of the AnnData object. If False, modify the object in place.
+
+    drop_unmapped : bool, optional (default: False)
+        If True, drop genes that could not be mapped to symbols.
+
+    Returns
+    -------
+    AnnData
+        The AnnData object with gene names transformed to gene symbols.
+        If copy=True, this is a new object.
+
+    Raises
+    ------
+    ValueError
+        If not all genes in the AnnData object are in Ensembl ID format.
+    """
+    # Retrieve the Ensembl ID to gene symbol mapping
+    ensembl2symbol = retrieve_ensembl2symbol_data(filename, organism)
+
+    if not ensembl2symbol:
+        raise ValueError("Failed to retrieve Ensembl ID to gene symbol mapping.")
+
+    # Check if all genes are in Ensembl format
+    all_ensembl = all(gene.startswith('ENS') for gene in adata.var_names)
+    if not all_ensembl:
+        raise ValueError("Not all genes are in Ensembl ID format. Please ensure all genes start with 'ENS'.")
+
+    # Create a new AnnData object if copy is True, otherwise use the original
+    adata_mod = adata.copy() if copy else adata
+
+    # Create a mapping Series
+    gene_map = pd.Series(ensembl2symbol)
+
+    # Transform gene names
+    new_var_names = adata_mod.var_names.map(gene_map)
+
+    # Check if any genes were not mapped
+    unmapped = new_var_names.isna()
+    if unmapped.any():
+        unmapped_count = unmapped.sum()
+        print(f"Warning: {unmapped_count} genes could not be mapped to symbols.")
+
+        if drop_unmapped:
+            print(f"Dropping {unmapped_count} unmapped genes.")
+            adata_mod = adata_mod[:, ~unmapped].copy()
+            new_var_names = new_var_names[~unmapped]
+        else:
+            # For unmapped genes, keep the original Ensembl ID
+            new_var_names = pd.Index([new_name if pd.notna(new_name) else old_name
+                                      for new_name, old_name in zip(new_var_names, adata_mod.var_names)])
+
+    # Assign new gene names
+    adata_mod.var_names = new_var_names
+
+    return adata_mod
 
 
 # Gene name in dataset to gene name in scCellFie's DB.

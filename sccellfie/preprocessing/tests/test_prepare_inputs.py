@@ -1,11 +1,12 @@
-import scanpy as sc
+import pytest
 import numpy as np
 import pandas as pd
 
 from scipy import sparse
+from unittest.mock import patch
 
 from sccellfie.preprocessing.gpr_rules import clean_gene_names, find_genes_gpr
-from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata, normalize_adata
+from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata, normalize_adata, transform_adata_gene_names
 from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
 
 
@@ -236,3 +237,78 @@ def test_normalize_adata():
     else:
         raw_X = adata_processed.raw.X
     np.testing.assert_array_equal(raw_X, X)
+
+
+# Mock data for testing
+MOCK_ENSEMBL2SYMBOL = {
+    'ENSG00000000001': 'GENE1',
+    'ENSG00000000002': 'GENE2',
+    'ENSG00000000003': 'GENE3'
+}
+
+
+@patch('sccellfie.preprocessing.prepare_inputs.retrieve_ensembl2symbol_data')
+def test_transform_adata_gene_names(mock_retrieve):
+    # Mock the retrieve_ensembl2symbol_data function
+    mock_retrieve.return_value = MOCK_ENSEMBL2SYMBOL
+
+    # Load controlled adata
+    controlled_adata = create_controlled_adata()
+    controlled_adata.var_names = ['ENSG00000000001', 'ENSG00000000002', 'ENSG00000000003']
+    original_adata = controlled_adata.copy()
+
+    # Test with default parameters (copy=True, drop_unmapped=False)
+    result = transform_adata_gene_names(controlled_adata)
+    assert result is not controlled_adata  # Should be a copy
+    assert list(result.var_names) == ['GENE1', 'GENE2', 'GENE3']
+    assert result.X.shape == (4, 3)
+    assert isinstance(result.X, sparse.csr_matrix)
+    assert result.raw is not None
+
+    # Test with copy=False
+    controlled_adata = original_adata.copy()
+    result = transform_adata_gene_names(controlled_adata, copy=False)
+    assert result is controlled_adata  # Should be the same object
+    assert list(result.var_names) == ['GENE1', 'GENE2', 'GENE3']
+    assert np.array_equal(result.X.toarray(), original_adata.X.toarray())
+
+    # Test with drop_unmapped=True (shouldn't change anything in this case)
+    controlled_adata = original_adata.copy()
+    result = transform_adata_gene_names(controlled_adata, drop_unmapped=True)
+    assert list(result.var_names) == ['GENE1', 'GENE2', 'GENE3']
+    assert result.X.shape == (4, 3)
+
+    # Test with custom organism
+    controlled_adata = original_adata.copy()
+    transform_adata_gene_names(controlled_adata, organism='mouse')
+    mock_retrieve.assert_called_with(None, 'mouse')
+
+    # Test with custom filename
+    controlled_adata = original_adata.copy()
+    transform_adata_gene_names(controlled_adata, filename='custom.csv')
+    mock_retrieve.assert_called_with('custom.csv', 'human')
+
+    # Test error when no genes are in Ensembl format
+    invalid_adata = original_adata.copy()
+    invalid_adata.var_names = ['GENE1', 'GENE2', 'GENE3']
+    with pytest.raises(ValueError, match="Not all genes are in Ensembl ID format"):
+        transform_adata_gene_names(invalid_adata)
+
+    # Test when retrieve_ensembl2symbol_data returns an empty dictionary
+    controlled_adata = original_adata.copy()
+    mock_retrieve.return_value = {}
+    with pytest.raises(ValueError, match="Failed to retrieve Ensembl ID to gene symbol mapping"):
+        transform_adata_gene_names(controlled_adata)
+
+    # Test with partial mapping
+    controlled_adata = original_adata.copy()
+    partial_mapping = {'ENSG00000000001': 'GENE1', 'ENSG00000000002': 'GENE2'}
+    mock_retrieve.return_value = partial_mapping
+    result = transform_adata_gene_names(controlled_adata)
+    assert list(result.var_names) == ['GENE1', 'GENE2', 'ENSG00000000003']
+
+    # Test with partial mapping and drop_unmapped=True
+    controlled_adata = original_adata.copy()
+    result = transform_adata_gene_names(controlled_adata, drop_unmapped=True)
+    assert list(result.var_names) == ['GENE1', 'GENE2']
+    assert result.X.shape == (4, 2)
