@@ -303,13 +303,13 @@ def transform_adata_gene_names(adata, filename=None, organism='human', copy=True
         The file path to a custom CSV file containing Ensembl IDs and gene symbols.
         One column must be 'ensembl_id' and the other 'symbol'.
 
-    organism : str, optional (default: 'human')
+    organism : str, optional (default='human')
         The organism to retrieve data for. Choose 'human' or 'mouse'.
 
-    copy : bool, optional (default: True)
+    copy : bool, optional (default=True)
         If True, return a copy of the AnnData object. If False, modify the object in place.
 
-    drop_unmapped : bool, optional (default: False)
+    drop_unmapped : bool, optional (default=False)
         If True, drop genes that could not be mapped to symbols.
 
     Returns
