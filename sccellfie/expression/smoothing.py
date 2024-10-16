@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
-    '''
+    """
     Calculate the smoothing matrix S based on the nearest neighbor graph in adata.obsp.
 
     Parameters
@@ -32,7 +32,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
     ------
     ValueError
         If an unknown mode is provided.
-    '''
+    """
     if mode == 'adjacency':
         distances_key = adata.uns[neighbors_key]['distances_key']
         A = (adata.obsp[distances_key] > 0).astype(int)
@@ -57,7 +57,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
 
 def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbors', mode='connectivity', alpha=0.33,
                           n_chunks=None, chunk_size=None, use_raw=False, disable_pbar=False):
-    '''
+    """
     Smooth expression values based on KNNs of single cells using Scanpy.
 
     Parameters
@@ -77,7 +77,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         The mode for calculating the smoothing matrix. Can be either 'adjacency' or 'connectivity'.
 
     alpha : float, optional (default: 0.33)
-        The weight of the smoothed expression matrix in the final smoothed expression.
+        The weight or fraction of the smoothed expression to use in the final expression matrix.
+        The final expression matrix is computed as (1 - alpha) * X + alpha * (S @ X), where X is the
+        original expression matrix and S is the smoothed matrix.
 
     n_chunks : int, optional (default: None)
         The number of chunks to split the cells into for processing. If not provided, chunk_size is used.
@@ -107,7 +109,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
     can be specified using the n_chunks or chunk_size parameters, respectively.
 
     The smoothed expression matrix is stored in adata.layers[key_added].
-    '''
+    """
     # Get the connectivities matrix
     connectivities = adata.obsp[adata.uns[neighbors_key]['connectivities_key']]
 
@@ -158,6 +160,9 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         chunk_smoothed = smoothing_mat @ chunk_expression
         if sp.issparse(X):
             chunk_smoothed = chunk_smoothed.toarray()
+            X_ = X.toarray()
+        else:
+            X_ = X
 
         # Extract the smoothed expression for the cells in the current chunk
         chunk_indices = np.arange(start_idx, end_idx)
@@ -165,7 +170,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         smoothed_chunk_indices = [subset_mapping[i] for i in chunk_indices]
 
         # Smooth by alpha
-        smoothed_matrix[chunk_indices, :] = (1. - alpha) * adata.X[chunk_indices, :].toarray() + alpha * chunk_smoothed[smoothed_chunk_indices, :]
+        smoothed_matrix[chunk_indices, :] = (1. - alpha) * X_[chunk_indices, :] + alpha * chunk_smoothed[smoothed_chunk_indices, :]
 
     # Store the smoothed expression matrix in adata.layers
     if sp.issparse(adata.X):

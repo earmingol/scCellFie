@@ -55,7 +55,7 @@ def create_controlled_adata():
     adata = sc.AnnData(X=data)
     adata.var_names = ['gene1', 'gene2', 'gene3']
     adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
-    adata.obs['group'] = ['A', 'A', 'B', 'B']
+    adata.obs['group'] = pd.Categorical(['A', 'A', 'B', 'B'])
     adata.X = sparse.csr_matrix(adata.X)
     adata.raw = adata.copy()
     return adata
@@ -72,7 +72,7 @@ def create_controlled_adata_with_spatial():
     adata = sc.AnnData(X=data)
     adata.var_names = ['gene1', 'gene2', 'gene3']
     adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
-    adata.obs['group'] = ['A', 'A', 'B', 'B']
+    adata.obs['group'] = pd.Categorical(['A', 'A', 'B', 'B'])
     adata.X = sparse.csr_matrix(adata.X)
     adata.obsm['X_spatial'] = np.array([[0, 0], [1, 1], [3, 3], [4, 4]]).astype(float)
     adata.raw = adata.copy()

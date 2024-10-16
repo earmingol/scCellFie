@@ -1,11 +1,19 @@
 import cobra
-import re
+import warnings
+import numpy as np
+import pandas as pd
+import scanpy as sc
+
+from scipy import sparse
+
+from sccellfie.datasets.gene_info import retrieve_ensembl2symbol_data
+from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
 
 def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, correction_organism='human',
                       gene_fraction_threshold=0.0, reaction_fraction_threshold=0.0, verbose=True):
     """
-    Preprocess inputs for metabolic analysis.
+    Preprocesses inputs for metabolic analysis.
 
     Parameters:
     -----------
@@ -49,12 +57,16 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     --------
     adata2 : AnnData
         Filtered annotated data matrix.
+
     gpr_rules : dict
         Dictionary of GPR rules for the filtered reactions.
+
     task_by_gene : pandas.DataFrame
         Filtered DataFrame representing the relationship between tasks and genes.
+
     rxn_by_gene : pandas.DataFrame
         Filtered DataFrame representing the relationship between reactions and genes.
+
     task_by_rxn : pandas.DataFrame
         Filtered DataFrame representing the relationship between tasks and reactions.
     """
@@ -63,7 +75,7 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     if not 0 <= reaction_fraction_threshold <= 1:
         raise ValueError("reaction_fraction_threshold must be between 0 and 1")
 
-    adata_var = adata.var.copy()
+    adata_var = pd.DataFrame(index=adata.var.index)
 
     correction_col = 'corrected'
     if correction_organism in CORRECT_GENES.keys():
@@ -74,7 +86,6 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
             print('Gene names corrected to match database: {}'.format(len(correction_dict)))
     else:
         adata_var[correction_col] = list(adata_var.index)
-
 
 
     # Initialize GPRs
@@ -166,19 +177,194 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     return adata2, gpr_rules, task_by_gene, rxn_by_gene, task_by_rxn
 
 
-def clean_gene_names(gpr_rule):
-    # Regular expression pattern to match spaces between numbers and parentheses
-    pattern = r'(\()\s*(\d+)\s*(\))'
-    # Replace the matched pattern with parentheses directly around the numbers
-    cleaned_rule = re.sub(pattern, r'(\2)', gpr_rule)
-    return cleaned_rule
+def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random_state=0):
+    """
+    Stratified subsampling of an AnnData object.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix.
+
+    group_column : str
+        Column name in adata.obs containing the group information.
+
+    target_fraction : float, optional (default=0.20)
+        Fraction of cells to sample from each group.
+
+    random_state : int, optional (default=0)
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    adata_subsampled : AnnData
+        Subsampled AnnData object
+    """
+    np.random.seed(random_state)
+
+    # Get the group categories
+    categories = adata.obs[group_column].cat.categories
+
+    # Initialize an empty list to store subsampled indices
+    subsampled_indices = []
+
+    # Perform stratified subsampling
+    for category in categories:
+        # Get indices for the current category
+        category_indices = adata.obs[adata.obs[group_column] == category].index
+
+        # Calculate the number of cells to sample from this category
+        n_sample = int(len(category_indices) * target_fraction)
+
+        # Randomly sample indices
+        sampled_indices = np.random.choice(category_indices, size=n_sample, replace=False)
+
+        # Add sampled indices to the list
+        subsampled_indices.extend(sampled_indices)
+
+    # Convert the list of indices to a pandas Index
+    subsampled_indices = pd.Index(subsampled_indices)
+
+    # Return the subsampled AnnData object
+    adata_subsampled = adata[subsampled_indices]
+    return adata_subsampled
 
 
-def find_genes_gpr(gpr_rule):
-    elements = re.findall(r'\b[^\s(),]+\b', gpr_rule)
-    return [e for e in elements if e.lower() not in ('and', 'or')]
+def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=False):
+    """
+    Preprocesses an AnnData object by normalizing the data to a target sum.
+    Original adata object is updated in place.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix containing the expression data.
+
+    target_sum : int, optional (default=10_000)
+        The target sum to which the data will be normalized.
+
+    n_counts_key : str, optional (default='n_counts')
+        The key in adata.obs containing the total counts for each cell.
+
+    copy : bool, optional (default=False)
+        If True, returns a copy of adata with the normalized data.
+    """
+    if copy:
+        adata = adata.copy()
+
+    # Check if total counts are already calculated
+    if n_counts_key not in adata.obs.columns:
+        warnings.warn(f"{n_counts_key} not found in adata.obs. Calculating total counts.", UserWarning)
+        sc.pp.calculate_qc_metrics(adata, layer=None, inplace=True)
+        n_counts_key = 'total_counts'  # scanpy uses 'total_counts' as the key
+
+    # Input data
+    X_view = adata.X
+
+    warnings.warn("Normalizing data.", UserWarning)
+
+    # Check if matrix is sparse
+    is_sparse = sparse.issparse(X_view)
+
+    # Convert to dense if sparse
+    if is_sparse:
+        X_view = X_view.toarray()
+
+    # Normalize
+    n_counts = adata.obs[n_counts_key].values[:, None]
+    X_norm = X_view / n_counts * target_sum
+
+    # Convert back to sparse if original was sparse
+    if is_sparse:
+        X_norm = sparse.csr_matrix(X_norm)
+
+    # Update adata
+    adata.X = X_norm
+    adata.uns['normalization'] = {
+        'method': 'total_count',
+        'target_sum': target_sum,
+        'n_counts_key': n_counts_key
+    }
+    if copy:
+        return adata
 
 
+def transform_adata_gene_names(adata, filename=None, organism='human', copy=True, drop_unmapped=False):
+    """
+    Transforms gene names in an AnnData object from Ensembl IDs to gene symbols.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix containing the expression data. All gene names
+        must be in Ensembl ID format.
+
+    filename : str, optional
+        The file path to a custom CSV file containing Ensembl IDs and gene symbols.
+        One column must be 'ensembl_id' and the other 'symbol'.
+
+    organism : str, optional (default='human')
+        The organism to retrieve data for. Choose 'human' or 'mouse'.
+
+    copy : bool, optional (default=True)
+        If True, return a copy of the AnnData object. If False, modify the object in place.
+
+    drop_unmapped : bool, optional (default=False)
+        If True, drop genes that could not be mapped to symbols.
+
+    Returns
+    -------
+    AnnData
+        The AnnData object with gene names transformed to gene symbols.
+        If copy=True, this is a new object.
+
+    Raises
+    ------
+    ValueError
+        If not all genes in the AnnData object are in Ensembl ID format.
+    """
+    # Retrieve the Ensembl ID to gene symbol mapping
+    ensembl2symbol = retrieve_ensembl2symbol_data(filename, organism)
+
+    if not ensembl2symbol:
+        raise ValueError("Failed to retrieve Ensembl ID to gene symbol mapping.")
+
+    # Check if all genes are in Ensembl format
+    all_ensembl = all(gene.startswith('ENS') for gene in adata.var_names)
+    if not all_ensembl:
+        raise ValueError("Not all genes are in Ensembl ID format. Please ensure all genes start with 'ENS'.")
+
+    # Create a new AnnData object if copy is True, otherwise use the original
+    adata_mod = adata.copy() if copy else adata
+
+    # Create a mapping Series
+    gene_map = pd.Series(ensembl2symbol)
+
+    # Transform gene names
+    new_var_names = adata_mod.var_names.map(gene_map)
+
+    # Check if any genes were not mapped
+    unmapped = new_var_names.isna()
+    if unmapped.any():
+        unmapped_count = unmapped.sum()
+        print(f"Warning: {unmapped_count} genes could not be mapped to symbols.")
+
+        if drop_unmapped:
+            print(f"Dropping {unmapped_count} unmapped genes.")
+            adata_mod = adata_mod[:, ~unmapped].copy()
+            new_var_names = new_var_names[~unmapped]
+        else:
+            # For unmapped genes, keep the original Ensembl ID
+            new_var_names = pd.Index([new_name if pd.notna(new_name) else old_name
+                                      for new_name, old_name in zip(new_var_names, adata_mod.var_names)])
+
+    # Assign new gene names
+    adata_mod.var_names = new_var_names
+
+    return adata_mod
+
+
+# Gene name in dataset to gene name in scCellFie's DB.
 CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
                             'ADSSL1': 'ADSS1',
                             'COL4A3BP': 'CERT1',
@@ -200,5 +386,20 @@ CORRECT_GENES = {'human' : {'ADSS': 'ADSS2',
                             'MT-ND4L': 'ND4L',
                             'MT-ND5': 'ND5',
                             'MT-ND6': 'ND6',
-                            'ZADH2': 'PTGR3'},
+                            'ZADH2': 'PTGR3',
+                            },
+                 'mouse' : {'Gars1': 'Gars',
+                            'Srpr' : 'Srpra',
+                            'mt-Cytb' : 'Cytb',
+                            'mt-Nd1' : 'Nd1',
+                            'mt-Nd2' : 'Nd2',
+                            'mt-Nd3' : 'Nd3',
+                            'mt-Nd4' : 'Nd4',
+                            'mt-Nd4l' : 'Nd4l',
+                            'mt-Nd5' : 'Nd5',
+                            'mt-Nd6' : 'Nd6',
+                            'Sdr42e2' : 'Gm5737',
+                            'Klk1b26' : 'Egfbp2',
+                            'Il4i1' : 'Il4i1b',
+                            }
                  }
