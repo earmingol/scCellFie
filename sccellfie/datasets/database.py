@@ -38,6 +38,9 @@ def load_sccellfie_database(organism='human', task_folder=None, rxn_info_filenam
     -------
     data : dict
         A dictionary containing the loaded data frames and information.
+        Keys are 'rxn_info', 'task_info', 'task_by_rxn', 'task_by_gene', 'rxn_by_gene',
+        'thresholds', and 'organism'.
+        Examples of dataframes can be found at https://github.com/earmingol/scCellFie/raw/refs/heads/main/task_data/homo_sapiens/
     """
     # Define default URLs for human and mouse data
     default_urls = {

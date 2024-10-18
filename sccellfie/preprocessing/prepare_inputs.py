@@ -2,7 +2,6 @@ import cobra
 import warnings
 import numpy as np
 import pandas as pd
-import scanpy as sc
 
 from scipy import sparse
 
@@ -255,8 +254,9 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
     # Check if total counts are already calculated
     if n_counts_key not in adata.obs.columns:
         warnings.warn(f"{n_counts_key} not found in adata.obs. Calculating total counts.", UserWarning)
-        sc.pp.calculate_qc_metrics(adata, layer=None, inplace=True)
         n_counts_key = 'total_counts'  # scanpy uses 'total_counts' as the key
+        # Calculate total counts from the raw expression matrix
+        adata.obs[n_counts_key] = adata.X.sum(axis=1)
 
     # Input data
     X_view = adata.X
