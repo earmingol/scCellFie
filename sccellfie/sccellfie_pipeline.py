@@ -12,9 +12,9 @@ from sccellfie.metabolic_task import compute_mt_score
 
 
 def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, sccellfie_db=None, n_counts_col='n_counts',
-                           process_by_group=False, groupby=None, neighbors_key='neighbors',
-                           n_neighbors=10, batch_key=None, threshold_key='sccellfie_threshold', smooth_cells=True,
-                           alpha=0.33, chunk_size=5000, disable_pbar=False, save_folder=None, save_filename=None, verbose=True):
+                           process_by_group=False, groupby=None, neighbors_key='neighbors',n_neighbors=10, batch_key=None,
+                           threshold_key='sccellfie_threshold', smooth_cells=True, alpha=0.33, chunk_size=5000,
+                           disable_pbar=False, save_folder=None, save_filename=None, verbose=True):
     """
     Runs the complete scCellFie pipeline on the given AnnData object, processing by cell type if specified.
 
