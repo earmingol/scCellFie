@@ -31,7 +31,7 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
         Path to the folder containing the files of the scCellFie database
         (reactions, GPR rules, metabolic tasks, etc.).
 
-    scceellfie_db : dict, optional (default=None)
+    sccellfie_db : dict, optional (default=None)
         Dictionary containing the scCellFie database information.
         If this information is provided, the sccellfie_data_folder will be ignored.
         This dictionary must contain the keys 'rxn_info', 'task_by_gene', 'rxn_by_gene', 'task_by_rxn', 'thresholds', and
