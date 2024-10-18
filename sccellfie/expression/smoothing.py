@@ -134,7 +134,7 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
     smoothed_matrix = np.zeros(X.shape)
 
     # Iterate over chunks of cells
-    for i in tqdm(range(n_chunks), disable=disable_pbar):
+    for i in tqdm(range(n_chunks), disable=disable_pbar, desc='Smoothing Expression'):
         start_idx = i * chunk_size
         end_idx = min((i + 1) * chunk_size, n_cells)
 
