@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 from sccellfie.spatial.hotspots import obtain_hotspots, summarize_hotspots, compute_hotspots
-from sccellfie.tests.toy_inputs import create_random_adata_with_spatial
+from sccellfie.datasets.toy_inputs import create_random_adata_with_spatial
 
 @pytest.mark.parametrize("use_raw", [False, True])
 def test_obtain_hotspots(use_raw):

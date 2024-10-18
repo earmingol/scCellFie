@@ -7,7 +7,7 @@ from scipy import sparse
 
 from sccellfie.plotting.differential_results import create_volcano_plot
 from sccellfie.stats.differential_analysis import cohens_d, scanpy_differential_analysis
-from sccellfie.tests.toy_inputs import create_random_adata
+from sccellfie.datasets.toy_inputs import create_random_adata
 
 
 def test_cohens_d():

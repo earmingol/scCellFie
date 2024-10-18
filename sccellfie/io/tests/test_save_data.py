@@ -4,7 +4,7 @@ import tempfile
 
 from sccellfie.io.save_data import save_adata
 from sccellfie.spatial import create_knn_network
-from sccellfie.tests.toy_inputs import create_random_adata, create_random_adata_with_spatial
+from sccellfie.datasets.toy_inputs import create_random_adata, create_random_adata_with_spatial
 
 
 @pytest.mark.parametrize("spatial_data, test_attr", [(True, False), (False, False), (False, True)]) # Test with and without spatial data
