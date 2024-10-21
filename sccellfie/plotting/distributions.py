@@ -2,7 +2,7 @@ import scanpy as sc
 import matplotlib.pyplot as plt
 
 
-def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10, save=None, dpi=300, **kwargs):
+def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10, rotation=90, save=None, dpi=300, **kwargs):
     """
     Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
@@ -33,6 +33,9 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
         be set to `fontsize`, while the title will be set to `fontsize + 4`.
         Ylabel will be set to `fontsize + 2`.
 
+    rotation : int, optional (default: 90)
+        Rotation of the x-axis tick labels
+
     save : str, optional (default: None)
         Filepath to save the figure. If not provided, the figure
         will be displayed.
@@ -56,7 +59,7 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
         col = i % n_cols
         ax = axes[row, col]
 
-        sc.pl.violin(adata, keys=gene, groupby=groupby, ax=ax, show=False, **kwargs)
+        sc.pl.violin(adata, keys=gene, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
         ax.set_title(gene, fontsize=fontsize + 4)
         ax.set_ylabel(ylabel, fontsize=fontsize + 2)
         ax.tick_params(axis='x', labelsize=fontsize)
