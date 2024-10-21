@@ -1,4 +1,3 @@
-import pandas as pd
 import scanpy as sc
 from tqdm import tqdm
 
@@ -313,6 +312,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
             task_by_gene=sccellfie_db['task_by_gene'],
             rxn_by_gene=sccellfie_db['rxn_by_gene'],
             task_by_rxn=sccellfie_db['task_by_rxn'],
+            correction_organism=organism,
             verbose=verbose
         )
 
