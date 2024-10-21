@@ -9,5 +9,6 @@ from . import reaction_activity
 from . import spatial
 from . import stats as tl
 from .expression import aggregation, smoothing, thresholds
+from .sccellfie_pipeline import run_sccellfie_pipeline
 
 __version__ = "0.3.0"
