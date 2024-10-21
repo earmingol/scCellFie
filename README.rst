@@ -100,6 +100,7 @@ In particular:
 - `results['adata'].uns['Rxn-Max-Genes']`: contains determinant genes for each reaction per cell.
 - `results['adata'].reactions`: contains reaction scores in `.X` so every scanpy function can be used on this object to visualize or compare values.
 - `results['adata'].metabolic_tasks`: contains metabolic task scores in `.X` so every scanpy function can be used on this object to visualize or compare values.
+
 How to cite
 -----------
 
