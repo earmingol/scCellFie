@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from sccellfie.preprocessing.database_manipulation import get_element_associations, add_new_task, combine_and_sort_dataframes
+from sccellfie.preprocessing.database_manipulation import get_element_associations, add_new_task, combine_and_sort_dataframes, handle_duplicate_indexes
 
 
 def test_get_element_associations():
@@ -100,3 +100,81 @@ def test_combine_and_sort_dataframes():
     # Test with invalid preference
     with pytest.raises(ValueError):
         combine_and_sort_dataframes(df1, df2, preference='invalid')
+
+
+@pytest.fixture
+def sample_df():
+    data = {
+        'A': [1, 2, 3, 4, 5, 6],
+        'B': [10, 20, 30, 40, 50, 60],
+        'C': ['a', 'b', 'c', 'd', 'e', 'f']
+    }
+    index = ['x', 'y', 'x', 'z', 'y', 'w']
+    return pd.DataFrame(data, index=index)
+
+def test_min_operation(sample_df):
+    result = handle_duplicate_indexes(sample_df, 'A', 'min')
+    assert result.index.tolist() == ['x', 'y', 'z', 'w']
+    assert result['A'].tolist() == [1, 2, 4, 6]
+    assert result['B'].tolist() == [10, 20, 40, 60]
+    assert result['C'].tolist() == ['a', 'b', 'd', 'f']
+
+def test_max_operation(sample_df):
+    result = handle_duplicate_indexes(sample_df, 'A', 'max')
+    assert result.index.tolist() == ['x', 'y', 'z', 'w']
+    assert result['A'].tolist() == [3, 5, 4, 6]
+    assert result['B'].tolist() == [10, 20, 40, 60]
+    assert result['C'].tolist() == ['a', 'b', 'd', 'f']
+
+def test_mean_operation(sample_df):
+    result = handle_duplicate_indexes(sample_df, 'A', 'mean')
+    assert result.index.tolist() == ['x', 'y', 'z', 'w']
+    assert result['A'].tolist() == [2, 3.5, 4, 6]
+    assert result['B'].tolist() == [10, 20, 40, 60]
+    assert result['C'].tolist() == ['a', 'b', 'd', 'f']
+
+def test_first_operation(sample_df):
+    result = handle_duplicate_indexes(sample_df, 'A', 'first')
+    assert result.index.tolist() == ['x', 'y', 'z', 'w']
+    assert result['A'].tolist() == [1, 2, 4, 6]
+    assert result['B'].tolist() == [10, 20, 40, 60]
+    assert result['C'].tolist() == ['a', 'b', 'd', 'f']
+
+def test_last_operation(sample_df):
+    result = handle_duplicate_indexes(sample_df, 'A', 'last')
+    assert result.index.tolist() == ['x', 'z', 'y', 'w']
+    assert result['A'].tolist() == [3, 4, 5, 6]
+    assert result['B'].tolist() == [30, 40, 50, 60]
+    assert result['C'].tolist() == ['c', 'd', 'e', 'f']
+
+def test_invalid_operation(sample_df):
+    with pytest.raises(ValueError):
+        handle_duplicate_indexes(sample_df, 'A', 'invalid_operation')
+
+def test_non_existent_column(sample_df):
+    with pytest.raises(KeyError):
+        handle_duplicate_indexes(sample_df, 'D', 'min')
+
+def test_single_column_df():
+    df = pd.DataFrame({'A': [1, 2, 3, 4]}, index=['x', 'y', 'x', 'z'])
+    result = handle_duplicate_indexes(df, 'A', 'max')
+    assert result.index.tolist() == ['x', 'y', 'z']
+    assert result['A'].tolist() == [3, 2, 4]
+
+def test_all_duplicates_df():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]}, index=['x', 'x', 'x'])
+    result = handle_duplicate_indexes(df, 'A', 'mean')
+    assert len(result) == 1
+    assert result.index[0] == 'x'
+    assert result['A'].values[0] == 2
+    assert result['B'].values[0] == 4
+
+def test_no_duplicates_df():
+    df = pd.DataFrame({'A': [1, 2, 3]}, index=['x', 'y', 'z'])
+    result = handle_duplicate_indexes(df, 'A', 'min')
+    pd.testing.assert_frame_equal(result, df)
+
+def test_empty_df():
+    df = pd.DataFrame()
+    result = handle_duplicate_indexes(df, 'A', 'min')
+    assert result.empty

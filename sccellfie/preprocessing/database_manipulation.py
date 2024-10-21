@@ -193,3 +193,49 @@ def combine_and_sort_dataframes(df1, df2, preference='max'):
     combined_df = combined_df.sort_index().sort_index(axis=1).fillna(0)
 
     return combined_df
+
+
+def handle_duplicate_indexes(df, value_column=None, operation='first'):
+    """
+    Handles duplicated indexes in a DataFrame by keeping the min, max, mean, first, or last value
+    associated with them in a specified column.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame with duplicated indexes.
+
+    value_column : str, optional (default=None)
+        Name of the column containing values to make a decision
+         when handling duplicated indexes. This value is optional
+         only when operation is 'first' or 'last'.
+
+    operation : str, optional (default='first')
+        Operation to perform when handling duplicated indexes.
+        Options: 'min', 'max', 'mean', 'first', 'last'.
+
+    Returns
+    -------
+    df_result : pandas.DataFrame
+        DataFrame with duplicated indexes handled according to the specified operation
+    """
+    if df.empty:
+        return df.copy()
+
+    if operation not in ['min', 'max', 'mean', 'first', 'last']:
+        raise ValueError("Operation must be 'min', 'max', 'mean', or 'first'")
+
+    if operation in ['first', 'last']:
+        return df[~df.index.duplicated(keep=operation)]
+
+    # Group by index and apply the specified operation
+    assert value_column is not None, "A value column must be provided for operations other than 'first' or 'last'"
+    if operation == 'mean':
+        df_grouped = df.groupby(level=0).agg({value_column: 'mean'})
+    else:  # min or max
+        df_grouped = df.groupby(level=0).agg({value_column: operation})
+
+    # Merge the result back with the original DataFrame to keep other columns
+    df_result = df.loc[~df.index.duplicated(keep='first')].copy()
+    df_result[value_column] = df_grouped[value_column]
+    return df_result
