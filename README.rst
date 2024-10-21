@@ -12,22 +12,6 @@
 .. |Downloads| image:: https://pepy.tech/badge/sccellfie/month
    :target: https://pepy.tech/project/sccellfie
 
-.. role:: graycode
-   :class: highlight-gray
-
-.. raw:: html
-
-   <style>
-   .highlight-gray {
-     background-color: #F0F0F0;
-     color: #333;
-     padding: 2px 4px;
-     font-family: 'Courier New', Courier, monospace;
-     font-size: 0.9em;
-     border-radius: 3px;
-     white-space: nowrap;
-   }
-   </style>
 
 Metabolic activity from single-cell and spatial transcriptomics with scCellFie
 -----------------------------------------------------------------------------------------
@@ -100,23 +84,22 @@ A quick example of how to use scCellFie with a single-cell dataset and generate 
                                                   )
 
 This will produce a dictionary with the results of the analysis. The keys of the dictionary includes the
-single-cell data and metabolic activities (:graycode:`'adata'`) and the scCellFie database already filtered for the elements present
-in the dataset (:graycode:`'gpr_rules'`, :graycode:`'task_by_gene'`, :graycode:`'rxn_by_gene'`, :graycode:`'task_by_rxn'`, :graycode:`'rxn_info'`, :graycode:`'task_info'`, :graycode:`'thresholds'`, :graycode:`'organism'`).
+single-cell data and metabolic activities (`'adata'`) and the scCellFie database already filtered for the elements present
+in the dataset (`'gpr_rules'`, `'task_by_gene'`, `'rxn_by_gene'`, `'task_by_rxn'`, `'rxn_info'`, `'task_info'`, `'thresholds'`, `'organism'`).
 
-To access metabolic activities, we need to inspect :graycode:`results['adata']`:
+To access metabolic activities, we need to inspect `results['adata']`:
 
-- The processed single-cell data is located in the AnnData object :graycode:`results['adata']`.
-- The reaction activities for each cell are located in the AnnData object :graycode:`results['adata'].reactions`.
-- The metabolic task activities for each cell are located in the AnnData object :graycode:`results['adata'].metabolic_tasks`.
+- The processed single-cell data is located in the AnnData object `results['adata']`.
+- The reaction activities for each cell are located in the AnnData object `results['adata'].reactions`.
+- The metabolic task activities for each cell are located in the AnnData object `results['adata'].metabolic_tasks`.
 
 In particular:
 
-- :graycode:`results['adata']`: contains gene expression in :graycode:`.X`.
-- :graycode:`results['adata'].layers['gene_scores']`: contains gene scores as in the original CellFie paper.
-- :graycode:`results['adata'].uns['Rxn-Max-Genes']`: contains determinant genes for each reaction per cell.
-- :graycode:`results['adata'].reactions`: contains reaction scores in :graycode:`.X` so every scanpy function can be used on this object to visualize or compare values.
-- :graycode:`results['adata'].metabolic_tasks`: contains metabolic task scores in :graycode:`.X` so every scanpy function can be used on this object to visualize or compare values.
-
+- `results['adata']`: contains gene expression in `.X`.
+- `results['adata'].layers['gene_scores']`: contains gene scores as in the original CellFie paper.
+- `results['adata'].uns['Rxn-Max-Genes']`: contains determinant genes for each reaction per cell.
+- `results['adata'].reactions`: contains reaction scores in `.X` so every scanpy function can be used on this object to visualize or compare values.
+- `results['adata'].metabolic_tasks`: contains metabolic task scores in `.X` so every scanpy function can be used on this object to visualize or compare values.
 How to cite
 -----------
 
