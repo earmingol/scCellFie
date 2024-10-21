@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def load_adata(folder, filename, reactions_filename=None, metabolic_tasks_filename=None, spatial_network_key='spatial_network', verbose=True):
-    '''
+    """
     Loads an AnnData object and its scCellFie attributes from a folder.
 
     Parameters
@@ -39,7 +39,7 @@ def load_adata(folder, filename, reactions_filename=None, metabolic_tasks_filena
         Annotated data matrix.
         If scCellFie attributes are found, they are also loaded
         into adata.reactions and adata.metabolic_tasks.
-    '''
+    """
     if reactions_filename is not None:
         rxn_filename = f'{folder}/{reactions_filename}.h5ad'
     else:

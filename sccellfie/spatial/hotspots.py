@@ -11,8 +11,8 @@ from tqdm import tqdm
 
 
 def obtain_hotspots(adata, spatial_key='X_spatial', use_raw=False):
-    '''
-    Obtain hotspots for each variable in adata.var_names.
+    """
+    Obtains hotspots for each variable in adata.var_names.
     It uses the Getis-Ord Gi* statistic from PySAL.
 
     Parameters
@@ -30,7 +30,7 @@ def obtain_hotspots(adata, spatial_key='X_spatial', use_raw=False):
     -------
     hotspots: dict
         A dictionary with variable names as keys and Getis-Ord Gi* statistics as values.
-    '''
+    """
     assert spatial_key in adata.obsm.keys(), "obsm_key must be a key in adata.obsm."
 
     hotspots = dict()
@@ -59,7 +59,7 @@ def obtain_hotspots(adata, spatial_key='X_spatial', use_raw=False):
 
 
 def calculate_aggregate_metric(z_scores, z_threshold=1.96):
-    '''
+    """
     Aggregates the Getis-Ord Gi* statistics for a variable.
 
     Parameters
@@ -86,7 +86,7 @@ def calculate_aggregate_metric(z_scores, z_threshold=1.96):
 
     significant_proportion: float
         The proportion of significant pixels for the variable.
-    '''
+    """
     mean_z = np.mean(z_scores)
     median_z = np.median(z_scores)
     hotspot_proportion = np.sum(z_scores > z_threshold) / len(z_scores)
@@ -96,7 +96,7 @@ def calculate_aggregate_metric(z_scores, z_threshold=1.96):
 
 
 def summarize_hotspots(hotspots, z_threshold=1.96):
-    '''
+    """
     Summarizes hotspots for each variable in adata.var_names.
     It computes the mean, median, and proportion of hotspots, coldspots, and significant pixels.
 
@@ -122,7 +122,7 @@ def summarize_hotspots(hotspots, z_threshold=1.96):
         Hotspot-Proportion: The proportion of hotspots for the variable.
         Coldspot-Proportion: The proportion of coldspots for the variable.
         Significant-Proportion: The proportion of significant pixels for the variable.
-    '''
+    """
     records = []
 
     for k, v in hotspots.items():
@@ -137,7 +137,7 @@ def summarize_hotspots(hotspots, z_threshold=1.96):
 
 
 def compute_hotspots(adata, spatial_key='X_spatial', use_raw=False, z_threshold=1.96):
-    '''
+    """
     Computes hotspots for each variable in adata.var_names.
     Hotspots are computed using the Getis-Ord Gi* statistic.
 
@@ -163,7 +163,7 @@ def compute_hotspots(adata, spatial_key='X_spatial', use_raw=False, z_threshold=
 
         A pandas.DataFrame object containing the aggregate metrics for each variable in adata.var_names
         is added to adata.uns['hotspots']['hotspot_df'].
-    '''
+    """
     hotspots = obtain_hotspots(adata, spatial_key=spatial_key, use_raw=use_raw)
     hotspot_df = summarize_hotspots(hotspots, z_threshold=z_threshold)
     adata.uns['hotspots'] = {'hotspots': hotspots, 'hotspot_df': hotspot_df}

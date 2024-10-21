@@ -6,7 +6,7 @@ from sccellfie.stats.markers_from_task import get_task_determinant_genes
 from sccellfie.gene_score import compute_gene_scores
 from sccellfie.reaction_activity import compute_reaction_activity
 from sccellfie.metabolic_task import compute_mt_score
-from sccellfie.tests.toy_inputs import create_controlled_adata, create_controlled_task_by_rxn, create_controlled_gpr_dict, create_global_threshold
+from sccellfie.datasets.toy_inputs import create_controlled_adata, create_controlled_task_by_rxn, create_controlled_gpr_dict, create_global_threshold
 
 
 @pytest.mark.parametrize("groupby, group, min_activity",

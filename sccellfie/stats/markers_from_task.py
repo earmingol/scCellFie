@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def get_task_determinant_genes(adata, metabolic_task, task_by_rxn, groupby=None, group=None, min_activity=0.0):
-    '''
+    """
     Finds the genes that determine the activity of all reactions in a metabolic task. Returns determinant genes
     for each reaction and their activity across specified cell groups. If no groups are specified, the analysis
     is performed across all cells.
@@ -53,7 +53,7 @@ def get_task_determinant_genes(adata, metabolic_task, task_by_rxn, groupby=None,
     sccellfie.reaction_activity.compute_reaction_activity() and are stored in adata.reactions.X.
 
     Scores are computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
-    '''
+    """
     assert hasattr(adata, "metabolic_tasks"), "Please run scCellFie on your dataset before using this function."
 
     # Get list of rxns that belong to the metabolic task

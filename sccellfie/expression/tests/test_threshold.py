@@ -3,7 +3,7 @@ import pandas as pd
 
 from pandas.testing import assert_frame_equal
 from sccellfie.expression.thresholds import get_local_mean_threshold, get_global_mean_threshold, get_local_percentile_threshold, get_global_percentile_threshold, get_local_trimean_threshold, get_global_trimean_threshold, set_manual_threshold
-from sccellfie.tests.toy_inputs import create_controlled_adata
+from sccellfie.datasets.toy_inputs import create_controlled_adata
 
 
 @pytest.mark.parametrize("use_raw, lower_bound, upper_bound, exclude_zeros",

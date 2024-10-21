@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from sccellfie.preprocessing.gpr_rules import clean_gene_names, find_genes_gpr
 from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, stratified_subsample_adata, normalize_adata, transform_adata_gene_names
-from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
+from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata, create_controlled_gpr_dict, create_controlled_task_by_rxn, create_controlled_task_by_gene, create_controlled_rxn_by_gene
 
 
 def test_preprocess_inputs():

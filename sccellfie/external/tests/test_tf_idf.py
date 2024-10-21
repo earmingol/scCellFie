@@ -1,7 +1,7 @@
 import pandas as pd
 
 from sccellfie.external.tf_idf import quick_markers
-from sccellfie.tests.toy_inputs import create_random_adata
+from sccellfie.datasets.toy_inputs import create_random_adata
 
 
 def test_output_structure():

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sccellfie.plotting.distributions import create_multi_violin_plots
-from sccellfie.tests.toy_inputs import create_controlled_adata
+from sccellfie.datasets.toy_inputs import create_controlled_adata
 
 
 @pytest.fixture

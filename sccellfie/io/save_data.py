@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def save_adata(adata, folder, filename, spatial_network_key='spatial_network', verbose=True):
-    '''
+    """
     Saves an AnnData object and its scCellFie attributes to a folder.
 
     Parameters
@@ -31,7 +31,7 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
         The scCellFie attributes are saved to:
             - reactions: folder/filename_reactions.h5ad.
             - metabolic_tasks: folder/filename_metabolic_tasks.h5ad.
-    '''
+    """
     # Check folder path
     Path(folder).mkdir(parents=True, exist_ok=True)
     if spatial_network_key in adata.uns.keys():

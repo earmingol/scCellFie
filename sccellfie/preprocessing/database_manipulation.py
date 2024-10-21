@@ -4,8 +4,9 @@ from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
 
 def get_element_associations(df, element, axis_element=0):
-    '''Get the tasks, reactions, or genes associated with
-     a given element in the DataFrame.
+    """
+    Gets the tasks, reactions, or genes associated with
+    a given element in the DataFrame.
 
     Parameters
     ----------
@@ -24,7 +25,7 @@ def get_element_associations(df, element, axis_element=0):
     associations : list of str
         List of tasks, reactions, or genes associated with the given element.
 
-    '''
+    """
     if axis_element == 0:
         e = df.loc[element, :]
     elif axis_element == 1:
@@ -40,7 +41,7 @@ def get_element_associations(df, element, axis_element=0):
 def add_new_task(task_by_rxn, task_by_gene, rxn_by_gene, task_info, rxn_info,
                  task_name, task_system, task_subsystem, rxn_names, gpr_hgncs, gpr_symbols):
     """
-    Add a new task and their associated reactions and genes to the database.
+    Adds a new task and their associated reactions and genes to the database.
 
     Parameters
     ----------
@@ -145,7 +146,7 @@ def add_new_task(task_by_rxn, task_by_gene, rxn_by_gene, task_info, rxn_info,
 
 def combine_and_sort_dataframes(df1, df2, preference='max'):
     """
-    Combine two DataFrames and sort the rows and columns alphabetically.
+    Combines two DataFrames and sort the rows and columns alphabetically.
 
     Parameters
     ----------
@@ -193,3 +194,49 @@ def combine_and_sort_dataframes(df1, df2, preference='max'):
     combined_df = combined_df.sort_index().sort_index(axis=1).fillna(0)
 
     return combined_df
+
+
+def handle_duplicate_indexes(df, value_column=None, operation='first'):
+    """
+    Handles duplicated indexes in a DataFrame by keeping the min, max, mean, first, or last value
+    associated with them in a specified column.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame with duplicated indexes.
+
+    value_column : str, optional (default: None)
+        Name of the column containing values to make a decision
+         when handling duplicated indexes. This value is optional
+         only when operation is 'first' or 'last'.
+
+    operation : str, optional (default: 'first')
+        Operation to perform when handling duplicated indexes.
+        Options: 'min', 'max', 'mean', 'first', 'last'.
+
+    Returns
+    -------
+    df_result : pandas.DataFrame
+        DataFrame with duplicated indexes handled according to the specified operation
+    """
+    if df.empty:
+        return df.copy()
+
+    if operation not in ['min', 'max', 'mean', 'first', 'last']:
+        raise ValueError("Operation must be 'min', 'max', 'mean', or 'first'")
+
+    if operation in ['first', 'last']:
+        return df[~df.index.duplicated(keep=operation)]
+
+    # Group by index and apply the specified operation
+    assert value_column is not None, "A value column must be provided for operations other than 'first' or 'last'"
+    if operation == 'mean':
+        df_grouped = df.groupby(level=0).agg({value_column: 'mean'})
+    else:  # min or max
+        df_grouped = df.groupby(level=0).agg({value_column: operation})
+
+    # Merge the result back with the original DataFrame to keep other columns
+    df_result = df.loc[~df.index.duplicated(keep='first')].copy()
+    df_result[value_column] = df_grouped[value_column]
+    return df_result

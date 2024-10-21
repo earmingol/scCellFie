@@ -4,7 +4,7 @@ import pandas as pd
 
 from sccellfie.spatial.assortativity import compute_var_assortativity, compute_assortativity
 from sccellfie.spatial.knn_network import create_knn_network
-from sccellfie.tests.toy_inputs import create_random_adata_with_spatial
+from sccellfie.datasets.toy_inputs import create_random_adata_with_spatial
 
 
 @pytest.mark.parametrize("use_raw", [False, True])

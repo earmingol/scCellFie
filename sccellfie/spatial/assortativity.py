@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 def compute_var_assortativity(adata, var_name, spatial_network_key='spatial_network', use_raw=False):
-    '''
+    """
     Computes the assortativity of a variable (e.g., a gene, a metabolic tasks, etc.) in a spatial network.
 
     Parameters
@@ -28,7 +28,7 @@ def compute_var_assortativity(adata, var_name, spatial_network_key='spatial_netw
     -------
     assortativity: float
         The assortativity of the variable in the spatial network.
-    '''
+    """
     if spatial_network_key not in adata.uns.keys():
         raise ValueError(f'{spatial_network_key} not found in adata.uns. Run sccellfie.spatial.knn_network.create_knn_network() first.')
     H = adata.uns[spatial_network_key]['graph'].copy()
@@ -56,7 +56,7 @@ def compute_var_assortativity(adata, var_name, spatial_network_key='spatial_netw
 
 
 def compute_assortativity(adata, spatial_network_key='spatial_network', use_raw=False):
-    '''
+    """
     Computes the assortativity of all variables (e.g., genes, metabolic tasks, etc.) in a spatial network.
 
     Parameters
@@ -75,7 +75,7 @@ def compute_assortativity(adata, spatial_network_key='spatial_network', use_raw=
     None
         A pandas.DataFrame object containing the assortativity of each variable in the spatial network
         is added to adata.uns['spatial_network']['assortativity'].
-    '''
+    """
     records = []
     for var_ in tqdm(adata.var_names):
         assort = compute_var_assortativity(adata, var_name=var_, spatial_network_key=spatial_network_key, use_raw=use_raw)

@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 from sccellfie.plotting.differential_results import create_volcano_plot, create_comparative_violin
-from sccellfie.tests.toy_inputs import create_controlled_adata
+from sccellfie.datasets.toy_inputs import create_controlled_adata
 
 def test_create_volcano_plot():
     # Create a sample DataFrame similar to the output of scanpy_differential_analysis

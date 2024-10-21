@@ -1,6 +1,5 @@
-import networkx as nx
 from sccellfie.spatial.knn_network import find_spatial_neighbors, create_knn_network
-from sccellfie.tests.toy_inputs import create_controlled_adata_with_spatial
+from sccellfie.datasets.toy_inputs import create_controlled_adata_with_spatial
 
 def test_find_spatial_neighbors():
     # Create mock data with spatial coordinates

@@ -2,9 +2,9 @@ import scanpy as sc
 import matplotlib.pyplot as plt
 
 
-def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(4, 3), ylabel='Metabolic Activity', fontsize=10, save=None, dpi=300, **kwargs):
+def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10, rotation=90, save=None, dpi=300, **kwargs):
     """
-    Plot a grid of violin plots for multiple genes in Scanpy,
+    Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
 
     Parameters:
@@ -19,25 +19,28 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(4, 3), y
         Key in `adata.obs` containing the groups to plot. For each
         unique value in this column, a violin plot will be generated.
 
-    n_cols : int, optional (default=4)
+    n_cols : int, optional (default: 4)
         Number of columns in the grid.
 
-    figsize : tuple of float, optional (default=(4, 3))
+    figsize : tuple of float, optional (default: (5, 5))
         Size of each subplot in inches.
 
-    ylabel : str, optional (default='Metabolic Activity')
+    ylabel : str, optional (default: 'Metabolic Activity')
         Label for the y-axis.
 
-    fontsize : int, optional (default=10)
+    fontsize : int, optional (default: 10)
         Font size for the title and axis labels. The tick labels will
         be set to `fontsize`, while the title will be set to `fontsize + 4`.
         Ylabel will be set to `fontsize + 2`.
 
-    save : str, optional (default=None)
+    rotation : int, optional (default: 90)
+        Rotation of the x-axis tick labels
+
+    save : str, optional (default: None)
         Filepath to save the figure. If not provided, the figure
         will be displayed.
 
-    dpi : int, optional (default=300)
+    dpi : int, optional (default: 300)
         Resolution of the saved figure.
 
     **kwargs : dict
@@ -56,7 +59,7 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(4, 3), y
         col = i % n_cols
         ax = axes[row, col]
 
-        sc.pl.violin(adata, keys=gene, groupby=groupby, ax=ax, show=False, **kwargs)
+        sc.pl.violin(adata, keys=gene, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
         ax.set_title(gene, fontsize=fontsize + 4)
         ax.set_ylabel(ylabel, fontsize=fontsize + 2)
         ax.tick_params(axis='x', labelsize=fontsize)

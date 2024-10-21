@@ -8,7 +8,7 @@ from scipy.sparse import issparse
 
 from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score
 from sccellfie.tests import PCOUNT
-from sccellfie.tests.toy_inputs import create_controlled_adata
+from sccellfie.datasets.toy_inputs import create_controlled_adata
 
 
 def test_gene_score():

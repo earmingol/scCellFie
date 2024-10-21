@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.sparse as sparse
 
 from sccellfie.expression.aggregation import agg_expression_cells, top_mean
-from sccellfie.tests.toy_inputs import create_random_adata, create_controlled_adata
+from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata
 
 
 @pytest.mark.parametrize("use_raw", [False, True])
