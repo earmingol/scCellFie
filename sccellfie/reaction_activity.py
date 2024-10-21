@@ -1,4 +1,3 @@
-import cobra
 import scanpy as sc
 import numpy as np
 import pandas as pd
@@ -10,7 +9,7 @@ from sccellfie.gene_score import compute_gpr_gene_score
 
 
 def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene_scores', disable_pbar=False):
-    '''
+    """
     Computes reaction activity from gene scores and GPRs.
 
     Parameters
@@ -52,7 +51,7 @@ def compute_reaction_activity(adata, gpr_dict, use_specificity=True, layer='gene
     form of a string, e.g., '(gene1 and gene2) or gene3'.
 
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
-    '''
+    """
     genes = adata.var_names
     gene_scores = adata.layers[layer]
     rxns = gpr_dict.keys()

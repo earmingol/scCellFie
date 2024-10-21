@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the local percentile threshold for each gene in a AnnData object.
 
     Parameters
@@ -32,7 +32,7 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upp
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the local percentile threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -65,7 +65,7 @@ def get_local_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upp
 
 
 def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the global percentile threshold for each gene in a AnnData object.
 
     Parameters
@@ -94,7 +94,7 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, up
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the global percentile threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -128,7 +128,7 @@ def get_global_percentile_threshold(adata, percentile=0.75, lower_bound=1e-5, up
 
 
 def get_local_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the local mean threshold for each gene in a AnnData object.
 
     Parameters
@@ -154,7 +154,7 @@ def get_local_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the local mean threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -184,7 +184,7 @@ def get_local_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_
 
 
 def get_global_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the global mean threshold for each gene in a AnnData object.
 
     Parameters
@@ -208,7 +208,7 @@ def get_global_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the global mean threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -238,7 +238,7 @@ def get_global_mean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude
 
 
 def get_local_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the local Tukey's trimean threshold for each gene in a AnnData object.
 
     Parameters
@@ -264,7 +264,7 @@ def get_local_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclu
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the local Tukey's trimean threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -299,7 +299,7 @@ def get_local_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclu
 
 
 def get_global_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, exclude_zeros=False, use_raw=False):
-    '''
+    """
     Obtains the global Tukey's trimean threshold for each gene in a AnnData object.
 
     Parameters
@@ -325,7 +325,7 @@ def get_global_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, excl
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the global Tukey's trimean threshold for each gene.
-    '''
+    """
     if use_raw:
         X = adata.raw.X.toarray()
     else:
@@ -360,8 +360,8 @@ def get_global_trimean_threshold(adata, lower_bound=1e-5, upper_bound=None, excl
 
 
 def set_manual_threshold(adata, threshold):
-    '''
-    Set a threshold manually for each gene in a AnnData object.
+    """
+    Sets a threshold manually for each gene in a AnnData object.
 
     Parameters
     ----------
@@ -377,7 +377,7 @@ def set_manual_threshold(adata, threshold):
     -------
     thresholds: pandas.DataFrame
         A pandas.DataFrame object with the manual threshold for each gene.
-    '''
+    """
     if isinstance(threshold, list):
         assert len(adata.var_names) == len(threshold), "The len of threshold must be the same as gene number in adata"
         thresholds = pd.DataFrame(data={'threshold-manual': threshold}, index=adata.var_names, dtype=float)

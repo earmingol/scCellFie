@@ -31,25 +31,25 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     task_by_rxn : pandas.DataFrame
         DataFrame representing the relationship between tasks and reactions.
 
-    correction_organism : str, optional (default='human')
+    correction_organism : str, optional (default: 'human')
         Organism of the input data. This is important to correct gene names that are present in
         scCellFie's or custom database. Check options in `sccellfie.preprocessing.prepare_inputs.CORRECT_GENES.keys()`
 
-    gene_fraction_threshold : float, optional (default=0.0)
+    gene_fraction_threshold : float, optional (default: 0.0)
         The minimum fraction of genes in a reaction's GPR that must be present in adata to keep the reaction.
         Range is 0 to 1.
         1.0 means all genes must be present.
         Any value > 0 and < 1 keeps reactions with at least that fraction of genes present.
         0 means keep reactions with at least one gene present.
 
-    reaction_fraction_threshold : float, optional (default=0.0)
+    reaction_fraction_threshold : float, optional (default: 0.0)
         The minimum fraction of reactions in a task that must be present after gene filtering to keep the task.
         Range is 0 to 1.
         1.0 means all reactions must be present.
         Any value > 0 and < 1 keeps tasks with at least that fraction of reactions present.
         0 means keep tasks with at least one reaction present.
 
-    verbose : bool, optional (default=True)
+    verbose : bool, optional (default: True)
         If True, prints information about the preprocessing results.
 
     Returns:
@@ -188,10 +188,10 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     group_column : str
         Column name in adata.obs containing the group information.
 
-    target_fraction : float, optional (default=0.20)
+    target_fraction : float, optional (default: 0.20)
         Fraction of cells to sample from each group.
 
-    random_state : int, optional (default=0)
+    random_state : int, optional (default: 0)
         Random seed for reproducibility.
 
     Returns
@@ -239,13 +239,13 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
     adata : AnnData
         Annotated data matrix containing the expression data.
 
-    target_sum : int, optional (default=10_000)
+    target_sum : int, optional (default: 10_000)
         The target sum to which the data will be normalized.
 
-    n_counts_key : str, optional (default='n_counts')
+    n_counts_key : str, optional (default: 'n_counts')
         The key in adata.obs containing the total counts for each cell.
 
-    copy : bool, optional (default=False)
+    copy : bool, optional (default: False)
         If True, returns a copy of adata with the normalized data.
     """
     if copy:
@@ -303,13 +303,13 @@ def transform_adata_gene_names(adata, filename=None, organism='human', copy=True
         The file path to a custom CSV file containing Ensembl IDs and gene symbols.
         One column must be 'ensembl_id' and the other 'symbol'.
 
-    organism : str, optional (default='human')
+    organism : str, optional (default: 'human')
         The organism to retrieve data for. Choose 'human' or 'mouse'.
 
-    copy : bool, optional (default=True)
+    copy : bool, optional (default: True)
         If True, return a copy of the AnnData object. If False, modify the object in place.
 
-    drop_unmapped : bool, optional (default=False)
+    drop_unmapped : bool, optional (default: False)
         If True, drop genes that could not be mapped to symbols.
 
     Returns

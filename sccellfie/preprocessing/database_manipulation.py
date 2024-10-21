@@ -4,8 +4,9 @@ from sccellfie.preprocessing.gpr_rules import find_genes_gpr
 
 
 def get_element_associations(df, element, axis_element=0):
-    '''Get the tasks, reactions, or genes associated with
-     a given element in the DataFrame.
+    """
+    Gets the tasks, reactions, or genes associated with
+    a given element in the DataFrame.
 
     Parameters
     ----------
@@ -24,7 +25,7 @@ def get_element_associations(df, element, axis_element=0):
     associations : list of str
         List of tasks, reactions, or genes associated with the given element.
 
-    '''
+    """
     if axis_element == 0:
         e = df.loc[element, :]
     elif axis_element == 1:
@@ -40,7 +41,7 @@ def get_element_associations(df, element, axis_element=0):
 def add_new_task(task_by_rxn, task_by_gene, rxn_by_gene, task_info, rxn_info,
                  task_name, task_system, task_subsystem, rxn_names, gpr_hgncs, gpr_symbols):
     """
-    Add a new task and their associated reactions and genes to the database.
+    Adds a new task and their associated reactions and genes to the database.
 
     Parameters
     ----------
@@ -145,7 +146,7 @@ def add_new_task(task_by_rxn, task_by_gene, rxn_by_gene, task_info, rxn_info,
 
 def combine_and_sort_dataframes(df1, df2, preference='max'):
     """
-    Combine two DataFrames and sort the rows and columns alphabetically.
+    Combines two DataFrames and sort the rows and columns alphabetically.
 
     Parameters
     ----------
@@ -205,12 +206,12 @@ def handle_duplicate_indexes(df, value_column=None, operation='first'):
     df : pandas.DataFrame
         DataFrame with duplicated indexes.
 
-    value_column : str, optional (default=None)
+    value_column : str, optional (default: None)
         Name of the column containing values to make a decision
          when handling duplicated indexes. This value is optional
          only when operation is 'first' or 'last'.
 
-    operation : str, optional (default='first')
+    operation : str, optional (default: 'first')
         Operation to perform when handling duplicated indexes.
         Options: 'min', 'max', 'mean', 'first', 'last'.
 

@@ -7,7 +7,7 @@ from sccellfie.tests import PCOUNT
 
 
 def gene_score(gene_expression, gene_threshold):
-    '''
+    """
     Computes the gene score for a given gene expression and threshold.
 
     Parameters
@@ -26,12 +26,12 @@ def gene_score(gene_expression, gene_threshold):
     Notes
     -----
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.cels.2019.05.012).
-    '''
+    """
     return 5*np.log(1 + gene_expression/(gene_threshold + PCOUNT)) # Added small value to threshold to avoid division by zero
 
 
 def compute_gene_scores(adata, thresholds, use_raw=False, layer='gene_scores'):
-    '''
+    """
     Computes the gene scores from CellFie for each gene in an AnnData object given
     specific threshold values.
 
@@ -57,7 +57,7 @@ def compute_gene_scores(adata, thresholds, use_raw=False, layer='gene_scores'):
     Notes
     -----
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
-    '''
+    """
     genes = [g for g in thresholds.index if g in adata.var_names]
     if use_raw:
         X = adata[:, genes].raw.X
@@ -74,7 +74,7 @@ def compute_gene_scores(adata, thresholds, use_raw=False, layer='gene_scores'):
 
 
 def compute_gpr_gene_score(gpr, gene_scores):
-    '''
+    """
     Recursive parsing of gprs into lists of complexes and their scores.
 
     Parameters
@@ -99,7 +99,7 @@ def compute_gpr_gene_score(gpr, gene_scores):
     Notes
     -----
     This score is computed as previously indicated in the CellFie paper (https://doi.org/10.1016/j.crmeth.2021.100040).
-    '''
+    """
     if isinstance(gpr, cobra.core.gene.GPR):
         return compute_gpr_gene_score(gpr.body, gene_scores)
     elif isinstance(gpr, ast.Name):

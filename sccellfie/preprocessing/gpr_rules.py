@@ -4,7 +4,7 @@ import numpy as np
 
 def clean_gene_names(gpr_rule):
     """
-    Remove spaces between parentheses and gene IDs in a GPR rule.
+    Removes spaces between parentheses and gene IDs in a GPR rule.
 
     Parameters
     ----------
@@ -23,7 +23,7 @@ def clean_gene_names(gpr_rule):
 
 def find_genes_gpr(gpr_rule):
     """
-    Find all gene IDs in a GPR rule.
+    Finds all gene IDs in a GPR rule.
 
     Parameters
     ----------
@@ -42,7 +42,7 @@ def find_genes_gpr(gpr_rule):
 
 def replace_gene_ids_in_gpr(gpr_rule, gene_id_mapping):
     """
-    Replace gene IDs in a GPR rule with new IDs (different nomenclature).
+    Replaces gene IDs in a GPR rule with new IDs (different nomenclature).
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def replace_gene_ids_in_gpr(gpr_rule, gene_id_mapping):
 
 def convert_gpr_nomenclature(gpr_rules, id_mapping):
     """
-    Convert gene IDs in multiple GPR rules to a different nomenclature.
+    Converts gene IDs in multiple GPR rules to a different nomenclature.
 
     Parameters
     ----------

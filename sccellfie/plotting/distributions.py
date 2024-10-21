@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10, save=None, dpi=300, **kwargs):
     """
-    Plot a grid of violin plots for multiple genes in Scanpy,
+    Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
 
     Parameters:

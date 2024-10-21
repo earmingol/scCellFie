@@ -23,14 +23,14 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
         Annotated data matrix containing the expression data and nearest neighbor graph.
         The .X matrix must contain raw counts. If neighbors are not present, they will be computed.
 
-    organism : str, optional (default='human')
+    organism : str, optional (default: 'human')
         Organism for the analysis. Options are 'human' or 'mouse'.
 
-    sccellfie_data_folder : str, optional (default=None)
+    sccellfie_data_folder : str, optional (default: None)
         Path to the folder containing the files of the scCellFie database
         (reactions, GPR rules, metabolic tasks, etc.).
 
-    sccellfie_db : dict, optional (default=None)
+    sccellfie_db : dict, optional (default: None)
         Dictionary containing the scCellFie database information.
         If this information is provided, the sccellfie_data_folder will be ignored.
         This dictionary must contain the keys 'rxn_info', 'task_by_gene', 'rxn_by_gene', 'task_by_rxn', 'thresholds', and
@@ -38,34 +38,34 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
         Examples of dataframes can be found at
         https://github.com/earmingol/scCellFie/raw/refs/heads/main/task_data/homo_sapiens/
 
-    n_counts_col : str, optional (default='n_counts')
+    n_counts_col : str, optional (default: 'n_counts')
         Column name in adata.obs containing the total counts per cell.
         If None or not present, the total counts will be computed.
 
-    process_by_group : bool, optional (default=False)
+    process_by_group : bool, optional (default: False)
         Whether to process data by groups (e.g., cell types). This is intended to be
         memory efficient for huge datasets. Results will be not outputted and will be
         saved to the disk instead. If True, `groupby` must be specified, as well as `save_folder`.
 
-    groupby : str, optional (default=None)
+    groupby : str, optional (default: None)
         Column name in adata.obs for the groups to process. Required if process_by_group is True.
 
-    neighbors_key : str, optional (default='neighbors')
+    neighbors_key : str, optional (default: 'neighbors')
         Key in adata.uns for neighbor data. If not present, neighbors will be computed.
 
-    n_neighbors : int, optional (default=10)
+    n_neighbors : int, optional (default: 10)
         Number of neighbors to find (if `neighbors_key` is not present). This number of neighbors
         will be used in the KNN smoothing too, if `smooth_cells` is True.
 
-    batch_key : str, optional (default=None)
+    batch_key : str, optional (default: None)
         Column name in adata.obs for batch information. If present, Harmony will be used to
         integrate the data before computing neighbors (when neighbors are not present in the AnnData object).
 
-    threshold_key : str, optional (default='sccellfie_threshold')
+    threshold_key : str, optional (default: 'sccellfie_threshold')
         Key for the threshold to use in gene score computation.
         This key is present in the threshold file of the scCellFie (or custom) database.
 
-    smooth_cells : bool, optional (default=True)
+    smooth_cells : bool, optional (default: True)
         Whether to perform a smoothing for the expression values based on the nearest neighbors.
         If True, KNN smoothing will be performed.
 
@@ -74,14 +74,14 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
         The final expression matrix is computed as (1 - alpha) * X + alpha * (S @ X), where X is the
         original expression matrix and S is the smoothed matrix.
 
-    chunk_size : int, optional (default=5000)
+    chunk_size : int, optional (default: 5000)
         Size of chunks for smoothing the expression of large datasets.
         This is used to split the data into smaller parts to reduce memory usage.
 
-    disable_pbar : bool, optional (default=False)
+    disable_pbar : bool, optional (default: False)
         Whether to disable the progress bar.
 
-    save_folder : str, optional (default=None)
+    save_folder : str, optional (default: None)
         Folder to save results. The AnnData object is saved to folder/save_filename.h5ad.
         The scCellFie attributes are saved to:
             - reactions: folder/save_filename_reactions.h5ad.
@@ -89,10 +89,10 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
         If process_by_group is True, file names will include cell type name as in
          save_filename_celltype.h5ad.
 
-    save_filename : str, optional (default=None)
+    save_filename : str, optional (default: None)
         Filename to save results. If None, the filename will be 'sccellfie'.
 
-    verbose : bool, optional (default=True)
+    verbose : bool, optional (default: True)
         Whether to print messages during the processing.
 
     Returns:
@@ -260,16 +260,16 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     organism : str
         Organism for the analysis. Options are 'human' or 'mouse'.
 
-    first_group : bool, optional (default=True)
+    first_group : bool, optional (default: True)
         Whether this is the first group to process.
 
-    preprocessed_db : dict, optional (default=None)
+    preprocessed_db : dict, optional (default: None)
         Dictionary containing the processed data from previous groups.
 
-    met_genes : list, optional (default=None)
+    met_genes : list, optional (default: None)
         List of genes to filter for subsequent groups.
 
-    verbose : bool, optional (default=True)
+    verbose : bool, optional (default: True)
         Whether to print messages during the processing.
 
     Returns
@@ -378,10 +378,10 @@ def compute_neighbors(adata, batch_key, n_neighbors=10, verbose=True):
         Column name in adata.obs for batch information.
         This is used for Harmony integration if neighbors are not present.
 
-    n_neighbors : int, optional (default=10)
+    n_neighbors : int, optional (default: 10)
         Number of neighbors to find.
 
-    verbose : bool, optional (default=True)
+    verbose : bool, optional (default: True)
         Whether to print messages during the processing.
 
     Returns

@@ -10,28 +10,28 @@ def load_sccellfie_database(organism='human', task_folder=None, rxn_info_filenam
 
     Parameters
     ----------
-    organism : str, optional (default='human')
+    organism : str, optional (default: 'human')
         The organism to retrieve data for. Choose 'human' or 'mouse'. Used when loading from URLs.
 
-    task_folder : str, optional (default=None)
+    task_folder : str, optional (default: None)
         The local folder path containing CellFie data files. If provided, this takes priority.
 
-    rxn_info_filename : str, optional (default=None)
+    rxn_info_filename : str, optional (default: None)
         Full path for reaction information JSON file.
 
-    task_info_filename : str, optional (default=None)
+    task_info_filename : str, optional (default: None)
         Full path for task information CSV file.
 
-    task_by_rxn_filename : str, optional (default=None)
+    task_by_rxn_filename : str, optional (default: None)
         Full path for task by reaction CSV file.
 
-    task_by_gene_filename : str, optional (default=None)
+    task_by_gene_filename : str, optional (default: None)
         Full path for task by gene CSV file.
 
-    rxn_by_gene_filename : str, optional (default=None)
+    rxn_by_gene_filename : str, optional (default: None)
         Full path for reaction by gene CSV file.
 
-    thresholds_filename : str, optional (default=None)
+    thresholds_filename : str, optional (default: None)
         Full path for thresholds CSV file.
 
     Returns

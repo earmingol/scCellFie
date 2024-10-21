@@ -7,7 +7,7 @@ def retrieve_ensembl2symbol_data(filename=None, organism='human'):
 
     Parameters
     ----------
-    filename : str, optional
+    filename : str, optional (default: None)
         The file path to a custom CSV file containing Ensembl IDs and gene symbols.
 
     organism : str, optional (default: 'human')

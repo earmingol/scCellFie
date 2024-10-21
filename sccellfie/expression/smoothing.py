@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
     """
-    Calculate the smoothing matrix S based on the nearest neighbor graph in adata.obsp.
+    Calculates the smoothing matrix S based on the nearest neighbor graph in adata.obsp.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
 def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbors', mode='connectivity', alpha=0.33,
                           n_chunks=None, chunk_size=None, use_raw=False, disable_pbar=False):
     """
-    Smooth expression values based on KNNs of single cells using Scanpy.
+    Smooths expression values based on KNNs of single cells using Scanpy.
 
     Parameters
     ----------
