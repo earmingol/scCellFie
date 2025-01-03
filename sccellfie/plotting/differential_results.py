@@ -3,10 +3,11 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import textwrap
 
 
 def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, contrast=None, effect_col='cohens_d',
-                        effect_title="Cohen's d", save=None):
+                        effect_title="Cohen's d", wrapped_title_length=50, save=None):
     """
     Creates a volcano plot for differential analysis results.
 
@@ -32,6 +33,9 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 
     effect_title : str, optional (default: "Cohen's d")
         The title to use for the effect size in the plot.
+
+    wrapped_title_length : int, optional (default: 50)
+        The maximum number of characters per line in the title.
 
     save : str, optional (default: None)
         The file path to save the plot. If None, the plot is not saved.
@@ -77,7 +81,8 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
     ax.set_xlabel(effect_title)
     ax.set_ylabel('-log10(adj. p-value)')
     title = 'Volcano Plot' if contrast is None else f'{contrast}'
-    ax.set_title(title)
+    wrapped_title = "\n".join(textwrap.wrap(title, width=wrapped_title_length))
+    ax.set_title(wrapped_title)
 
     # Set the x-axis limits to center the plot around zero
     max_lfc = np.ceil(np.nanmax(df[effect_col].abs().values))
@@ -105,7 +110,7 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 
 def create_comparative_violin(adata, significant_features, group1, group2, condition_key,
                               celltype, cell_type_key, xlabel='Feature', ylabel='Metabolic Activity',
-                              title=None, figsize=(16, 7), fontsize=10,
+                              title=None, wrapped_title_length=50, figsize=(16, 7), fontsize=10,
                               palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
     """
     Compares features between two groups for a specific cell type in an AnnData object and creates a violin plot.
@@ -142,6 +147,9 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
 
     title : str, optional (default: None)
         The title for the plot. If None, a default title is used.
+
+    wrapped_title_length : int, optional (default: 50)
+        The maximum number of characters per line in the title.
 
     figsize : tuple, optional (default: (16, 7))
         The figure size.
@@ -202,7 +210,8 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
 
     if title is None:
         title = f"Feature Comparison: {group1} vs {group2} ({celltype})"
-    plt.title(title, fontsize=fontsize + 2)
+    wrapped_title = "\n".join(textwrap.wrap(title, width=wrapped_title_length))
+    plt.title(wrapped_title, fontsize=fontsize + 2)
 
     plt.tight_layout()
 

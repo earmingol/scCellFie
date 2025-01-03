@@ -1,8 +1,10 @@
+import textwrap
 import scanpy as sc
 import matplotlib.pyplot as plt
 
 
-def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10, rotation=90, save=None, dpi=300, **kwargs):
+def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10,
+                              rotation=90, wrapped_title_length=45, save=None, dpi=300, w_pad=None, h_pad=None, **kwargs):
     """
     Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
@@ -12,8 +14,9 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
     adata : AnnData
         Annotated data matrix.
 
-    genes : list of str
-        List of gene names to plot.
+    features : list of str
+        List of feature names to plot. Should match names in
+        adata.var_names.
 
     groupby : str
         Key in `adata.obs` containing the groups to plot. For each
@@ -36,6 +39,9 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
     rotation : int, optional (default: 90)
         Rotation of the x-axis tick labels
 
+    wrapped_title_length : int, optional (default: 50)
+        The maximum number of characters per line in the title.
+
     save : str, optional (default: None)
         Filepath to save the figure. If not provided, the figure
         will be displayed.
@@ -43,24 +49,31 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
     dpi : int, optional (default: 300)
         Resolution of the saved figure.
 
+    w_pad : float, optional (default: None)
+        Width padding between subplots.
+
+    h_pad : float, optional (default: None)
+        Height padding between subplots.
+
     **kwargs : dict
         Additional arguments to pass to `sc.pl.violin`. For example,
         `rotation` can be used to rotate the x-axis labels.
     """
-    n_genes = len(genes)
+    n_genes = len(features)
     n_rows = -(-n_genes // n_cols)  # Ceiling division
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(figsize[0] * n_cols, figsize[1] * n_rows),
                              squeeze=False)
     fig.tight_layout(pad=3.0)
 
-    for i, gene in enumerate(genes):
+    for i, feature in enumerate(features):
         row = i // n_cols
         col = i % n_cols
         ax = axes[row, col]
 
-        sc.pl.violin(adata, keys=gene, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
-        ax.set_title(gene, fontsize=fontsize + 4)
+        sc.pl.violin(adata, keys=feature, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
+        wrapped_title = "\n".join(textwrap.wrap(feature, width=wrapped_title_length))
+        ax.set_title(wrapped_title, fontsize=fontsize + 4)
         ax.set_ylabel(ylabel, fontsize=fontsize + 2)
         ax.tick_params(axis='x', labelsize=fontsize)
         ax.tick_params(axis='y', labelsize=fontsize)
@@ -71,7 +84,7 @@ def create_multi_violin_plots(adata, genes, groupby, n_cols=4, figsize=(5, 5), y
         col = i % n_cols
         fig.delaxes(axes[row, col])
 
-    plt.tight_layout()
+    plt.tight_layout(w_pad=w_pad, h_pad=h_pad)
     if save:
         plt.savefig(save, dpi=dpi, bbox_inches='tight')
         print(f"Figure saved to {save} with DPI {dpi}")
