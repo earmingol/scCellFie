@@ -257,6 +257,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
         This is used for Harmony integration if neighbors are not present.
 
     ensembl_ids : bool
+        Whether the gene names are Ensembl IDs.
 
     organism : str
         Organism for the analysis. Options are 'human' or 'mouse'.
