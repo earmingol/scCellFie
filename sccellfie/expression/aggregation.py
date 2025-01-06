@@ -43,7 +43,7 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
     Returns
     -------
     agg_expression : pandas.DataFrame
-        A pandas.DataFrame where rows correspond to genes and columns correspond to the
+        A pandas.DataFrame where columns correspond to genes and rows correspond to the
         unique categories in `groupby`. Each cell in the DataFrame contains the
         aggregated expression value for the corresponding gene and group.
 
