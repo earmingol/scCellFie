@@ -9,6 +9,7 @@ from sccellfie.preprocessing.adata_utils import get_adata_gene_expression, strat
 from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata
 
 
+# Stratifed subsampling tests
 def test_stratified_subsample_adata():
     # Create a random AnnData object
     n_obs = 1000
@@ -37,6 +38,7 @@ def test_stratified_subsample_adata():
         assert np.isclose(original_proportions[cluster], subsampled_proportions[cluster], atol=0.05)
 
 
+# Normalization tests
 def test_normalize_adata():
     # Create controlled test data
     adata = create_controlled_adata()
@@ -79,6 +81,22 @@ def test_normalize_adata():
     np.testing.assert_array_equal(raw_X, X)
 
 
+def test_normalize_adata_without_ncounts():
+    adata = create_controlled_adata()
+    with pytest.warns(UserWarning, match="n_counts not found in adata.obs"):
+        normalize_adata(adata, target_sum=1000)
+
+
+def test_normalize_adata_dense():
+    """Test normalization with dense matrix"""
+    adata = create_controlled_adata()
+    adata.X = adata.X.toarray()
+
+    with pytest.warns(UserWarning, match="Normalizing data"):
+        normalize_adata(adata, target_sum=1000)
+
+
+# Transform gene names tests
 # Mock data for testing
 MOCK_ENSEMBL2SYMBOL = {
     'ENSG00000000001': 'GENE1',
@@ -154,6 +172,7 @@ def test_transform_adata_gene_names(mock_retrieve):
     assert result.X.shape == (4, 2)
 
 
+# Transfer variables tests
 def create_adata_with_var_metadata(n_obs=50, n_vars=20, prefix='gene'):
     """Helper function to create AnnData with var metadata"""
     adata = create_random_adata(n_obs=n_obs, n_vars=n_vars)
@@ -298,6 +317,56 @@ def test_var_metadata_transfer():
     assert result.var.loc[var_to_transfer, 'new_meta'] == adata_source.var.loc[var_to_transfer, 'new_meta']
 
 
+def test_transfer_variables_missing_layers():
+    """Test behavior when source and target have different layers"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=50, n_vars=15)
+
+    var_to_transfer = adata_source.var_names[0]  # Get an actual var name
+    adata_target.layers['test_layer'] = adata_target.X.copy()
+
+    result = transfer_variables(adata_target, adata_source, var_to_transfer)
+    assert 'test_layer' in result.layers
+
+
+def test_transfer_variables_obsm():
+    """Test that obsm is properly copied"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=50, n_vars=15)
+
+    var_to_transfer = adata_source.var_names[0]
+    adata_target.obsm['test_obsm'] = np.random.rand(50, 10)
+
+    result = transfer_variables(adata_target, adata_source, var_to_transfer)
+    assert 'test_obsm' in result.obsm
+
+
+def test_transfer_variables_invalid_mapping():
+    """Test error when observation mapping fails"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=40, n_vars=15)
+
+    var_to_transfer = adata_source.var_names[0]
+    adata_source.obs['cell_id'] = [f'source_{i}' for i in range(50)]
+    adata_target.obs['cell_id'] = [f'target_{i}' for i in range(40)]
+
+    with pytest.raises(ValueError, match="Some observations in target could not be mapped"):
+        transfer_variables(adata_target, adata_source, var_to_transfer,
+                           source_obs_col='cell_id', target_obs_col='cell_id')
+
+
+def test_transfer_variables_obs_size_mismatch():
+    """Test error when observation counts don't match without mapping columns"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=40, n_vars=15)
+
+    var_to_transfer = adata_source.var_names[0]
+
+    with pytest.raises(ValueError, match="Number of observations don't match"):
+        transfer_variables(adata_target, adata_source, var_to_transfer)
+
+
+# Get adata gene expression tests
 @pytest.fixture
 def adata():
     return create_controlled_adata()
