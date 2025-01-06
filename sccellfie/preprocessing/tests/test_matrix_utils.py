@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 
-from sccellfie.preprocessing.matrix_utils import min_max_normalization, get_matrix_gene_expression
+from sccellfie.preprocessing.matrix_utils import min_max_normalization, get_matrix_gene_expression, compute_dataframes_correlation
 
 
 # Tests for min_max_normalization function
@@ -136,3 +136,53 @@ def test_get_gene_expression_pandas_index():
 
     expression = get_matrix_gene_expression(matrix, var_names, 'gene2')
     assert np.allclose(expression, [2, 5])
+
+
+@pytest.fixture
+def sample_dfs():
+    df1 = pd.DataFrame({'col1': [1, 2, 3, 4, 5]})
+    df2 = pd.DataFrame({
+        'A': [1, 2, 3, 4, 5],  # Perfect correlation
+        'B': [5, 4, 3, 2, 1],  # Perfect negative correlation
+        'C': [1, 1, 3, 4, 4],  # Partial correlation
+    })
+    return df1, df2
+
+
+def test_compute_dataframes_correlation_basic(sample_dfs):
+    df1, df2 = sample_dfs
+    result = compute_dataframes_correlation(df1, df2)
+
+    assert isinstance(result, pd.DataFrame)
+    assert list(result.index) == ['A', 'C', 'B']
+    assert np.isclose(result.loc['A', 'col1'], 1.0)
+    assert np.isclose(result.loc['B', 'col1'], -1.0)
+
+
+def test_compute_dataframes_correlation_methods(sample_dfs):
+    df1, df2 = sample_dfs
+    spearman = compute_dataframes_correlation(df1, df2, method='spearman')
+    pearson = compute_dataframes_correlation(df1, df2, method='pearson')
+
+    assert not np.allclose(spearman.values, pearson.values)
+
+
+def test_compute_dataframes_correlation_custom_column(sample_dfs):
+    df1, df2 = sample_dfs
+    df1.columns = ['custom_col']
+    result = compute_dataframes_correlation(df1, df2, col_name='custom_col')
+    assert result.columns[0] == 'custom_col'
+
+
+def test_compute_dataframes_correlation_invalid_inputs():
+    df1 = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5, 6]})
+    df2 = pd.DataFrame({'A': [1, 2, 3]})
+
+    with pytest.raises(ValueError, match="First DataFrame should have exactly one column"):
+        compute_dataframes_correlation(df1, df2)
+
+    with pytest.raises(ValueError, match="method must be either"):
+        compute_dataframes_correlation(pd.DataFrame({'col1': [1, 2, 3]}), df2, method='invalid')
+
+    with pytest.raises(ValueError, match="Column 'nonexistent' not found"):
+        compute_dataframes_correlation(pd.DataFrame({'col1': [1, 2, 3]}), df2, col_name='nonexistent')
