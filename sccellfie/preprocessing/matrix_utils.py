@@ -34,7 +34,7 @@ def min_max_normalization(df, axis=0):
     return df_scaled
 
 
-def get_gene_expression(matrix, var_names, gene, normalize=False):
+def get_matrix_gene_expression(matrix, var_names, gene, normalize=False):
     """
     Safely extracts expression values for a gene from any matrix type.
 

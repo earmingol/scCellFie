@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 
-from sccellfie.preprocessing.matrix_utils import min_max_normalization, get_gene_expression
+from sccellfie.preprocessing.matrix_utils import min_max_normalization, get_matrix_gene_expression
 
 
 # Tests for min_max_normalization function
@@ -77,7 +77,7 @@ def test_get_gene_expression_numpy():
     matrix = np.array([[1, 2, 3], [4, 5, 6]])
     var_names = ['gene1', 'gene2', 'gene3']
 
-    expression = get_gene_expression(matrix, var_names, 'gene2')
+    expression = get_matrix_gene_expression(matrix, var_names, 'gene2')
     assert np.allclose(expression, [2, 5])
 
 
@@ -86,7 +86,7 @@ def test_get_gene_expression_sparse():
     matrix = csr_matrix([[1, 2, 3], [4, 5, 6]])
     var_names = ['gene1', 'gene2', 'gene3']
 
-    expression = get_gene_expression(matrix, var_names, 'gene2')
+    expression = get_matrix_gene_expression(matrix, var_names, 'gene2')
     assert np.allclose(expression, [2, 5])
 
 
@@ -98,7 +98,7 @@ def test_get_gene_expression_dataframe():
         'gene3': [3, 6]
     })
 
-    expression = get_gene_expression(matrix, matrix.columns, 'gene2')
+    expression = get_matrix_gene_expression(matrix, matrix.columns, 'gene2')
     assert np.allclose(expression, [2, 5])
 
 
@@ -107,7 +107,7 @@ def test_get_gene_expression_with_normalization():
     matrix = np.array([[1, 2, 3], [4, 5, 6]])
     var_names = ['gene1', 'gene2', 'gene3']
 
-    expression = get_gene_expression(matrix, var_names, 'gene2', normalize=True)
+    expression = get_matrix_gene_expression(matrix, var_names, 'gene2', normalize=True)
     assert np.allclose(expression.tolist(), [[0.0], [1.0]])  # Should be normalized between 0 and 1
 
 
@@ -117,7 +117,7 @@ def test_get_gene_expression_gene_not_found():
     var_names = ['gene1', 'gene2', 'gene3']
 
     with pytest.raises(ValueError):
-        get_gene_expression(matrix, var_names, 'gene4')
+        get_matrix_gene_expression(matrix, var_names, 'gene4')
 
 
 def test_get_gene_expression_invalid_matrix():
@@ -126,7 +126,7 @@ def test_get_gene_expression_invalid_matrix():
     var_names = ['gene1', 'gene2', 'gene3']
 
     with pytest.raises(ValueError):
-        get_gene_expression(matrix, var_names, 'gene2')
+        get_matrix_gene_expression(matrix, var_names, 'gene2')
 
 
 def test_get_gene_expression_pandas_index():
@@ -134,5 +134,5 @@ def test_get_gene_expression_pandas_index():
     matrix = np.array([[1, 2, 3], [4, 5, 6]])
     var_names = pd.Index(['gene1', 'gene2', 'gene3'])
 
-    expression = get_gene_expression(matrix, var_names, 'gene2')
+    expression = get_matrix_gene_expression(matrix, var_names, 'gene2')
     assert np.allclose(expression, [2, 5])
