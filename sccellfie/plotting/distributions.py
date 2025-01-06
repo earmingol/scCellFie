@@ -3,7 +3,7 @@ import scanpy as sc
 import matplotlib.pyplot as plt
 
 
-def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel='Metabolic Activity', fontsize=10,
+def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel=None, fontsize=10,
                               rotation=90, wrapped_title_length=45, save=None, dpi=300, w_pad=None, h_pad=None, **kwargs):
     """
     Plots a grid of violin plots for multiple genes in Scanpy,
@@ -28,8 +28,8 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
     figsize : tuple of float, optional (default: (5, 5))
         Size of each subplot in inches.
 
-    ylabel : str, optional (default: 'Metabolic Activity')
-        Label for the y-axis.
+    ylabel : str, optional (default: None)
+        Label for the y-axis. If None, the label will be the variable name.
 
     fontsize : int, optional (default: 10)
         Font size for the title and axis labels. The tick labels will
@@ -73,7 +73,11 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
 
         sc.pl.violin(adata, keys=feature, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
         wrapped_title = "\n".join(textwrap.wrap(feature, width=wrapped_title_length))
-        ax.set_title(wrapped_title, fontsize=fontsize + 4)
+
+        if ylabel is None:
+            ylabel = wrapped_title
+        else:
+            ax.set_title(wrapped_title, fontsize=fontsize + 4)
         ax.set_ylabel(ylabel, fontsize=fontsize + 2)
         ax.tick_params(axis='x', labelsize=fontsize)
         ax.tick_params(axis='y', labelsize=fontsize)
