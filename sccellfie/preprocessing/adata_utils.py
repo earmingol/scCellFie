@@ -6,6 +6,56 @@ from scipy import sparse
 from scipy.sparse import issparse, csr_matrix, hstack
 
 from sccellfie.datasets.gene_info import retrieve_ensembl2symbol_data
+from sccellfie.preprocessing.matrix_utils import get_matrix_gene_expression
+
+
+def get_adata_gene_expression(adata, gene, layer=None, use_raw=False):
+    """
+    Get expression values for a given feature from AnnData object.
+    Checks both adata.var_names (gene expression) and adata.obs (metadata).
+
+    Parameters
+    ----------
+    adata : AnnData
+        AnnData object containing the expression data.
+
+    gene : str
+        Name of the gene or feature to extract the expression values for.
+
+    layer : str, optional (default: None)
+        Name of the layer to extract the expression values from.
+        This layer has priority over adata.X and ´use_raw´.
+
+    use_raw : bool, optional (default: False)
+        If True, use the raw data in adata.raw.X if available.
+
+    Returns
+    -------
+    expression : numpy.ndarray
+        Array containing the expression values for the specified gene.
+    """
+    if layer is not None:
+        X = adata.layers[layer]
+    elif (use_raw) and (adata.raw is not None):
+        X = adata.raw.X
+    else:
+        X = adata.X
+
+    if gene in adata.var_names:
+        expression = get_matrix_gene_expression(X, adata.var_names, gene)
+    elif gene in adata.obs.columns:
+        # Extract values from observation metadata
+        expression = adata.obs[gene].values
+
+        # Convert to numeric if possible
+        try:
+            expression = expression.astype(float)
+        except ValueError:
+            raise ValueError(f"Feature '{gene}' in adata.obs is not numeric")
+    else:
+        raise ValueError(f"Feature '{gene}' not found in either adata.var_names or adata.obs columns")
+
+    return expression
 
 
 def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random_state=0):

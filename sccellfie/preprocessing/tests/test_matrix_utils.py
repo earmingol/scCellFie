@@ -71,7 +71,7 @@ def test_min_max_normalization_constant_column():
     assert np.allclose(result['B'], [0, 0.5, 1.0])
 
 
-# Tests for get_gene_expression function
+# Tests for get_matrix_gene_expression function
 def test_get_gene_expression_numpy():
     # Test with numpy array
     matrix = np.array([[1, 2, 3], [4, 5, 6]])

@@ -2,10 +2,10 @@ import pytest
 import numpy as np
 
 from scipy import sparse
-from scipy.sparse import issparse
+from scipy.sparse import issparse, csr_matrix
 from unittest.mock import patch
 
-from sccellfie.preprocessing.adata_utils import stratified_subsample_adata, normalize_adata, transform_adata_gene_names, transfer_variables
+from sccellfie.preprocessing.adata_utils import get_adata_gene_expression, stratified_subsample_adata, normalize_adata, transform_adata_gene_names, transfer_variables
 from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata
 
 
@@ -296,3 +296,55 @@ def test_var_metadata_transfer():
     assert 'feature_type' in result.var.columns
     assert 'new_meta' in result.var.columns
     assert result.var.loc[var_to_transfer, 'new_meta'] == adata_source.var.loc[var_to_transfer, 'new_meta']
+
+
+@pytest.fixture
+def adata():
+    return create_controlled_adata()
+
+
+def test_get_adata_gene_expression_basic(adata):
+    expression = get_adata_gene_expression(adata, 'gene1')
+    assert np.allclose(expression, [1, 3, 5, 7])
+
+
+def test_get_adata_gene_expression_layer(adata):
+    adata.layers['test'] = csr_matrix([[10, 20, 30],
+                                      [40, 50, 60],
+                                      [70, 80, 90],
+                                      [100, 110, 120]])
+    expression = get_adata_gene_expression(adata, 'gene1', layer='test')
+    assert np.allclose(expression, [10, 40, 70, 100])
+
+
+def test_get_adata_gene_expression_raw(adata):
+    # Use raw data that's already set during creation
+    expression = get_adata_gene_expression(adata, 'gene1', use_raw=True)
+    expected = adata.raw.X[:, 0].toarray().flatten()
+    assert np.allclose(expression, expected)
+
+
+def test_get_adata_gene_expression_obs(adata):
+    adata.obs['test_value'] = [1.5, 2.5, 3.5, 4.5]
+    expression = get_adata_gene_expression(adata, 'test_value')
+    assert np.allclose(expression, [1.5, 2.5, 3.5, 4.5])
+
+
+def test_get_adata_gene_expression_non_numeric_obs(adata):
+    adata.obs['category'] = ['A', 'B', 'C', 'D']
+    with pytest.raises(ValueError, match="Feature 'category' in adata.obs is not numeric"):
+        get_adata_gene_expression(adata, 'category')
+
+
+def test_get_adata_gene_expression_not_found(adata):
+    with pytest.raises(ValueError, match="Feature 'nonexistent' not found"):
+        get_adata_gene_expression(adata, 'nonexistent')
+
+
+def test_get_adata_gene_expression_layer_priority(adata):
+    adata.layers['test'] = csr_matrix([[10, 20, 30],
+                                      [40, 50, 60],
+                                      [70, 80, 90],
+                                      [100, 110, 120]])
+    expression = get_adata_gene_expression(adata, 'gene1', layer='test', use_raw=True)
+    assert np.allclose(expression, [10, 40, 70, 100])
