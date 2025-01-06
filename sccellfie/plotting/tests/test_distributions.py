@@ -11,11 +11,6 @@ def controlled_adata():
     return create_controlled_adata()
 
 
-@pytest.fixture
-def controlled_adata():
-    return create_controlled_adata()
-
-
 def test_create_multi_violin_plots_basic(controlled_adata):
     genes = ['gene1', 'gene2', 'gene3']
     fig, axes = create_multi_violin_plots(controlled_adata, genes, groupby='group')
