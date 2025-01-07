@@ -1,10 +1,9 @@
 import pytest
 import numpy as np
 
-from sccellfie.gene_score import compute_gene_scores
+from sccellfie.gene_score import compute_gene_scores, PCOUNT
 from sccellfie.reaction_activity import compute_reaction_activity
 from sccellfie.metabolic_task import compute_mt_score
-from sccellfie.tests import PCOUNT
 from sccellfie.datasets.toy_inputs import create_controlled_adata, create_controlled_gpr_dict, create_global_threshold, create_controlled_task_by_rxn
 
 

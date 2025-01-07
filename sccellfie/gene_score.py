@@ -3,8 +3,9 @@ import cobra
 import numpy as np
 
 from scipy.sparse import issparse
-from sccellfie.tests import PCOUNT
 
+
+PCOUNT = 0. # Pseudocount used in function sccellfie.gene_score.gene_score()
 
 def gene_score(gene_expression, gene_threshold):
     """
