@@ -5,6 +5,7 @@ cobra
 tqdm
 scipy
 anndata
+pygam
 pytest
 pytest-cov
 pytest-randomly; python_version >= "3.6"
