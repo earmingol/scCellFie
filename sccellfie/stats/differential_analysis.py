@@ -146,7 +146,7 @@ def scanpy_differential_analysis(adata, cell_type, cell_type_key, condition_key,
     return df_results.set_index(['cell_type', 'feature'])
 
 
-def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, alpha=0.05):
+def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, alternative='two-sided', alpha=0.05):
     """
     Performs pairwise Wilcoxon tests for each feature between all group pairs.
     This functions does not perform the test in a cell type-wise manner.
@@ -165,6 +165,10 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
 
     order : list, optional (default: None)
         Specific order of groups to test. If None, groups are sorted.
+
+    alternative : str, optional (default: 'two-sided')
+        Alternative hypothesis for the Wilcoxon rank-sum test.
+        Options are 'two-sided', 'greater', 'less'.
 
     alpha : float, optional (default: 0.05)
         Significance level for multiple testing correction.
@@ -211,7 +215,7 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
                 values2 = values2[~np.isnan(values2)]
 
                 # Perform Wilcoxon rank-sum test
-                statistic, pvalue = ranksums(values1, values2)
+                statistic, pvalue = ranksums(values2, values1, alternative=alternative)
 
                 # Store results
                 results_list.append({
