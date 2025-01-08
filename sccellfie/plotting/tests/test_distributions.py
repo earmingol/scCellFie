@@ -24,6 +24,20 @@ def test_create_multi_violin_plots_basic(controlled_adata):
 
     plt.close(fig)  # Clean up
 
+def test_create_multi_violin_plots_save(controlled_adata):
+    # Test saving the plot
+    import tempfile
+    import os
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        save_path = os.path.join(tmpdirname, 'test_plot.png')
+
+        genes = ['gene1', 'gene2', 'gene3']
+        fig, axes = create_multi_violin_plots(controlled_adata, genes, groupby='group', save=save_path)
+        assert os.path.exists(os.path.join(tmpdirname, 'violin_test_plot.png'))
+
+        # Clean up the plot
+        plt.close()
+
 
 def test_create_multi_violin_plots_custom_layout(controlled_adata):
     genes = ['gene1', 'gene2']

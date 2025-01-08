@@ -1,3 +1,4 @@
+import os
 import textwrap
 import numpy as np
 import scanpy as sc
@@ -6,7 +7,9 @@ import seaborn as sns
 from matplotlib.gridspec import GridSpec
 
 
-def plot_spatial(adata, keys, suptitle=None, bkgd_label='H&E', ncols=3, figsize=(5, 5), save=None, dpi=300, bbox_inches='tight'):
+def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsize=14, legend_fontsize=12,
+                 bkgd_label='H&E', ncols=3, hspace=0.1, wspace=0.1, save=None, dpi=300,
+                 bbox_inches='tight', **kwargs):
     """
     Plots spatial expression of multiple genes in Scanpy.
 
@@ -22,14 +25,26 @@ def plot_spatial(adata, keys, suptitle=None, bkgd_label='H&E', ncols=3, figsize=
     suptitle : str, optional (default: None)
         Title for the entire figure.
 
+    suptitle_fontsize : int, optional (default: 20)
+        Font size for the figure title.
+
+    title_fontsize : int, optional (default: 14)
+        Font size for each subplot title (key name).
+
+    legend_fontsize : int, optional (default: 12)
+        Font size for the legend elements.
+
+    hspace : float, optional (default: 0.1)
+        Height space between subplots.
+
+    wspace : float, optional (default: 0.1)
+        Width space between subplots.
+
     bkgd_label : str, optional (default: 'H&E')
         Label for the background image.
 
     ncols : int, optional (default: 3)
         Number of columns in the grid.
-
-    figsize : tuple of float, optional (default: (5, 5))
-        Size of each subplot in inches.
 
     save : str, optional (default: None)
         Filepath to save the figure.
@@ -39,6 +54,9 @@ def plot_spatial(adata, keys, suptitle=None, bkgd_label='H&E', ncols=3, figsize=
 
     bbox_inches : str, optional (default: 'tight')
         Bounding box in inches. Only used if `save` is provided.
+
+    **kwargs : dict
+        Additional arguments to pass to `scanpy.pl.spatial`.
 
     Returns
     -------
@@ -50,32 +68,25 @@ def plot_spatial(adata, keys, suptitle=None, bkgd_label='H&E', ncols=3, figsize=
     """
     n_genes = len(keys)
     n_cols = min([ncols, n_genes])
-    n_rows = -(-n_genes // n_cols)
 
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(figsize[0] * n_cols, figsize[1] * n_rows),
-                             squeeze=False)
-    fig.tight_layout(pad=3.0)
+    titles = []
     for i, gene in enumerate(keys):
-        row = i // n_cols
-        col = i % n_cols
-        ax = axes[row, col]
-        sc.pl.spatial(adata, img_key="hires", color=gene,
-                      use_raw=False, cmap='YlGnBu', size=1.2, ncols=3, vmin=0, ax=ax, show=False)
         if gene is not None:
             wrapped_title = "\n".join(textwrap.wrap(gene, width=40))
-            ax.set_title(wrapped_title, fontsize=12)
+            titles.append(wrapped_title)
         else:
-            ax.set_title(bkgd_label, fontsize=12)
+            titles.append(bkgd_label)
+
+    axes = sc.pl.spatial(adata, color=keys, ncols=n_cols, hspace=hspace, wspace=wspace, title=titles,
+                         legend_fontsize=legend_fontsize, show=False, **kwargs)
+    for title, ax in zip(titles, axes):
+        ax.set_title(title, fontsize=title_fontsize)
         ax.set_xlabel('')
         ax.set_ylabel('')
 
-    # Remove empty subplots
-    for i in range(n_genes, n_rows * n_cols):
-        row = i // n_cols
-        col = i % n_cols
-        fig.delaxes(axes[row, col])
+    fig = plt.gcf()
 
-    fig.suptitle(suptitle, y=1.0, fontsize=20)
+    fig.suptitle(suptitle, y=1.01, fontsize=suptitle_fontsize)
     plt.tight_layout()
 
     if save:
@@ -150,5 +161,9 @@ def plot_neighbor_distribution(results, figsize=(15, 8), save=None, dpi=300, bbo
 
     plt.tight_layout()
     if save:
-        plt.savefig(save, dpi=dpi, bbox_inches=bbox_inches)
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/spatial_{basename}.{format}', dpi=dpi, bbox_inches=bbox_inches)
     return fig, gs

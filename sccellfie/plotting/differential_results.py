@@ -1,3 +1,5 @@
+import os
+import scanpy as sc
 import numpy as np
 import pandas as pd
 
@@ -7,7 +9,7 @@ import textwrap
 
 
 def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, contrast=None, effect_col='cohens_d',
-                        effect_title="Cohen's d", wrapped_title_length=50, save=None):
+                        effect_title="Cohen's d", wrapped_title_length=50, save=None, dpi=300):
     """
     Creates a volcano plot for differential analysis results.
 
@@ -40,6 +42,9 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
     save : str, optional (default: None)
         The file path to save the plot. If None, the plot is not saved.
         A file extension (e.g., '.png') can be provided to specify the file format.
+
+    dpi : int, optional (default: 300)
+        The resolution of the saved figure.
 
     Returns
     -------
@@ -102,8 +107,11 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 
     plt.tight_layout()
     if save:
-        plt.savefig(save, dpi=300,
-                    bbox_inches='tight')
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/volcano_{basename}.{format}', dpi=dpi, bbox_inches='tight')
 
     return significant_points.sort_values(effect_col, ascending=True).index.tolist()
 
@@ -111,7 +119,7 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 def create_comparative_violin(adata, significant_features, group1, group2, condition_key,
                               celltype, cell_type_key, xlabel='Feature', ylabel='Metabolic Activity',
                               title=None, wrapped_title_length=50, figsize=(16, 7), fontsize=10,
-                              palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
+                              palette=['coral', 'lightsteelblue'], save=None, dpi=300):
     """
     Compares features between two groups for a specific cell type in an AnnData object and creates a violin plot.
 
@@ -160,7 +168,7 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     palette : list, optional (default: ['coral', 'lightsteelblue'])
         The color palette for the plot. Each color corresponds to a group or condition.
 
-    filename : str, optional (default: None)
+    save : str, optional (default: None)
         The file path to save the plot. If None, the plot is not saved.
 
     dpi : int, optional (default: 300)
@@ -215,7 +223,11 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
 
     plt.tight_layout()
 
-    if filename:
-        plt.savefig(filename, dpi=dpi, bbox_inches='tight')
+    if save:
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/violin_{basename}.{format}', dpi=dpi, bbox_inches='tight')
 
     return fig, ax

@@ -50,7 +50,7 @@ def test_create_volcano_plot():
     with tempfile.TemporaryDirectory() as tmpdirname:
         save_path = os.path.join(tmpdirname, 'volcano_plot.png')
         create_volcano_plot(de_results, save=save_path)
-        assert os.path.exists(save_path)
+        assert os.path.exists(os.path.join(tmpdirname, 'volcano_volcano_plot.png'))
 
     # Clean up the plot
     plt.close()
@@ -79,7 +79,7 @@ def test_compare_adata_features(tmp_path):
                                         figsize=(10, 5),
                                         fontsize=8,
                                         palette=['red', 'blue'],
-                                        filename=str(tmp_path / "test_plot.png"),
+                                        save=str(tmp_path / "test_plot.png"),
                                         dpi=100
                                         )
 
@@ -99,7 +99,8 @@ def test_compare_adata_features(tmp_path):
     assert ax.get_legend() is not None
 
     # Check that the file was saved
-    assert (tmp_path / "test_plot.png").exists()
+    import os
+    assert os.path.exists(os.path.join(tmp_path, 'violin_test_plot.png'))
 
     # Clean up
     plt.close(fig)

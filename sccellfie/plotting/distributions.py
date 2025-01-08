@@ -1,3 +1,4 @@
+import os
 import textwrap
 import scanpy as sc
 import matplotlib.pyplot as plt
@@ -91,7 +92,9 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
 
     plt.tight_layout(w_pad=w_pad, h_pad=h_pad)
     if save:
-        plt.savefig(save, dpi=dpi, bbox_inches='tight')
-        print(f"Figure saved to {save} with DPI {dpi}")
-
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/violin_{basename}.{format}', dpi=dpi, bbox_inches='tight')
     return fig, axes
