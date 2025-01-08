@@ -2,48 +2,12 @@ import pytest
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from scipy.sparse import csr_matrix
 
 from sccellfie.sccellfie_pipeline import run_sccellfie_pipeline, compute_neighbors_pipeline
 from sccellfie.datasets.toy_inputs import (create_random_adata, create_controlled_adata, create_controlled_gpr_dict,
                                            create_controlled_task_by_rxn, create_controlled_rxn_by_gene, create_controlled_task_by_gene,
-                                           create_global_threshold)
+                                           create_global_threshold, add_toy_neighbors)
 
-
-def add_toy_neighbors(adata, n_neighbors=10):
-    """
-    Add a toy neighbor object to the AnnData object, mimicking scanpy's format.
-    """
-    n_obs = adata.n_obs
-    
-    # Create toy connectivities and distances matrices
-    connectivities = csr_matrix((np.ones(n_obs * n_neighbors),
-                                 (np.repeat(np.arange(n_obs), n_neighbors),
-                                  np.random.choice(n_obs, n_obs * n_neighbors))),
-                                shape=(n_obs, n_obs))
-    
-    distances = csr_matrix((np.random.rand(n_obs * n_neighbors),
-                            (np.repeat(np.arange(n_obs), n_neighbors),
-                             np.random.choice(n_obs, n_obs * n_neighbors))),
-                           shape=(n_obs, n_obs))
-    
-    # Create the neighbors dictionary
-    adata.uns['neighbors'] = {
-        'params': {
-            'n_neighbors': n_neighbors,
-            'method': 'umap'
-        },
-        'connectivities_key': 'connectivities',
-        'distances_key': 'distances'
-    }
-    
-    # Add matrices to obsp
-    adata.obsp['connectivities'] = connectivities
-    adata.obsp['distances'] = distances
-    
-    # Add toy PCA and UMAP
-    adata.obsm['X_pca'] = np.random.rand(n_obs, 50)  # 50 PCA components
-    adata.obsm['X_umap'] = np.random.rand(n_obs, 2)  # 2D UMAP
 
 @pytest.fixture
 def random_adata_with_neighbors():

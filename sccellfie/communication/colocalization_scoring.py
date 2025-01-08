@@ -157,7 +157,7 @@ def compute_local_colocalization_scores(adata, var1, var2, neighbors_radius, met
     # Add scores to adata
     if inplace:
         if score_key is None:
-            score_key = f'colocalization_{var1}_{var2}_{method}'
+            score_key = f'{var1}^{var2}'
         adata.obs[score_key] = scores
     else:
         return scores

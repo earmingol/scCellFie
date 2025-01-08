@@ -16,7 +16,8 @@ def plot_spatial(adata, keys, suptitle=None, bkgd_label='H&E', ncols=3, figsize=
         AnnData object containing gene expression and spatial information.
 
     keys : list of str
-        Keys for annotations of observations/cells or directly variable/gene names.
+        List of feature names to plot. Should match names in
+        adata.var_names or a column in adata.obs.
 
     suptitle : str, optional (default: None)
         Title for the entire figure.

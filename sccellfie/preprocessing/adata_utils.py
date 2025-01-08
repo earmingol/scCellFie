@@ -246,7 +246,8 @@ def transform_adata_gene_names(adata, filename=None, organism='human', copy=True
     return adata_mod
 
 
-def transfer_variables(adata_target, adata_source, var_names, source_obs_col=None, target_obs_col=None, keep_sparse=True):
+def transfer_variables(adata_target, adata_source, var_names, source_obs_col=None, target_obs_col=None,
+                       keep_sparse=True):
     """
     Transfers variables from source AnnData to target AnnData, handling different sizes
     and maintaining sparse matrix format if needed.
@@ -298,11 +299,14 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
     cols_in_both = adata_target.var.columns.intersection(adata_source.var.columns)
     cols_only_source = adata_source.var.columns.difference(adata_target.var.columns)
     new_cols = cols_in_both.union(cols_only_source)
-    new_var = new_var[cols_in_both]
-    new_var = new_var.reindex(columns=new_cols)
+    source_var = adata_source.var
+    if len(new_cols) != 0:
+        new_var = new_var[cols_in_both]
+        new_var = new_var.reindex(columns=new_cols)
+        source_var = source_var[new_cols]
     for v in var_names:
         if v in adata_source.var.index:
-            new_var.loc[v] = adata_source.var.loc[v][new_cols]
+            new_var.loc[v] = source_var.loc[v]
         else:
             new_var.loc[v] = None
 
@@ -396,14 +400,49 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
                     zero_cols = np.zeros((layer_matrix.shape[0], len(var_names)))
                     new_layers[layer_name] = np.hstack([layer_matrix, zero_cols])
 
+    # Handle obsm - combine target and source
+    new_obsm = adata_target.obsm.copy() if adata_target.obsm is not None else {}
+    if adata_source.obsm is not None:
+        # For source obsm data, we need to handle the same observation alignment as we did for X
+        for key in adata_source.obsm.keys():
+            if key not in new_obsm:  # Only add keys that don't exist in target
+                if source_obs_col is not None and target_obs_col is not None:
+                    new_obsm[key] = adata_source.obsm[key][target_to_source]
+                else:
+                    new_obsm[key] = adata_source.obsm[key]
+
+    # Handle obsp - combine target and source
+    new_obsp = adata_target.obsp.copy() if adata_target.obsp is not None else {}
+    if adata_source.obsp is not None:
+        for key in adata_source.obsp.keys():
+            if key not in new_obsp:  # Only add keys that don't exist in target
+                if source_obs_col is not None and target_obs_col is not None:
+                    new_obsp[key] = adata_source.obsp[key][target_to_source][:, target_to_source]
+                else:
+                    new_obsp[key] = adata_source.obsp[key]
+
+    # Create new obs with preserved dtypes
+    new_obs = adata_target.obs.copy()
+
+    # Preserve categorical dtypes
+    for col in new_obs.columns:
+        if pd.api.types.is_categorical_dtype(adata_target.obs[col]):
+            new_obs[col] = new_obs[col].astype('category')
+            # Preserve category ordering if it exists
+            if hasattr(adata_target.obs[col], 'cat') and hasattr(adata_target.obs[col].cat, 'ordered') and \
+                    adata_target.obs[col].cat.ordered:
+                new_obs[col] = new_obs[col].cat.reorder_categories(adata_target.obs[col].cat.categories)
+                new_obs[col] = new_obs[col].cat.as_ordered()
+
     # Create new AnnData with correct dimensions
     adata_new = sc.AnnData(
         X=combined_X,
-        obs=adata_target.obs.copy(),
+        obs=new_obs,
         var=new_var,
         uns=adata_target.uns.copy(),
-        obsm=adata_target.obsm.copy() if adata_target.obsm is not None else None,
-        #varm=adata_target.varm.copy() if adata_target.varm is not None else None, # Not supported for now. Needs to take varm from source and merge with target.
+        obsm=new_obsm if new_obsm else None,
+        obsp=new_obsp if new_obsp else None,
+        varm=adata_target.varm.copy() if adata_target.varm is not None else None,
         layers=new_layers if new_layers else None
     )
 

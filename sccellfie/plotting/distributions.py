@@ -75,10 +75,11 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
         wrapped_title = "\n".join(textwrap.wrap(feature, width=wrapped_title_length))
 
         if ylabel is None:
-            ylabel = wrapped_title
+            ylabel_ = wrapped_title
         else:
             ax.set_title(wrapped_title, fontsize=fontsize + 4)
-        ax.set_ylabel(ylabel, fontsize=fontsize + 2)
+            ylabel_ = ylabel
+        ax.set_ylabel(ylabel_, fontsize=fontsize + 2)
         ax.tick_params(axis='x', labelsize=fontsize)
         ax.tick_params(axis='y', labelsize=fontsize)
 

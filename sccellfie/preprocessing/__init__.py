@@ -1,5 +1,5 @@
 from .adata_utils import get_adata_gene_expression, stratified_subsample_adata, normalize_adata, transform_adata_gene_names, transfer_variables
 from .database_manipulation import get_element_associations, add_new_task, combine_and_sort_dataframes, handle_duplicate_indexes
 from .gpr_rules import clean_gene_names, find_genes_gpr, replace_gene_ids_in_gpr, convert_gpr_nomenclature
-from .matrix_utils import get_matrix_gene_expression, min_max_normalization
+from .matrix_utils import get_matrix_gene_expression, min_max_normalization, compute_dataframes_correlation
 from .prepare_inputs import preprocess_inputs

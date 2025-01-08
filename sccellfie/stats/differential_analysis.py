@@ -206,6 +206,10 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
                 values1 = expr_filtered[groups_filtered == group1]
                 values2 = expr_filtered[groups_filtered == group2]
 
+                # Remove NaN values from NumPy arrays
+                values1 = values1[~np.isnan(values1)]
+                values2 = values2[~np.isnan(values2)]
+
                 # Perform Wilcoxon rank-sum test
                 statistic, pvalue = ranksums(values1, values2)
 

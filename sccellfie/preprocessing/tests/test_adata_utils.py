@@ -1,5 +1,7 @@
 import pytest
+import scanpy as sc
 import numpy as np
+import pandas as pd
 
 from scipy import sparse
 from scipy.sparse import issparse, csr_matrix
@@ -364,6 +366,150 @@ def test_transfer_variables_obs_size_mismatch():
 
     with pytest.raises(ValueError, match="Number of observations don't match"):
         transfer_variables(adata_target, adata_source, var_to_transfer)
+
+
+# Addition transfer tests
+def test_empty_var_columns():
+    """Test handling when there are no overlapping var columns"""
+    # Create source AnnData with much simpler structure
+    source_X = csr_matrix(np.ones((50, 1)) * 5)  # Single variable with value 5
+    source_var = pd.DataFrame(
+        {'feature_type': ['gene'], 'highly_variable': [False]},
+        index=['gene1']
+    )
+    adata_source = sc.AnnData(
+        X=source_X,
+        var=source_var,
+        obs=pd.DataFrame(index=[f'cell{i}' for i in range(50)])
+    )
+
+    # Create target with empty var columns
+    target_X = csr_matrix(np.random.rand(50, 15))
+    target_var = pd.DataFrame(index=[f'target_gene{i}' for i in range(15)])
+    adata_target = sc.AnnData(
+        X=target_X,
+        var=target_var,
+        obs=pd.DataFrame(index=[f'cell{i}' for i in range(50)])
+    )
+    adata_target.var = adata_target.var[[]]  # Remove all columns
+
+    # Transfer the variable
+    result = transfer_variables(adata_target, adata_source, 'gene1')
+
+    # Verify transfer
+    assert 'gene1' in result.var_names
+    assert np.allclose(result[:, 'gene1'].X.toarray(), 5)
+
+
+def test_source_obsm_transfer():
+    """Test transfer of obsm data from source to target"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=50, n_vars=15)
+
+    # Add different obsm to source and target
+    adata_source.obsm['X_pca'] = np.random.rand(50, 10)
+    adata_target.obsm['X_umap'] = np.random.rand(50, 2)
+
+    var_to_transfer = adata_source.var_names[0]
+    result = transfer_variables(adata_target, adata_source, var_to_transfer)
+
+    # Check that both obsm are present
+    assert 'X_umap' in result.obsm
+    assert 'X_pca' in result.obsm
+    assert np.array_equal(result.obsm['X_pca'], adata_source.obsm['X_pca'])
+    assert np.array_equal(result.obsm['X_umap'], adata_target.obsm['X_umap'])
+
+
+def test_source_obsp_transfer():
+    """Test transfer of obsp data from source to target"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=50, n_vars=15)
+
+    # Add different obsp to source and target
+    adata_source.obsp['connectivities'] = csr_matrix((50, 50))
+    adata_target.obsp['distances'] = csr_matrix((50, 50))
+
+    var_to_transfer = adata_source.var_names[0]
+    result = transfer_variables(adata_target, adata_source, var_to_transfer)
+
+    # Check that both obsp are present
+    assert 'distances' in result.obsp
+    assert 'connectivities' in result.obsp
+    assert issparse(result.obsp['connectivities'])
+    assert issparse(result.obsp['distances'])
+
+
+def test_categorical_dtype_preservation():
+    """Test preservation of categorical dtypes and their ordering in obs"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=50, n_vars=15)
+
+    # Add categorical column with specific ordering
+    categories = ['A', 'B', 'C']
+    adata_target.obs['cat_col'] = pd.Categorical(
+        np.random.choice(categories, size=50),
+        categories=categories,
+        ordered=True
+    )
+
+    var_to_transfer = adata_source.var_names[0]
+    result = transfer_variables(adata_target, adata_source, var_to_transfer)
+
+    # Check categorical dtype and ordering is preserved
+    assert pd.api.types.is_categorical_dtype(result.obs['cat_col'])
+    assert result.obs['cat_col'].cat.ordered
+    assert list(result.obs['cat_col'].cat.categories) == categories
+
+
+def test_source_obsm_transfer_with_mapping():
+    """Test transfer of obsm data when using observation mapping"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=40, n_vars=15)
+
+    # Add matching columns and obsm data
+    adata_source.obs['cell_id'] = [f'cell_{i}' for i in range(50)]
+    adata_target.obs['cell_id'] = [f'cell_{i}' for i in range(40)]
+    adata_source.obsm['X_pca'] = np.random.rand(50, 10)
+
+    result = transfer_variables(
+        adata_target,
+        adata_source,
+        adata_source.var_names[0],
+        source_obs_col='cell_id',
+        target_obs_col='cell_id'
+    )
+
+    # Check that obsm data was properly aligned
+    assert 'X_pca' in result.obsm
+    assert result.obsm['X_pca'].shape[0] == 40  # Should match target obs count
+    assert np.array_equal(
+        result.obsm['X_pca'],
+        adata_source.obsm['X_pca'][:40]  # First 40 cells due to our mapping
+    )
+
+
+def test_source_obsp_transfer_with_mapping():
+    """Test transfer of obsp data when using observation mapping"""
+    adata_source = create_adata_with_var_metadata(n_obs=50, n_vars=20)
+    adata_target = create_adata_with_var_metadata(n_obs=40, n_vars=15)
+
+    # Add matching columns and obsp data
+    adata_source.obs['cell_id'] = [f'cell_{i}' for i in range(50)]
+    adata_target.obs['cell_id'] = [f'cell_{i}' for i in range(40)]
+    adata_source.obsp['connectivities'] = csr_matrix(np.random.rand(50, 50))
+
+    result = transfer_variables(
+        adata_target,
+        adata_source,
+        adata_source.var_names[0],
+        source_obs_col='cell_id',
+        target_obs_col='cell_id'
+    )
+
+    # Check that obsp data was properly aligned
+    assert 'connectivities' in result.obsp
+    assert result.obsp['connectivities'].shape == (40, 40)  # Should match target obs count
+    assert issparse(result.obsp['connectivities'])
 
 
 # Get adata gene expression tests
