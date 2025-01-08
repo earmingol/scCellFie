@@ -56,7 +56,7 @@ def test_create_volcano_plot():
     plt.close()
 
 
-def test_compare_adata_features(tmp_path):
+def test_compare_adata_features():
     # Create controlled AnnData object
     adata = create_controlled_adata()
 
@@ -65,42 +65,46 @@ def test_compare_adata_features(tmp_path):
     # Create mock significant features
     significant_features = [('A', 'gene1'), ('A', 'gene2')]
 
-    # Call the function
-    fig, ax = create_comparative_violin(adata=adata,
-                                        significant_features=significant_features,
-                                        group1='A',
-                                        group2='B',
-                                        condition_key='group',
-                                        celltype='A',
-                                        cell_type_key='cell_type',  # We're using 'group' as both condition and cell type for this test
-                                        xlabel='Genes',
-                                        ylabel='Expression',
-                                        title='Test Plot',
-                                        figsize=(10, 5),
-                                        fontsize=8,
-                                        palette=['red', 'blue'],
-                                        save=str(tmp_path / "test_plot.png"),
-                                        dpi=100
-                                        )
-
-    # Check that the function returns the expected objects
-    assert isinstance(fig, Figure)
-    assert isinstance(ax, Axes)
-
-    # Check that the plot has the correct labels and title
-    assert ax.get_xlabel() == 'Genes'
-    assert ax.get_ylabel() == 'Expression'
-    assert ax.get_title() == 'Test Plot'
-
-    # Check that the correct number of violin plots are created
-    assert len(ax.collections) == 4  # 2 features * 2 groups
-
-    # Check that the legend is created
-    assert ax.get_legend() is not None
-
-    # Check that the file was saved
+    # Test saving the plot
+    import tempfile
     import os
-    assert os.path.exists(os.path.join(tmp_path, 'violin_test_plot.png'))
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        save_path = os.path.join(tmpdirname, 'test_plot.png')
 
-    # Clean up
-    plt.close(fig)
+        fig, ax = create_comparative_violin(adata=adata,
+                                            significant_features=significant_features,
+                                            group1='A',
+                                            group2='B',
+                                            condition_key='group',
+                                            celltype='A',
+                                            cell_type_key='cell_type',  # We're using 'group' as both condition and cell type for this test
+                                            xlabel='Genes',
+                                            ylabel='Expression',
+                                            title='Test Plot',
+                                            figsize=(10, 5),
+                                            fontsize=8,
+                                            palette=['red', 'blue'],
+                                            save=save_path,
+                                            dpi=100
+                                            )
+
+        # Check that the function returns the expected objects
+        assert isinstance(fig, Figure)
+        assert isinstance(ax, Axes)
+
+        # Check that the plot has the correct labels and title
+        assert ax.get_xlabel() == 'Genes'
+        assert ax.get_ylabel() == 'Expression'
+        assert ax.get_title() == 'Test Plot'
+
+        # Check that the correct number of violin plots are created
+        assert len(ax.collections) == 4  # 2 features * 2 groups
+
+        # Check that the legend is created
+        assert ax.get_legend() is not None
+
+        # Check that the file was saved
+        assert os.path.exists(os.path.join(tmpdirname, 'violin_test_plot.png'))
+
+        # Clean up
+        plt.close(fig)

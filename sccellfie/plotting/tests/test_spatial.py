@@ -65,6 +65,18 @@ def test_plot_spatial_title_and_labels(spatial_adata):
 
     plt.close(fig)
 
+def test_plot_spatial_save(spatial_adata):
+    import tempfile
+    import os
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        save_path = os.path.join(tmpdirname, 'test_plot.png')
+
+        genes = ['gene1', 'gene2']
+        fig, axes = plot_spatial(spatial_adata, genes, save=save_path)
+        assert os.path.exists(os.path.join(tmpdirname, 'spatial_test_plot.png'))
+
+        plt.close(fig)
+
 
 @pytest.fixture
 def sample_results():
@@ -125,10 +137,12 @@ def test_plot_neighbor_distribution_custom_size(sample_results):
     plt.close(fig)
 
 
-def test_plot_neighbor_distribution_save(sample_results, tmp_path):
-    save_path = tmp_path / "test_plot.png"
-    fig, gs = plot_neighbor_distribution(sample_results, save=str(save_path))
-    expected_path = tmp_path / "spatial_test_plot.png"
-    assert expected_path.exists()
+def test_plot_neighbor_distribution_save(sample_results):
+    import tempfile
+    import os
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        save_path = os.path.join(tmpdirname, 'test_plot.png')
+        fig, gs = plot_neighbor_distribution(sample_results, save=str(save_path))
+        assert os.path.exists(os.path.join(tmpdirname, 'spatial_test_plot.png'))
 
     plt.close(fig)

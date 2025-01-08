@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 
 
 def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsize=14, legend_fontsize=12,
-                 bkgd_label='H&E', ncols=3, hspace=0.1, wspace=0.1, save=None, dpi=300,
+                 bkgd_label='H&E', ncols=3, hspace=0.15, wspace=0.1, save=None, dpi=300,
                  bbox_inches='tight', **kwargs):
     """
     Plots spatial expression of multiple genes in Scanpy.
@@ -86,11 +86,15 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
 
     fig = plt.gcf()
 
-    fig.suptitle(suptitle, y=1.01, fontsize=suptitle_fontsize)
+    fig.suptitle(suptitle, y=1.05, fontsize=suptitle_fontsize)
     plt.tight_layout()
 
     if save:
-        plt.savefig(save, dpi=dpi, bbox_inches=bbox_inches)
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/spatial_{basename}.{format}', dpi=dpi, bbox_inches=bbox_inches)
 
     return fig, axes
 
