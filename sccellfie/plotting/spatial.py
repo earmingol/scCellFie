@@ -73,6 +73,7 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
     if 'title' in kwargs.keys():
         if kwargs['title'] is None:
             title = keys
+            del kwargs['title']
         else:
             title = kwargs.pop('title')
     else:
