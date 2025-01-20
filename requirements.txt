@@ -5,6 +5,9 @@ cobra
 tqdm
 scipy
 anndata
+squidpy
+spatialdata
+dask
 pygam
 pytest
 pytest-cov
