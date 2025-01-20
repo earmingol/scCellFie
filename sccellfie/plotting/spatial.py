@@ -71,7 +71,7 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
 
     titles = []
     if 'title' in kwargs.keys():
-        title = kwargs['title'].copy()
+        title = kwargs['title']
         del kwargs['title']
     else:
         title = keys
