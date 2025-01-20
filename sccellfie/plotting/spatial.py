@@ -70,7 +70,12 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
     n_cols = min([ncols, n_genes])
 
     titles = []
-    for i, gene in enumerate(keys):
+    if 'title' in kwargs.keys():
+        title = kwargs['title'].copy()
+        del kwargs['title']
+    else:
+        title = keys
+    for i, gene in enumerate(title):
         if gene is not None:
             wrapped_title = "\n".join(textwrap.wrap(gene, width=40))
             titles.append(wrapped_title)
