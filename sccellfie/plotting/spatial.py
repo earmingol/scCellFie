@@ -71,8 +71,10 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
 
     titles = []
     if 'title' in kwargs.keys():
-        title = kwargs['title']
-        del kwargs['title']
+        if kwargs['title'] is None:
+            title = keys
+        else:
+            title = kwargs.pop('title')
     else:
         title = keys
     for i, gene in enumerate(title):
