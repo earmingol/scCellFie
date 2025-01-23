@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 
 
 def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsize=14, legend_fontsize=12,
-                 bkgd_label='H&E', ncols=3, hspace=0.15, wspace=0.1, save=None, dpi=300,
+                 bkgd_label='H&E', wrapped_title_length=45, ncols=3, hspace=0.15, wspace=0.1, save=None, dpi=300,
                  bbox_inches='tight', **kwargs):
     """
     Plots spatial expression of multiple genes in Scanpy.
@@ -42,6 +42,9 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
 
     bkgd_label : str, optional (default: 'H&E')
         Label for the background image.
+
+    wrapped_title_length : int, optional (default: 45)
+        The maximum number of characters per line in the title.
 
     ncols : int, optional (default: 3)
         Number of columns in the grid.
@@ -80,7 +83,7 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
         title = keys
     for i, gene in enumerate(title):
         if gene is not None:
-            wrapped_title = "\n".join(textwrap.wrap(gene, width=40))
+            wrapped_title = "\n".join(textwrap.wrap(gene, width=wrapped_title_length))
             titles.append(wrapped_title)
         else:
             titles.append(bkgd_label)

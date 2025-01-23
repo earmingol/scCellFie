@@ -4,7 +4,7 @@ import scanpy as sc
 import matplotlib.pyplot as plt
 
 
-def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel=None, fontsize=10,
+def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel=None, title=None, fontsize=10,
                               rotation=90, wrapped_title_length=45, save=None, dpi=300, w_pad=None, h_pad=None, **kwargs):
     """
     Plots a grid of violin plots for multiple genes in Scanpy,
@@ -31,6 +31,9 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
 
     ylabel : str, optional (default: None)
         Label for the y-axis. If None, the label will be the variable name.
+
+    title : list of str, optional (default: None)
+        List of labels for each feature. If None, the feature name will be used.
 
     fontsize : int, optional (default: 10)
         Font size for the title and axis labels. The tick labels will
@@ -73,7 +76,10 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
         ax = axes[row, col]
 
         sc.pl.violin(adata, keys=feature, groupby=groupby, ax=ax, show=False, rotation=rotation, **kwargs)
-        wrapped_title = "\n".join(textwrap.wrap(feature, width=wrapped_title_length))
+        if title is not None:
+            wrapped_title = "\n".join(textwrap.wrap(title[i], width=wrapped_title_length))
+        else:
+            wrapped_title = "\n".join(textwrap.wrap(feature, width=wrapped_title_length))
 
         if ylabel is None:
             ylabel_ = wrapped_title
