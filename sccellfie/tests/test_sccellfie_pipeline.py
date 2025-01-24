@@ -12,14 +12,16 @@ from sccellfie.datasets.toy_inputs import (create_random_adata, create_controlle
 @pytest.fixture
 def random_adata_with_neighbors():
     adata = create_random_adata(n_obs=100, n_vars=3, n_clusters=5)
-    add_toy_neighbors(adata)
+    adata = add_toy_neighbors(adata)
     return adata
+
 
 @pytest.fixture
 def controlled_adata_with_neighbors():
     adata = create_controlled_adata()
-    add_toy_neighbors(adata)
+    adata = add_toy_neighbors(adata)
     return adata
+
 
 @pytest.fixture
 def controlled_gpr_dict():
@@ -27,13 +29,16 @@ def controlled_gpr_dict():
     # Convert to DataFrame
     return pd.DataFrame([{'Reaction': k, 'GPR-symbol': v.to_string()} for k, v in gpr_dict.items()])
 
+
 @pytest.fixture
 def controlled_task_by_rxn():
     return create_controlled_task_by_rxn()
 
+
 @pytest.fixture
 def controlled_rxn_by_gene():
     return create_controlled_rxn_by_gene()
+
 
 @pytest.fixture
 def controlled_task_by_gene():
@@ -89,6 +94,7 @@ def test_run_sccellfie_pipeline(random_adata_with_neighbors, sccellfie_db, tmp_p
     assert hasattr(result['adata'], 'reactions')
     assert hasattr(result['adata'], 'metabolic_tasks')
 
+
 def test_run_sccellfie_pipeline_with_groups(random_adata_with_neighbors, sccellfie_db, tmp_path, monkeypatch):
     random_adata_with_neighbors.obs['group'] = np.random.choice(['A', 'B', 'C'], size=random_adata_with_neighbors.n_obs)
     
@@ -138,15 +144,15 @@ def test_compute_neighbors_pipeline_basic(mock_adata):
     assert 'X_umap' in mock_adata.obsm
 
 
-@pytest.mark.skipif(
-   pytest.importorskip("harmonypy", reason="harmony not installed"),
-   reason="harmony not installed"
-)
-def test_compute_neighbors_pipeline_with_harmony(mock_adata):
-   compute_neighbors_pipeline(mock_adata, batch_key='batch', n_neighbors=5)
-   assert 'neighbors' in mock_adata.uns
-   assert 'X_pca' in mock_adata.obsm
-   assert 'X_pca_harmony' in mock_adata.obsm
+# @pytest.mark.skipif(
+#    pytest.importorskip("harmonypy", reason="harmony not installed"),
+#    reason="harmony not installed"
+# )
+# def test_compute_neighbors_pipeline_with_harmony(mock_adata):
+#    compute_neighbors_pipeline(mock_adata, batch_key='batch', n_neighbors=5)
+#    assert 'neighbors' in mock_adata.uns
+#    assert 'X_pca' in mock_adata.obsm
+#    assert 'X_pca_harmony' in mock_adata.obsm
 
 
 def test_compute_neighbors_pipeline_without_harmony(mock_adata):

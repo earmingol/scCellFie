@@ -83,7 +83,8 @@ def add_toy_neighbors(adata, n_neighbors=10):
     """
     Add a toy neighbor object to the AnnData object, mimicking scanpy's format.
     """
-    n_obs = adata.n_obs
+    adata_ = adata.copy()
+    n_obs = adata_.n_obs
 
     # Create toy connectivities and distances matrices
     connectivities = sparse.csr_matrix((np.ones(n_obs * n_neighbors),
@@ -97,7 +98,7 @@ def add_toy_neighbors(adata, n_neighbors=10):
                                   shape=(n_obs, n_obs))
 
     # Create the neighbors dictionary
-    adata.uns['neighbors'] = {
+    adata_.uns['neighbors'] = {
         'params': {
             'n_neighbors': n_neighbors,
             'method': 'umap'
@@ -107,12 +108,13 @@ def add_toy_neighbors(adata, n_neighbors=10):
     }
 
     # Add matrices to obsp
-    adata.obsp['connectivities'] = connectivities
-    adata.obsp['distances'] = distances
+    adata_.obsp['connectivities'] = connectivities
+    adata_.obsp['distances'] = distances
 
     # Add toy PCA and UMAP
-    adata.obsm['X_pca'] = np.random.rand(n_obs, 50)  # 50 PCA components
-    adata.obsm['X_umap'] = np.random.rand(n_obs, 2)  # 2D UMAP
+    adata_.obsm['X_pca'] = np.random.rand(n_obs, 50)  # 50 PCA components
+    adata_.obsm['X_umap'] = np.random.rand(n_obs, 2)  # 2D UMAP
+    return adata_
 
 
 def create_controlled_gpr_dict():
