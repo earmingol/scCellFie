@@ -336,15 +336,22 @@ def analyze_gam_results(gam_results, significance_threshold=0.05, fdr_level=0.05
     results_df['gene'] = results_df.index
     results_df['significant'] = results_df['p_value'] < significance_threshold
 
+    # Keep only non NaN values
+    nan_results = results_df.loc[results_df.isna().any(axis=1)]
+    results_df = results_df.dropna()
+
     # Calculate FDR using statsmodels
     _, adj_pvals, _, _ = multipletests(
         results_df['p_value'],
         alpha=fdr_level,
         method='fdr_bh'  # Benjamini-Hochberg FDR
     )
-
     # Add adjusted p-values and significance
     results_df['adj_p_value'] = adj_pvals
+    nan_results['adj_p_value'] = np.nan
+
+    # Add back NaN results
+    results_df = pd.concat([results_df, nan_results], axis=0)
     results_df['significant_fdr'] = adj_pvals < fdr_level
 
     # Sort by explained deviance for final output
