@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import pandas as pd
 from scipy import sparse
@@ -11,7 +12,7 @@ from sccellfie.preprocessing.matrix_utils import get_matrix_gene_expression
 
 def generate_pseudobulks(adata, cell_type_key, n_pseudobulks=5, cells_per_bulk=1000,
                          layer=None, use_raw=False, genes=None, agg_func='trimean',
-                         continuous_key=None):
+                         continuous_key=None, random_seed=None):
     """
     Generates pseudo-bulk samples from single-cell data. Each pseudo-bulk
     represents a group of cells from the same cell type.
@@ -26,9 +27,12 @@ def generate_pseudobulks(adata, cell_type_key, n_pseudobulks=5, cells_per_bulk=1
 
     n_pseudobulks : int, optional (default: 5)
         The number of pseudo-bulk samples to generate for each cell type.
+        Less will be generated if there are fewer cells than
+        the n_pseudobulks * cells_per_bulk.
 
     cells_per_bulk : int, optional (default: 1000)
-        The number of cells to include in each pseudo-bulk sample.
+        The number of cells to include in each pseudo-bulk sample. Less
+        will be used if there are fewer cells in the cell type.
 
     layer : str, optional (default: None)
         The name of the layer in adata to use for aggregation. If None,
@@ -51,6 +55,9 @@ def generate_pseudobulks(adata, cell_type_key, n_pseudobulks=5, cells_per_bulk=1
         pseudo-bulk samples. If None, continuous values are not included. This
         is useful for trajectory analysis or other continuous annotations.
 
+    random_seed : int, optional (default: None)
+        Random seed for reproducible pseudo-bulk generation.
+
     Returns
     -------
     adata_pseudobulk : AnnData
@@ -66,25 +73,35 @@ def generate_pseudobulks(adata, cell_type_key, n_pseudobulks=5, cells_per_bulk=1
     continuous_values = {}
     valid_pseudobulks = []  # Keep track of valid pseudobulks
 
+    # Get available cells for each cell type
+    available_cells = {ct: set(adata.obs.index[adata.obs[cell_type_key] == ct])
+                       for ct in adata.obs[cell_type_key].unique()}
+
+    # Create RNG instance for reproducibility
+    rng = np.random.RandomState(random_seed)
+
     for cell_type in adata.obs[cell_type_key].unique():
-        ct_mask = adata.obs[cell_type_key] == cell_type
-        ct_indices = adata.obs.index[ct_mask]
+        ct_cells = available_cells[cell_type]
 
-        if len(ct_indices) < cells_per_bulk:
+        if len(ct_cells) < cells_per_bulk:
             print(f"Warning: Cell type {cell_type} has fewer than {cells_per_bulk} cells.")
-            continue
+            possible_pseudobulks = 1 # Only generate one pseudobulk for this cell type
+        else:
+            possible_pseudobulks = min(math.ceil(len(ct_cells) / cells_per_bulk), n_pseudobulks) # Respect the maximum allowed pseudobulks
 
-        for i in range(n_pseudobulks):
+        for i in range(possible_pseudobulks):
             bulk_id = f"{cell_type}_bulk_{i + 1}"
             valid_pseudobulks.append(bulk_id)
 
             # Select cells for this pseudo-bulk
-            selected_cells = np.random.choice(
-                ct_indices,
-                size=min(cells_per_bulk, len(ct_indices)),  # Ensure we don't try to select more cells than available
-                replace=len(ct_indices) < cells_per_bulk
+            selected_cells = rng.choice(  # Using rng instead of np.random
+                list(ct_cells),
+                size=min(cells_per_bulk, len(ct_cells)),  # Ensure we don't try to select more cells than available
+                replace=False #len(ct_indices) < cells_per_bulk
             )
+
             pseudobulk_ids.loc[selected_cells] = bulk_id
+            ct_cells.difference_update(selected_cells) # Remove selected cells from available cells for next pseudobulks
 
             # If continuous key is provided, calculate mean for these cells
             if continuous_key is not None:
