@@ -301,12 +301,6 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     if ensembl_ids:
         transform_adata_gene_names(adata=adata, organism=organism, copy=False, drop_unmapped=True)
 
-    # Check for presence of neighbors
-    if neighbors_key not in adata.uns.keys():
-        if verbose:
-            print("\n---- scCellFie Step: Computing neighbors ----")
-        compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
-
     if first_group:
         if verbose:
             print("\n---- scCellFie Step: Preparing inputs ----")
@@ -338,6 +332,14 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     if smooth_cells:
         if verbose:
             print("\n---- scCellFie Step: Smoothing gene expression ----")
+
+        # Check for presence of neighbors
+        if neighbors_key not in adata.uns.keys():
+            if verbose:
+                print("\n---- scCellFie Step: Computing neighbors ----")
+            compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
+
+        # Perform smoothing based on neighbors
         smooth_expression_knn(adata=preprocessed_db['adata'],
                               alpha=alpha,
                               mode='adjacency',
