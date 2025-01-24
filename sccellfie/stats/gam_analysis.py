@@ -142,7 +142,7 @@ def generate_pseudobulks(adata, cell_type_key, n_pseudobulks=5, cells_per_bulk=1
 
 
 def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=None, genes=None,
-                  layer=None, use_raw=False, n_splines=10, normalize=False, use_pseudobulk=False, n_pseudobulks=5,
+                  layer=None, use_raw=False, n_splines=10, spline_order=3, lam=0.6, normalize=False, use_pseudobulk=False, n_pseudobulks=5,
                   cells_per_bulk=1000, pseudobulk_agg='trimean', **kwargs):
     """
     Fits Generalized Additive Models (GAMs) to single-cell data for each gene.
@@ -176,7 +176,14 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
         Whether to use the data in adata.raw.X (True) or in adata.X (False).
 
     n_splines : int, optional (default: 10)
-        The number of splines to use in the GAM model.
+        Number of splines to use for the feature function in the GAM. Must be non-negative.
+
+    spline_order : int, optional (default: 3)
+        Order of spline to use for the feature function in the GAM. Must be non-negative.
+
+    lam : float, optional (default: 0.6)
+        Strength of smoothing penalty in the GAM. Must be a positive float.
+        Larger values enforce stronger smoothing.
 
     normalize : bool, optional (default: False)
         Whether to normalize the expression values for each gene. This normalization
@@ -239,21 +246,17 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
         matrix = adata_use.raw.X
         var_names = adata_use.raw.var_names
     else:
+        var_names = adata_use.var_names
         if layer is not None:
             matrix = adata_use.layers[layer]
-            var_names = adata_use.var_names
         else:
             matrix = adata_use.X
-            var_names = adata_use.var_names
 
     # Filter and order cell types
     preserve_order = False
     if cell_type_order is not None:
         cell_filter = adata_use.obs[cell_type_key].isin(cell_type_order)
-        if sparse.issparse(matrix):
-            matrix = matrix[cell_filter, :]
-        else:
-            matrix = matrix[cell_filter, :]
+        matrix = matrix[cell_filter, :]
         cell_types_series = adata_use.obs[cell_type_key][cell_filter]
         cell_type_order = pd.Categorical(cell_types_series, categories=cell_type_order, ordered=True)
         preserve_order = True
@@ -285,7 +288,7 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
     for gene in tqdm(genes, desc='Fitting GAMs for each var in adata'):
         try:
             y = get_matrix_gene_expression(matrix, var_names, gene, normalize=normalize)
-            gam = GAM(s(0, n_splines=n_splines, basis='ps', **kwargs))
+            gam = GAM(s(0, n_splines=n_splines, basis='ps'), **kwargs)
             gam.fit(X, y)
 
             models[gene] = gam
