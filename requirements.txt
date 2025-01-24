@@ -1,5 +1,5 @@
 scanpy
-skmisc
+scikit-misc
 numpy
 pandas
 cobra
