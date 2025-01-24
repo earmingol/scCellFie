@@ -369,7 +369,7 @@ def analyze_gam_results(gam_results, significance_threshold=0.05, fdr_level=0.05
 
     # Add back NaN results
     results_df = pd.concat([results_df, nan_results], axis=0)
-    results_df['significant_fdr'] = adj_pvals < fdr_level
+    results_df['significant_fdr'] = results_df['adj_p_value'] < fdr_level
 
     # Sort by explained deviance for final output
     return results_df.sort_values('explained_deviance', ascending=False)
