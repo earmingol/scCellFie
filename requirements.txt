@@ -7,7 +7,7 @@ scipy
 anndata
 squidpy
 spatialdata
-dask
+dask==2024.12.1 # temporary fix for newer versions of dask breaking the tests
 pygam
 pytest
 pytest-cov
