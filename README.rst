@@ -19,9 +19,9 @@
 
 Metabolic activity from single-cell and spatial transcriptomics with scCellFie
 -----------------------------------------------------------------------------------------
-scCellFie is a Python-based tool for analyzing metabolic activity at different resolutions. It efficiently processes both
+scCellFie is a Python-based tool—developed at `the Vento Lab <https://ventolab.org/>`_—for analyzing metabolic activity at different resolutions. It efficiently processes both
 single-cell and spatial data to predict metabolic task activities. While its prediction strategy is inspired by
-`CellFie <https://github.com/LewisLabUCSD/CellFie>`_, another tool from the `Lewis Lab <https://lewislab.ucsd.edu/>`_ originally developed in MATLAB,
+`CellFie <https://github.com/LewisLabUCSD/CellFie>`_, a tool from the `Lewis Lab <https://lewislab.ucsd.edu/>`_ originally developed in MATLAB,
 scCellFie includes a series of improvements and new analyses, such as marker selection, differential analysis, and
 cell-cell communication inference.
 
