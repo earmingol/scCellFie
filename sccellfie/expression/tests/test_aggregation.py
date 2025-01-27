@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sparse
 
-from sccellfie.expression.aggregation import agg_expression_cells, top_mean
+from sccellfie.expression.aggregation import agg_expression_cells, top_mean, fraction_above_threshold
 from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata
 
 
@@ -227,3 +227,42 @@ def test_top_mean_use_raw():
                                    index=['A', 'B'])
 
     assert np.allclose(agg_result.values, expected_result.values)
+
+
+def test_fraction_above():
+    adata = create_controlled_adata()
+    """Test the new fraction_above aggregation function."""
+    result = agg_expression_cells(adata, groupby='group',
+                                  agg_func='fraction_above', threshold=3)
+
+    # For group A: gene1 (1,3), gene2 (2,4), gene3 (0,2) -> fractions: [0.0, 0.5, 0.0]
+    # For group B: gene1 (5,7), gene2 (6,8), gene3 (10,6) -> fractions: [1.0, 1.0, 1.0]
+    expected_A = np.array([0.0, 0.5, 0.0])
+    expected_B = np.array([1.0, 1.0, 1.0])
+
+    np.testing.assert_array_almost_equal(result.loc['A'], expected_A)
+    np.testing.assert_array_almost_equal(result.loc['B'], expected_B)
+
+
+def test_fraction_above_error():
+    """Test that fraction_above raises error when threshold is not provided."""
+    adata = create_controlled_adata()
+    with pytest.raises(ValueError, match="Must provide threshold when using 'fraction_above' aggregation"):
+        agg_expression_cells(adata, groupby='group', agg_func='fraction_above')
+
+
+def test_fraction_above_threshold_function():
+    """Test the fraction_above_threshold helper function directly."""
+    test_data = np.array([[1, 5, 3],
+                          [4, 2, 6],
+                          [7, 8, 9]])
+
+    # Test along axis 0 (columns)
+    result = fraction_above_threshold(test_data, axis=0, threshold=5)
+    expected = np.array([1 / 3, 1 / 3, 2 / 3])  # fraction of values > 5 in each column
+    np.testing.assert_array_almost_equal(result, expected)
+
+    # Test along axis 1 (rows)
+    result = fraction_above_threshold(test_data, axis=1, threshold=5)
+    expected = np.array([0.0, 1 / 3, 1.0])  # fraction of values > 5 in each row
+    np.testing.assert_array_almost_equal(result, expected)
