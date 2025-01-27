@@ -106,7 +106,7 @@ Other keys in the ``results`` dictionary are associated with the scCellFie datab
 in the dataset (``'gpr_rules'``, ``'task_by_gene'``, ``'rxn_by_gene'``, ``'task_by_rxn'``, ``'rxn_info'``, ``'task_info'``, ``'thresholds'``, ``'organism'``).
 
 Documentation
-------------
+-------------
 For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.readthedocs.io/en/latest/>`_.
 
 How to cite
@@ -130,5 +130,5 @@ the `Lewis Lab <https://lewislab.ucsd.edu/>`_. Please consider citing their work
   *Metabolic Engineering, 2024*. https://doi.org/10.1016/j.ymben.2023.12.006
 
 Contributing
------------
+------------
 We welcome contributions! Feel free to add requests in the issues section or directly contribute with a pull request.
