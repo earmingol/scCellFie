@@ -2,60 +2,26 @@ import pytest
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from scipy.sparse import csr_matrix
 
-from sccellfie.sccellfie_pipeline import run_sccellfie_pipeline, process_chunk, compute_neighbors
+from sccellfie.sccellfie_pipeline import run_sccellfie_pipeline, compute_neighbors_pipeline
 from sccellfie.datasets.toy_inputs import (create_random_adata, create_controlled_adata, create_controlled_gpr_dict,
                                            create_controlled_task_by_rxn, create_controlled_rxn_by_gene, create_controlled_task_by_gene,
-                                           create_global_threshold)
+                                           create_global_threshold, add_toy_neighbors)
 
-
-def add_toy_neighbors(adata, n_neighbors=10):
-    """
-    Add a toy neighbor object to the AnnData object, mimicking scanpy's format.
-    """
-    n_obs = adata.n_obs
-    
-    # Create toy connectivities and distances matrices
-    connectivities = csr_matrix((np.ones(n_obs * n_neighbors),
-                                 (np.repeat(np.arange(n_obs), n_neighbors),
-                                  np.random.choice(n_obs, n_obs * n_neighbors))),
-                                shape=(n_obs, n_obs))
-    
-    distances = csr_matrix((np.random.rand(n_obs * n_neighbors),
-                            (np.repeat(np.arange(n_obs), n_neighbors),
-                             np.random.choice(n_obs, n_obs * n_neighbors))),
-                           shape=(n_obs, n_obs))
-    
-    # Create the neighbors dictionary
-    adata.uns['neighbors'] = {
-        'params': {
-            'n_neighbors': n_neighbors,
-            'method': 'umap'
-        },
-        'connectivities_key': 'connectivities',
-        'distances_key': 'distances'
-    }
-    
-    # Add matrices to obsp
-    adata.obsp['connectivities'] = connectivities
-    adata.obsp['distances'] = distances
-    
-    # Add toy PCA and UMAP
-    adata.obsm['X_pca'] = np.random.rand(n_obs, 50)  # 50 PCA components
-    adata.obsm['X_umap'] = np.random.rand(n_obs, 2)  # 2D UMAP
 
 @pytest.fixture
 def random_adata_with_neighbors():
     adata = create_random_adata(n_obs=100, n_vars=3, n_clusters=5)
-    add_toy_neighbors(adata)
+    adata = add_toy_neighbors(adata)
     return adata
+
 
 @pytest.fixture
 def controlled_adata_with_neighbors():
     adata = create_controlled_adata()
-    add_toy_neighbors(adata)
+    adata = add_toy_neighbors(adata)
     return adata
+
 
 @pytest.fixture
 def controlled_gpr_dict():
@@ -63,13 +29,16 @@ def controlled_gpr_dict():
     # Convert to DataFrame
     return pd.DataFrame([{'Reaction': k, 'GPR-symbol': v.to_string()} for k, v in gpr_dict.items()])
 
+
 @pytest.fixture
 def controlled_task_by_rxn():
     return create_controlled_task_by_rxn()
 
+
 @pytest.fixture
 def controlled_rxn_by_gene():
     return create_controlled_rxn_by_gene()
+
 
 @pytest.fixture
 def controlled_task_by_gene():
@@ -97,7 +66,6 @@ def sccellfie_db(controlled_gpr_dict, controlled_task_by_rxn, controlled_rxn_by_
 
 
 def test_run_sccellfie_pipeline(random_adata_with_neighbors, sccellfie_db, tmp_path, monkeypatch):
-
     result = run_sccellfie_pipeline(
         adata=random_adata_with_neighbors,
         organism='human',
@@ -126,6 +94,7 @@ def test_run_sccellfie_pipeline(random_adata_with_neighbors, sccellfie_db, tmp_p
     assert hasattr(result['adata'], 'reactions')
     assert hasattr(result['adata'], 'metabolic_tasks')
 
+
 def test_run_sccellfie_pipeline_with_groups(random_adata_with_neighbors, sccellfie_db, tmp_path, monkeypatch):
     random_adata_with_neighbors.obs['group'] = np.random.choice(['A', 'B', 'C'], size=random_adata_with_neighbors.n_obs)
     
@@ -153,3 +122,60 @@ def test_run_sccellfie_pipeline_with_groups(random_adata_with_neighbors, sccellf
     # Check if files were created for each group
     for group in ['A', 'B', 'C']:
         assert (tmp_path / f"test_output_group_{group}.h5ad").exists()
+
+
+# Neighbors pipeline
+@pytest.fixture
+def mock_adata():
+    # Create smaller dataset with more realistic values
+    n_obs = 50
+    n_vars = 30
+    X = np.random.negative_binomial(20, 0.3, size=(n_obs, n_vars))
+    adata = AnnData(X)
+    adata.obs['batch'] = ['A'] * (n_obs // 2) + ['B'] * (n_obs // 2)
+    adata.var_names = [f'gene{i}' for i in range(n_vars)]
+    return adata
+
+
+def test_compute_neighbors_pipeline_basic(mock_adata):
+    compute_neighbors_pipeline(mock_adata, batch_key=None, n_neighbors=5)
+    assert 'neighbors' in mock_adata.uns
+    assert 'X_pca' in mock_adata.obsm
+    assert 'X_umap' in mock_adata.obsm
+
+
+# @pytest.mark.skipif(
+#    pytest.importorskip("harmonypy", reason="harmony not installed"),
+#    reason="harmony not installed"
+# )
+# def test_compute_neighbors_pipeline_with_harmony(mock_adata):
+#    compute_neighbors_pipeline(mock_adata, batch_key='batch', n_neighbors=5)
+#    assert 'neighbors' in mock_adata.uns
+#    assert 'X_pca' in mock_adata.obsm
+#    assert 'X_pca_harmony' in mock_adata.obsm
+
+
+def test_compute_neighbors_pipeline_without_harmony(mock_adata):
+   compute_neighbors_pipeline(mock_adata, batch_key='batch', n_neighbors=5)
+   assert 'neighbors' in mock_adata.uns
+   assert 'X_pca' in mock_adata.obsm
+
+
+def test_compute_neighbors_pipeline_custom_n_neighbors(mock_adata):
+    n_neighbors = 15
+    compute_neighbors_pipeline(mock_adata, batch_key=None, n_neighbors=n_neighbors)
+    assert mock_adata.uns['neighbors']['params']['n_neighbors'] == n_neighbors
+
+
+def test_compute_neighbors_pipeline_existing_normalization(mock_adata):
+    mock_adata.uns['normalization'] = True
+    compute_neighbors_pipeline(mock_adata, batch_key=None)
+    assert 'neighbors' in mock_adata.uns
+    assert 'X_pca' in mock_adata.obsm
+
+
+def test_compute_neighbors_pipeline_existing_umap(mock_adata):
+    mock_adata.obsm['X_umap'] = np.random.normal(size=(mock_adata.n_obs, 2))
+    original_umap = mock_adata.obsm['X_umap'].copy()
+    compute_neighbors_pipeline(mock_adata, batch_key=None)
+    assert np.allclose(mock_adata.obsm['X_umap'], original_umap)

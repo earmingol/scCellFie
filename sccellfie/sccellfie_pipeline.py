@@ -3,7 +3,8 @@ from tqdm import tqdm
 
 from sccellfie.datasets.database import load_sccellfie_database
 from sccellfie.io.save_data import save_adata
-from sccellfie.preprocessing.prepare_inputs import normalize_adata, preprocess_inputs, transform_adata_gene_names, CORRECT_GENES
+from sccellfie.preprocessing.adata_utils import normalize_adata, transform_adata_gene_names
+from sccellfie.preprocessing.prepare_inputs import preprocess_inputs, CORRECT_GENES
 from sccellfie.expression.smoothing import smooth_expression_knn
 from sccellfie.gene_score import compute_gene_scores
 from sccellfie.reaction_activity import compute_reaction_activity
@@ -20,7 +21,7 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
     Parameters:
     -----------
     adata : AnnData
-        Annotated data matrix containing the expression data and nearest neighbor graph.
+        AnnData object containing gene expression values and nearest neighbor graph.
         The .X matrix must contain raw counts. If neighbors are not present, they will be computed.
 
     organism : str, optional (default: 'human')
@@ -256,6 +257,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
         This is used for Harmony integration if neighbors are not present.
 
     ensembl_ids : bool
+        Whether the gene names are Ensembl IDs.
 
     organism : str
         Organism for the analysis. Options are 'human' or 'mouse'.
@@ -288,17 +290,16 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
 
     # Preprocessing
     adata.layers['counts'] = adata.X.copy()
-    normalize_adata(adata, n_counts_key=n_counts_col)
+    should_normalize = True  # Default assumption
+    if 'normalization' in adata.uns:
+        if 'method' in adata.uns['normalization']:
+            should_normalize = adata.uns['normalization']['method'] != 'total_counts'
+    if should_normalize:
+        normalize_adata(adata, n_counts_key=n_counts_col)
 
     # Transform gene names if necessary
     if ensembl_ids:
         transform_adata_gene_names(adata=adata, organism=organism, copy=False, drop_unmapped=True)
-
-    # Check for presence of neighbors
-    if neighbors_key not in adata.uns.keys():
-        if verbose:
-            print("\n---- scCellFie Step: Computing neighbors ----")
-        compute_neighbors(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
 
     if first_group:
         if verbose:
@@ -331,6 +332,14 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     if smooth_cells:
         if verbose:
             print("\n---- scCellFie Step: Smoothing gene expression ----")
+
+        # Check for presence of neighbors
+        if neighbors_key not in adata.uns.keys():
+            if verbose:
+                print("\n---- scCellFie Step: Computing neighbors ----")
+            compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
+
+        # Perform smoothing based on neighbors
         smooth_expression_knn(adata=preprocessed_db['adata'],
                               alpha=alpha,
                               mode='adjacency',
@@ -364,7 +373,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     return preprocessed_db
 
 
-def compute_neighbors(adata, batch_key, n_neighbors=10, verbose=True):
+def compute_neighbors_pipeline(adata, batch_key, n_neighbors=10, verbose=True):
     """
     Computes neighbors for the AnnData object. In addition,
     finds the UMAP embeddings from these neighbors if not present.
@@ -376,7 +385,8 @@ def compute_neighbors(adata, batch_key, n_neighbors=10, verbose=True):
 
     batch_key : str or None
         Column name in adata.obs for batch information.
-        This is used for Harmony integration if neighbors are not present.
+        This is used for running Harmony integration (must be installed)
+        if neighbors are not present.
 
     n_neighbors : int, optional (default: 10)
         Number of neighbors to find.

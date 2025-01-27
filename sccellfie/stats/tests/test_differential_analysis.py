@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from scipy import sparse
 
 from sccellfie.plotting.differential_results import create_volcano_plot
-from sccellfie.stats.differential_analysis import cohens_d, scanpy_differential_analysis
-from sccellfie.datasets.toy_inputs import create_random_adata
+from sccellfie.stats.differential_analysis import cohens_d, scanpy_differential_analysis, pairwise_differential_analysis
+from sccellfie.datasets.toy_inputs import create_controlled_adata, create_random_adata
 
 
 def test_cohens_d():
@@ -125,3 +125,88 @@ def test_full_differential_analysis_workflow():
 
     # Clean up the plot
     plt.close()
+
+
+def test_pairwise_differential_analysis_controlled():
+    # Test with controlled data
+    adata = create_controlled_adata()
+    result = pairwise_differential_analysis(adata, groupby='group')
+
+    # Check basic structure
+    assert isinstance(result, pd.DataFrame)
+    expected_columns = {'feature', 'group1', 'group2', 'statistic', 'p_value',
+                        'n_group1', 'n_group2', 'median_group1', 'median_group2',
+                        'cohens_d', 'adj_p_value', 'median_diff'}
+    assert set(result.columns) == expected_columns
+
+    # Check number of comparisons
+    n_genes = len(adata.var_names)
+    n_group_pairs = 1  # Only A vs B
+    assert len(result) == n_genes * n_group_pairs
+
+    # Check specific values for controlled data
+    gene1_result = result[result['feature'] == 'gene1'].iloc[0]
+    assert gene1_result['group1'] == 'A'
+    assert gene1_result['group2'] == 'B'
+    assert gene1_result['n_group1'] == 2  # Two cells in group A
+    assert gene1_result['n_group2'] == 2  # Two cells in group B
+    assert gene1_result['median_group1'] == 2.0  # Median of [1, 3]
+    assert gene1_result['median_group2'] == 6.0  # Median of [5, 7]
+
+
+def test_pairwise_differential_analysis_random():
+    # Test with random data
+    np.random.seed(42)
+    adata = create_random_adata(n_obs=100, n_vars=10, n_clusters=3)
+    adata.obs['condition'] = np.random.choice(['A', 'B', 'C'], size=100)
+
+    result = pairwise_differential_analysis(adata, groupby='condition')
+
+    # Check number of comparisons
+    n_genes = 10
+    n_group_pairs = 3  # A vs B, A vs C, B vs C
+    assert len(result) == n_genes * n_group_pairs
+
+    # Check group pairs
+    group_pairs = set(zip(result['group1'], result['group2']))
+    expected_pairs = {('A', 'B'), ('A', 'C'), ('B', 'C')}
+    assert group_pairs == expected_pairs
+
+
+def test_pairwise_differential_analysis_order():
+    # Test order parameter
+    adata = create_controlled_adata()
+    order = ['B', 'A']  # Reverse order
+    result = pairwise_differential_analysis(adata, groupby='group', order=order)
+
+    # Check if order is respected
+    first_comparison = result.iloc[0]
+    assert first_comparison['group1'] == 'B'
+    assert first_comparison['group2'] == 'A'
+
+
+def test_pairwise_differential_analysis_var_names():
+    # Test var_names parameter
+    adata = create_controlled_adata()
+    var_names = ['gene1', 'gene2']
+    result = pairwise_differential_analysis(adata, groupby='group', var_names=var_names)
+
+    # Check if only specified genes are tested
+    assert set(result['feature'].unique()) == set(var_names)
+    assert len(result) == len(var_names)  # One comparison per gene
+
+
+def test_pairwise_differential_analysis_errors():
+    adata = create_controlled_adata()
+
+    # Test invalid groupby
+    with pytest.raises(KeyError):
+        pairwise_differential_analysis(adata, groupby='nonexistent_group')
+
+    # Test invalid var_names
+    with pytest.raises(ValueError):
+        pairwise_differential_analysis(adata, groupby='group', var_names=['nonexistent_gene'])
+
+    # Test invalid order
+    with pytest.raises(KeyError):
+        pairwise_differential_analysis(adata, groupby='group', order=['nonexistent_group'])

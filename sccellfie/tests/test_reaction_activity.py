@@ -2,9 +2,8 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from sccellfie.gene_score import compute_gene_scores
+from sccellfie.gene_score import compute_gene_scores, PCOUNT
 from sccellfie.reaction_activity import compute_reaction_activity
-from sccellfie.tests import PCOUNT
 from sccellfie.datasets.toy_inputs import create_controlled_adata, create_controlled_gpr_dict, create_global_threshold
 
 

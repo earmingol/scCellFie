@@ -1,12 +1,14 @@
+import os
 import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import textwrap
 
 
 def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, contrast=None, effect_col='cohens_d',
-                        effect_title="Cohen's d", save=None):
+                        effect_title="Cohen's d", wrapped_title_length=50, save=None, dpi=300):
     """
     Creates a volcano plot for differential analysis results.
 
@@ -33,9 +35,15 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
     effect_title : str, optional (default: "Cohen's d")
         The title to use for the effect size in the plot.
 
+    wrapped_title_length : int, optional (default: 50)
+        The maximum number of characters per line in the title.
+
     save : str, optional (default: None)
         The file path to save the plot. If None, the plot is not saved.
         A file extension (e.g., '.png') can be provided to specify the file format.
+
+    dpi : int, optional (default: 300)
+        The resolution of the saved figure.
 
     Returns
     -------
@@ -77,7 +85,8 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
     ax.set_xlabel(effect_title)
     ax.set_ylabel('-log10(adj. p-value)')
     title = 'Volcano Plot' if contrast is None else f'{contrast}'
-    ax.set_title(title)
+    wrapped_title = "\n".join(textwrap.wrap(title, width=wrapped_title_length))
+    ax.set_title(wrapped_title)
 
     # Set the x-axis limits to center the plot around zero
     max_lfc = np.ceil(np.nanmax(df[effect_col].abs().values))
@@ -97,16 +106,19 @@ def create_volcano_plot(de_results, effect_threshold=0.75, padj_threshold=0.05, 
 
     plt.tight_layout()
     if save:
-        plt.savefig(save, dpi=300,
-                    bbox_inches='tight')
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/volcano_{basename}.{format}', dpi=dpi, bbox_inches='tight')
 
     return significant_points.sort_values(effect_col, ascending=True).index.tolist()
 
 
 def create_comparative_violin(adata, significant_features, group1, group2, condition_key,
                               celltype, cell_type_key, xlabel='Feature', ylabel='Metabolic Activity',
-                              title=None, figsize=(16, 7), fontsize=10,
-                              palette=['coral', 'lightsteelblue'], filename=None, dpi=300):
+                              title=None, wrapped_title_length=50, figsize=(16, 7), fontsize=10,
+                              palette=['coral', 'lightsteelblue'], save=None, dpi=300):
     """
     Compares features between two groups for a specific cell type in an AnnData object and creates a violin plot.
 
@@ -143,6 +155,9 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     title : str, optional (default: None)
         The title for the plot. If None, a default title is used.
 
+    wrapped_title_length : int, optional (default: 50)
+        The maximum number of characters per line in the title.
+
     figsize : tuple, optional (default: (16, 7))
         The figure size.
 
@@ -152,7 +167,7 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
     palette : list, optional (default: ['coral', 'lightsteelblue'])
         The color palette for the plot. Each color corresponds to a group or condition.
 
-    filename : str, optional (default: None)
+    save : str, optional (default: None)
         The file path to save the plot. If None, the plot is not saved.
 
     dpi : int, optional (default: 300)
@@ -202,11 +217,16 @@ def create_comparative_violin(adata, significant_features, group1, group2, condi
 
     if title is None:
         title = f"Feature Comparison: {group1} vs {group2} ({celltype})"
-    plt.title(title, fontsize=fontsize + 2)
+    wrapped_title = "\n".join(textwrap.wrap(title, width=wrapped_title_length))
+    plt.title(wrapped_title, fontsize=fontsize + 2)
 
     plt.tight_layout()
 
-    if filename:
-        plt.savefig(filename, dpi=dpi, bbox_inches='tight')
+    if save:
+        from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+        dir, basename = _get_file_dir(save)
+        os.makedirs(dir, exist_ok=True)
+        format = _get_file_format(save)
+        plt.savefig(f'{dir}/violin_{basename}.{format}', dpi=dpi, bbox_inches='tight')
 
     return fig, ax

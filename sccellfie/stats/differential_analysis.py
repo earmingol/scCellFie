@@ -2,11 +2,13 @@ import scanpy as sc
 import numpy as np
 import pandas as pd
 
-import matplotlib.pyplot as plt
-
 from itertools import combinations
 from scipy.sparse import issparse
+from scipy.stats import ranksums
 from statsmodels.stats.multitest import multipletests
+from tqdm import tqdm
+
+from sccellfie.preprocessing.adata_utils import get_adata_gene_expression
 
 
 def cohens_d(group1, group2):
@@ -142,3 +144,99 @@ def scanpy_differential_analysis(adata, cell_type, cell_type_key, condition_key,
         df_results['adj_p_value'] = multipletests(df_results['p_value'], method='fdr_bh', alpha=alpha)[1]
 
     return df_results.set_index(['cell_type', 'feature'])
+
+
+def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, alternative='two-sided', alpha=0.05):
+    """
+    Performs pairwise Wilcoxon tests for each feature between all group pairs.
+    This functions does not perform the test in a cell type-wise manner.
+    For that, use ´scanpy_differential_analysis´.
+
+    Parameters
+    ----------
+    adata : AnnData
+        AnnData object containing the expression data.
+
+    groupby : str
+        Column in adata.obs containing group labels.
+
+    var_names : list, optional (default: None)
+        List of feature names to test. If None, all features are tested.
+
+    order : list, optional (default: None)
+        Specific order of groups to test. If None, groups are sorted.
+
+    alternative : str, optional (default: 'two-sided')
+        Alternative hypothesis for the Wilcoxon rank-sum test.
+        Options are 'two-sided', 'greater', 'less'.
+
+    alpha : float, optional (default: 0.05)
+        Significance level for multiple testing correction.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame with test results. Columns are 'feature', 'group1', 'group2', 'statistic', 'p_value',
+        'n_group1', 'n_group2', 'median_group1', 'median_group2', 'cohens_d', 'adj_p_value', and 'median_diff'.
+    """
+    # Lists to store results for DataFrame
+    results_list = []
+
+    # Get groups
+    groups = adata.obs[groupby]
+    group_order = order if order else sorted(groups.unique())
+
+    # Get feature names
+    if var_names is None:
+        var_names = adata.var_names.tolist()
+
+    # Process each feature
+    for var_name in tqdm(var_names, desc="Processing features"):
+        # Get expression values
+        expression = get_adata_gene_expression(adata, var_name)
+
+        # Filter for ordered groups if specified
+        if order is not None:
+            mask = groups.isin(order)
+            expr_filtered = expression[mask]
+            groups_filtered = groups[mask]
+        else:
+            expr_filtered = expression
+            groups_filtered = groups
+
+        # Perform pairwise comparisons
+        for i, group1 in enumerate(group_order):
+            for group2 in group_order[i + 1:]:
+                values1 = expr_filtered[groups_filtered == group1]
+                values2 = expr_filtered[groups_filtered == group2]
+
+                # Remove NaN values from NumPy arrays
+                values1 = values1[~np.isnan(values1)]
+                values2 = values2[~np.isnan(values2)]
+
+                # Perform Wilcoxon rank-sum test
+                statistic, pvalue = ranksums(values2, values1, alternative=alternative)
+
+                # Store results
+                results_list.append({
+                    'feature': var_name,
+                    'group1': group1,
+                    'group2': group2,
+                    'statistic': statistic,
+                    'p_value': pvalue,
+                    'n_group1': len(values1),
+                    'n_group2': len(values2),
+                    'median_group1': np.median(values1),
+                    'median_group2': np.median(values2),
+                    'cohens_d': cohens_d(values2, values1)
+                })
+
+    # Create DataFrame
+    df = pd.DataFrame(results_list)
+
+    # Perform global multiple testing correction
+    df['adj_p_value'] = multipletests(df['p_value'], alpha=alpha, method='fdr_bh')[1]
+
+    # Add median difference
+    df['median_diff'] = df['median_group2'] - df['median_group1']
+    return df

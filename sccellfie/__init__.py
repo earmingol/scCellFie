@@ -1,3 +1,4 @@
+from . import communication
 from . import datasets
 from . import external
 from . import gene_score
@@ -11,4 +12,4 @@ from . import stats as tl
 from .expression import aggregation, smoothing, thresholds
 from .sccellfie_pipeline import run_sccellfie_pipeline
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

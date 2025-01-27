@@ -1,10 +1,15 @@
 scanpy
+scikit-misc
 numpy
 pandas
 cobra
 tqdm
 scipy
 anndata
+squidpy
+spatialdata
+dask==2024.12.1 # temporary fix for newer versions of dask breaking the tests
+pygam
 pytest
 pytest-cov
 pytest-randomly; python_version >= "3.6"

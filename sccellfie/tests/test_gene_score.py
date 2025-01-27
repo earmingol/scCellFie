@@ -6,8 +6,7 @@ import pandas as pd
 from cobra.core.gene import GPR
 from scipy.sparse import issparse
 
-from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score
-from sccellfie.tests import PCOUNT
+from sccellfie.gene_score import gene_score, compute_gene_scores, compute_gpr_gene_score, PCOUNT
 from sccellfie.datasets.toy_inputs import create_controlled_adata
 
 
