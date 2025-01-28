@@ -337,7 +337,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
         if neighbors_key not in adata.uns.keys():
             if verbose:
                 print("\n---- scCellFie Step: Computing neighbors ----")
-            compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
+            compute_neighbors_pipeline(adata=preprocessed_db['adata'], batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
 
         # Perform smoothing based on neighbors
         smooth_expression_knn(adata=preprocessed_db['adata'],
