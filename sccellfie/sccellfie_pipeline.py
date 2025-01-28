@@ -334,7 +334,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
             print("\n---- scCellFie Step: Smoothing gene expression ----")
 
         # Check for presence of neighbors
-        if neighbors_key not in adata.uns.keys():
+        if neighbors_key not in preprocessed_db['adata'].uns.keys():
             if verbose:
                 print("\n---- scCellFie Step: Computing neighbors ----")
             compute_neighbors_pipeline(adata=preprocessed_db['adata'], batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
