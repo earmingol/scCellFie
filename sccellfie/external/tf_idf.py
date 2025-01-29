@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from scipy.optimize import curve_fit
 from scipy.stats import hypergeom
 from scipy.sparse import issparse, csr_matrix
 
@@ -123,3 +124,69 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
         markers.columns = ['gene', 'cluster', 'geneFrequency', 'geneFrequencyOutsideCluster',
                            'geneFrequencySecondBest', 'geneFrequencyGlobal', 'secondBestClusterName', 'tfidf', 'idf', 'qval']
     return markers
+
+
+def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_col='tf_idf', tfidf_threshold=None,
+                         second_best_tf_col='second_best_tf', tf_ratio=None):
+    """
+    Filters the top N markers for each cluster based on a hyperbolic curve fit to the TF-IDF values.
+    Additional filtering can be applied based on the TF-IDF threshold and the ratio of the
+    TF score to the second-best TF score.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame containing the marker data. See `sccellfie.preprocessing.quick_markers` for details.
+
+    tf_col : str, optional (default: 'tf')
+        Column name for the Term Frequency (TF) values.
+
+    idf_col : str, optional (default: 'idf')
+        Column name for the Inverse Document Frequency (IDF) values.
+
+    tfidf_col : str, optional (default: 'tf_idf')
+        Column name for the TF-IDF values.
+
+    tfidf_threshold : float, optional (default: None)
+        Threshold for the TF-IDF values. If provided, only markers with TF-IDF values above this threshold are kept.
+        A value of 0.4 is recommended for most datasets.
+
+    second_best_tf_col : str, optional (default: 'second_best_tf')
+        Column name for the second-best TF values.
+
+    tf_ratio : float, optional (default: None)
+        Threshold for the ratio of the TF score to the second-best TF score. If provided, only markers with a ratio
+        above this threshold are kept. A value of 1.2 is recommended for most datasets.
+
+    Returns
+    -------
+    filtered_df : pandas.DataFrame
+        DataFrame containing the filtered markers.
+
+    theoretical_curve : tuple
+        Tuple containing the x and y values of the theoretical hyperbolic curve.
+    """
+    # Define hyperbola function
+    def hyperbola(x, a, b, c):
+        return c / (x + a) + b
+
+    # Fit hyperbola to the data
+    x = df[tf_col].values
+    y = df[idf_col].values
+    popt, _ = curve_fit(hyperbola, x, y, p0=[0.1, 0, 0.5], bounds=([0, -np.inf, 0], [np.inf, np.inf, np.inf]))
+
+    # Calculate theoretical values
+    lin_x = np.linspace(df[tf_col].min(), df[tf_col].max(), df.shape[0])
+    lin_y = hyperbola(lin_x, *popt)
+    theoretical_curve = (lin_x, lin_y)
+
+    # Select points above the curve
+    exp_y = hyperbola(df[tf_col], *popt)
+    above_curve_mask = df[idf_col] >= exp_y
+    if tfidf_threshold is not None:
+        above_curve_mask = above_curve_mask & (df[tfidf_col] > tfidf_threshold)
+
+    if tf_ratio is not None:
+        above_curve_mask = above_curve_mask & (df[tf_col] / df[second_best_tf_col] > tf_ratio)
+
+    return df[above_curve_mask], theoretical_curve
