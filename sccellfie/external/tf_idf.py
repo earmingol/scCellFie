@@ -126,8 +126,8 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
     return markers
 
 
-def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_col='tf_idf', tfidf_threshold=None,
-                         second_best_tf_col='second_best_tf', tf_ratio=None):
+def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_threshold=None, tfidf_col='tf_idf',
+                         tf_ratio=None, second_best_tf_col='second_best_tf', group_col='cluster', second_best_group_col='second_best_cluster'):
     """
     Filters the top N markers for each cluster based on a hyperbolic curve fit to the TF-IDF values.
     Additional filtering can be applied based on the TF-IDF threshold and the ratio of the
@@ -144,19 +144,27 @@ def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_col='tf_idf', tfi
     idf_col : str, optional (default: 'idf')
         Column name for the Inverse Document Frequency (IDF) values.
 
-    tfidf_col : str, optional (default: 'tf_idf')
-        Column name for the TF-IDF values.
-
     tfidf_threshold : float, optional (default: None)
         Threshold for the TF-IDF values. If provided, only markers with TF-IDF values above this threshold are kept.
-        A value of 0.4 is recommended for most datasets.
+        A value of 0.3 is recommended for most datasets.
 
-    second_best_tf_col : str, optional (default: 'second_best_tf')
-        Column name for the second-best TF values.
+    tfidf_col : str, optional (default: 'tf_idf')
+        Column name for the TF-IDF values. Used for filtering based on the TF-IDF threshold.
 
     tf_ratio : float, optional (default: None)
         Threshold for the ratio of the TF score to the second-best TF score. If provided, only markers with a ratio
         above this threshold are kept. A value of 1.2 is recommended for most datasets.
+
+    second_best_tf_col : str, optional (default: 'second_best_tf')
+        Column name for the second-best TF values. Used for filtering based on the TF ratio.
+
+    group_col : str, optional (default: 'cluster')
+        Column name for the cluster labels. Used for filtering based on the TF ratio. This
+        is to keep markers when the cluster equals the second-best cluster (very specific marker).
+
+    second_best_group_col : str, optional (default: 'second_best_cluster')
+        Column name for the second-best cluster labels. Used for filtering based on the TF ratio.
+        This is to keep markers when the cluster equals the second-best cluster (very specific marker).
 
     Returns
     -------
@@ -187,6 +195,6 @@ def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_col='tf_idf', tfi
         above_curve_mask = above_curve_mask & (df[tfidf_col] > tfidf_threshold)
 
     if tf_ratio is not None:
-        above_curve_mask = above_curve_mask & (df[tf_col] / df[second_best_tf_col] > tf_ratio)
+        above_curve_mask = above_curve_mask & ((df[tf_col] / df[second_best_tf_col] > tf_ratio) | (df[group_col] == df[second_best_group_col]))
 
     return df[above_curve_mask], theoretical_curve
