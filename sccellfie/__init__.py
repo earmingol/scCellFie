@@ -12,4 +12,4 @@ from . import stats
 from .expression import aggregation, smoothing, thresholds
 from .sccellfie_pipeline import run_sccellfie_pipeline
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
