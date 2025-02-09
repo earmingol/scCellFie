@@ -9,7 +9,7 @@ from matplotlib.gridspec import GridSpec
 
 def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsize=14, legend_fontsize=12,
                  bkgd_label='H&E', wrapped_title_length=45, ncols=3, hspace=0.15, wspace=0.1, save=None, dpi=300,
-                 bbox_inches='tight', **kwargs):
+                 bbox_inches='tight', tight_layout=True, **kwargs):
     """
     Plots spatial expression of multiple genes in Scanpy.
 
@@ -58,6 +58,9 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
     bbox_inches : str, optional (default: 'tight')
         Bounding box in inches. Only used if `save` is provided.
 
+    tight_layout : bool, optional (default: True)
+        Whether to use tight layout.
+
     **kwargs : dict
         Additional arguments to pass to `scanpy.pl.spatial`.
 
@@ -98,7 +101,9 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
     fig = plt.gcf()
 
     fig.suptitle(suptitle, y=1.05, fontsize=suptitle_fontsize)
-    plt.tight_layout()
+
+    if tight_layout:
+        plt.tight_layout()
 
     if save:
         from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
@@ -110,7 +115,7 @@ def plot_spatial(adata, keys, suptitle=None, suptitle_fontsize=20, title_fontsiz
     return fig, axes
 
 
-def plot_neighbor_distribution(results, figsize=(15, 8), save=None, dpi=300, bbox_inches='tight'):
+def plot_neighbor_distribution(results, figsize=(15, 8), save=None, dpi=300, bbox_inches='tight', tight_layout=True):
     """
     Visualizes the neighbor distribution analysis results.
 
@@ -121,6 +126,18 @@ def plot_neighbor_distribution(results, figsize=(15, 8), save=None, dpi=300, bbo
 
     figsize : tuple
         Figure size for the combined plots
+
+    save : str, optional (default: None)
+        Filepath to save the figure.
+
+    dpi : int, optional (default: 300)
+        Resolution of the saved figure.
+
+    bbox_inches : str, optional (default: 'tight')
+        Bounding box in inches. Only used if `save` is provided.
+
+    tight_layout : bool, optional (default: True)
+        Whether to use tight layout.
 
     Returns
     -------
@@ -174,7 +191,9 @@ def plot_neighbor_distribution(results, figsize=(15, 8), save=None, dpi=300, bbo
         ax.set_title(f'Radius = {radius:.1f}')
         ax.set_xlabel('Number of neighbors')
 
-    plt.tight_layout()
+    if tight_layout:
+        plt.tight_layout()
+
     if save:
         from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
         dir, basename = _get_file_dir(save)

@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 
 def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5), ylabel=None, title=None, fontsize=10,
-                              rotation=90, wrapped_title_length=45, save=None, dpi=300, w_pad=None, h_pad=None, **kwargs):
+                              rotation=90, wrapped_title_length=45, save=None, dpi=300, tight_layout=True, w_pad=None,
+                              h_pad=None, **kwargs):
     """
     Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
@@ -53,6 +54,9 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
     dpi : int, optional (default: 300)
         Resolution of the saved figure.
 
+    tight_layout : bool, optional (default: True)
+        Whether to use tight layout.
+
     w_pad : float, optional (default: None)
         Width padding between subplots.
 
@@ -96,7 +100,9 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
         col = i % n_cols
         fig.delaxes(axes[row, col])
 
-    plt.tight_layout(w_pad=w_pad, h_pad=h_pad)
+    if tight_layout:
+        plt.tight_layout(w_pad=w_pad, h_pad=h_pad)
+
     if save:
         from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
         dir, basename = _get_file_dir(save)
