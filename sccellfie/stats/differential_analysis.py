@@ -2,6 +2,7 @@ import scanpy as sc
 import numpy as np
 import pandas as pd
 
+from collections import defaultdict
 from itertools import combinations
 from scipy.sparse import issparse
 from scipy.stats import ranksums
@@ -29,14 +30,99 @@ def cohens_d(group1, group2):
         Cohen's d effect size.
     """
     n1, n2 = len(group1), len(group2)
-    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
-    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-    d = (np.mean(group1) - np.mean(group2)) / pooled_std
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+    # Pooled standard deviation
+    dof = n1 + n2 - 2
+    if dof > 0:
+        pooled_std = np.sqrt(((n1 - 1) * std1 ** 2 + (n2 - 1) * std2 ** 2) / dof)
+        d = (mean2 - mean1) / pooled_std
+    else:
+        d = 0
     return d
 
 
+def _process_de_analysis(adata, condition_key, condition1, condition2, var_names, ct):
+    """
+    Helper function to process differential expression analysis for a given comparison.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix containing the expression data.
+
+    condition_key : str
+        The column name in adata.obs containing the condition information.
+
+    condition1 : str
+        The first condition in the comparison.
+
+    condition2 : str
+        The second condition in the comparison.
+
+    var_names : list of str
+        The list of variable names (e.g. genes) to perform the differential expression
+        analysis on.
+
+    ct : str
+        The cell type being analyzed.
+
+    Returns
+    -------
+    results : list of dict
+        A list of dictionaries containing the results of the differential expression analysis.
+    """
+    # Perform Wilcoxon test
+    sc.tl.rank_genes_groups(
+        adata, groupby=condition_key,
+        groups=[condition2], reference=condition1,
+        method='wilcoxon', key_added=f"wilcoxon_{ct}"
+    )
+
+    # Get results
+    df = sc.get.rank_genes_groups_df(adata, group=condition2, key=f"wilcoxon_{ct}")
+    df = df[df['names'].isin(var_names)]  # Filter for specified genes
+
+    results = []
+    for _, row in df.iterrows():
+        gene = row['names']
+        group1 = adata[adata.obs[condition_key] == condition1, gene].X
+        group2 = adata[adata.obs[condition_key] == condition2, gene].X
+
+        if issparse(group1):
+            group1 = group1.toarray().flatten()
+        else:
+            group1 = group1.flatten()
+        if issparse(group2):
+            group2 = group2.toarray().flatten()
+        else:
+            group2 = group2.flatten()
+
+        # Calculate log2 fold change
+        mean1, mean2 = np.mean(group1), np.mean(group2)
+        fold_change = mean2 / mean1 if mean1 != 0 else 300
+        log2_fold_change = np.log2(fold_change) if fold_change > 0 else 0.
+
+        results.append({
+            'cell_type': ct,
+            'feature': gene,
+            'group1': condition1,
+            'group2': condition2,
+            'log2FC': log2_fold_change,
+            'test_statistic': row['scores'],
+            'p_value': row['pvals'],
+            'cohens_d': cohens_d(group1, group2),
+            'n_group1': len(group1),
+            'n_group2': len(group2),
+            'median_group1': np.median(group1),
+            'median_group2': np.median(group2),
+            'median_diff': np.median(group2) - np.median(group1)
+        })
+    return results
+
+
 def scanpy_differential_analysis(adata, cell_type, cell_type_key, condition_key, condition_pairs=None, var_names=None,
-                                 alpha=0.05):
+                                 alpha=0.05, min_cells=30, downsample=False, n_iterations=50, agg_method='mean', random_state=None):
     """
     Performs differential expression analysis using Scanpy's rank_genes_groups function.
 
@@ -64,86 +150,123 @@ def scanpy_differential_analysis(adata, cell_type, cell_type_key, condition_key,
     alpha : float, optional (default: 0.05)
         The significance level for the multiple testing correction.
 
+    min_cells : int, optional (default: 30)
+        Minimum number of cells required in each group for comparison.
+
+    downsample : bool, optional (default: False)
+        Whether to perform downsampling to balance group sizes.
+
+    n_iterations : int, optional (default: 50)
+        Number of subsampling iterations if downsample=True.
+
+    agg_method : str, optional (default: 'mean')
+        Method to aggregate results across iterations ('mean' or 'median').
+
+    random_state : int, optional (default: None)
+        Random seed for reproducibility of downsampling.
+
     Returns
     -------
     df_results : DataFrame
-        A DataFrame containing the results of the differential expression analysis.
-        The DataFrame has the following columns: 'cell_type', 'feature', 'contrast', 'log2FC',
-        'test_statistic', 'p_value', 'cohens_d', and 'adj_p_value'.
+        A DataFrame containing the results of the differential expression analysis with columns:
+        - cell_type: The analyzed cell type
+        - feature: Name of the analyzed feature
+        - group1: First condition in the comparison
+        - group2: Second condition in the comparison
+        - log2FC: Log2 fold change between means of conditions
+        - test_statistic: Wilcoxon test statistic
+        - p_value: Raw p-value
+        - adj_p_value: BH-corrected p-value
+        - cohens_d: Effect size (Cohen's d)
+        - n_group1: Number of observations in group1
+        - n_group2: Number of observations in group2
+        - median_group1: Median expression in group1
+        - median_group2: Median expression in group2
+        - median_diff: Difference in medians (group2 - group1)
     """
+    excluded_cells = defaultdict(list)
+
     if cell_type is None:
         cell_types = adata.obs[cell_type_key].unique()
     else:
         cell_types = [cell_type]
 
     all_results = []
+    total_combinations = len(cell_types) * (
+        len(condition_pairs) if condition_pairs else len(list(combinations(adata.obs[condition_key].unique(), 2)))
+    )
 
-    for ct in cell_types:
-        # Filter for the specific cell type
-        adata_subset = adata[adata.obs[cell_type_key] == ct].copy()
+    with tqdm(total=total_combinations, desc="Processing DE analysis") as pbar:
+        for ct in cell_types:
+            # Filter for the specific cell type
+            adata_subset = adata[adata.obs[cell_type_key] == ct].copy()
 
-        if var_names is None:
-            var_names = adata_subset.var_names.tolist()
+            if var_names is None:
+                var_names = adata_subset.var_names.tolist()
 
-        # If condition_pairs is None, compare all pairs of conditions
-        if condition_pairs is None:
-            unique_conditions = adata_subset.obs[condition_key].unique()
-            condition_pairs = list(combinations(unique_conditions, 2))
+            # If condition_pairs is None, compare all pairs of conditions
+            if condition_pairs is None:
+                unique_conditions = adata_subset.obs[condition_key].unique()
+                condition_pairs = list(combinations(unique_conditions, 2))
 
-        results = []
+            for condition1, condition2 in condition_pairs:
+                n1 = np.sum(adata_subset.obs[condition_key] == condition1)
+                n2 = np.sum(adata_subset.obs[condition_key] == condition2)
 
-        for condition1, condition2 in condition_pairs:
-            print(f"Processing contrast: {condition1} vs {condition2} for cell type: {ct}")
+                if min(n1, n2) < min_cells:
+                    excluded_cells[ct].append(f"{condition1} vs {condition2} (n1={n1}, n2={n2})")
+                    pbar.update(1)
+                    continue
 
-            # Perform Wilcoxon test
-            sc.tl.rank_genes_groups(adata_subset, groupby=condition_key,
-                                    groups=[condition2], reference=condition1,
-                                    method='wilcoxon', key_added=f"wilcoxon_{ct}")
+                if downsample:
+                    n_small = min(n1, n2)
+                    iter_results = []
 
-            # Get results
-            df = sc.get.rank_genes_groups_df(adata_subset, group=condition2, key=f"wilcoxon_{ct}")
-            df = df[df['names'].isin(var_names)]  # Filter for specified genes
+                    for i in range(n_iterations):
+                        rng = np.random.RandomState(
+                            random_state + i) if random_state is not None else np.random.RandomState()
+                        idx1 = rng.choice(np.where(adata_subset.obs[condition_key] == condition1)[0], n_small)
+                        idx2 = rng.choice(np.where(adata_subset.obs[condition_key] == condition2)[0], n_small)
 
-            for _, row in df.iterrows():
-                gene = row['names']
-                group1 = adata_subset[adata_subset.obs[condition_key] == condition1, gene].X
-                group2 = adata_subset[adata_subset.obs[condition_key] == condition2, gene].X
+                        temp_adata = adata_subset[np.concatenate([idx1, idx2])]  # .copy()
+                        results = _process_de_analysis(temp_adata, condition_key, condition1, condition2, var_names, ct)
 
-                if issparse(group1):
-                    group1 = group1.toarray().flatten()
+                        for r in results:
+                            r['iteration'] = i
+                        iter_results.extend(results)
+
+                    df_iter = pd.DataFrame(iter_results)
+                    agg_results = df_iter.groupby(['cell_type', 'feature', 'group1', 'group2']).agg({
+                        'log2FC': agg_method,
+                        'test_statistic': agg_method,
+                        'p_value': agg_method,
+                        'cohens_d': agg_method,
+                        'n_group1': 'first',  # These values will be the same across iterations
+                        'n_group2': 'first',
+                        'median_group1': agg_method,
+                        'median_group2': agg_method,
+                        'median_diff': agg_method
+                    }).reset_index()
+                    all_results.extend(agg_results.to_dict('records'))
+
                 else:
-                    group1 = group1.flatten()
-                if issparse(group2):
-                    group2 = group2.toarray().flatten()
-                else:
-                    group2 = group2.flatten()
+                    results = _process_de_analysis(adata_subset, condition_key, condition1, condition2, var_names, ct)
+                    all_results.extend(results)
 
-                # Calculate log2 fold change
-                mean1, mean2 = np.mean(group1), np.mean(group2)
-                fold_change = mean2 / mean1 if mean1 != 0 else 300
-                log2_fold_change = np.log2(fold_change) if fold_change > 0 else 0.
+                pbar.update(1)
 
-                # Calculate Cohen's d
-                effect_size = cohens_d(group2, group1)
+    if excluded_cells:
+        print("\nExcluded comparisons due to insufficient cells:")
+        for ct, comparisons in excluded_cells.items():
+            print(f"\n{ct}:")
+            for comp in comparisons:
+                print(f"  - {comp}")
 
-                results.append({
-                    'cell_type': ct,
-                    'feature': gene,
-                    'contrast': f"{condition1} vs {condition2}",
-                    'log2FC': log2_fold_change,
-                    'test_statistic': row['scores'],
-                    'p_value': row['pvals'],
-                    'cohens_d': effect_size
-                })
-
-        all_results.extend(results)
-
-    # Convert to DataFrame and apply BH correction
     df_results = pd.DataFrame(all_results)
     if not df_results.empty:
         df_results['adj_p_value'] = multipletests(df_results['p_value'], method='fdr_bh', alpha=alpha)[1]
 
-    return df_results.set_index(['cell_type', 'feature'])
+    return df_results
 
 
 def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, alternative='two-sided', alpha=0.05):
@@ -176,8 +299,21 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
     Returns
     -------
     df : pandas.DataFrame
-        DataFrame with test results. Columns are 'feature', 'group1', 'group2', 'statistic', 'p_value',
-        'n_group1', 'n_group2', 'median_group1', 'median_group2', 'cohens_d', 'adj_p_value', and 'median_diff'.
+        A DataFrame containing the results with the same columns as scanpy_differential_analysis
+        (except 'cell_type') for consistency:
+        - feature: Name of the analyzed feature
+        - group1: First condition in the comparison
+        - group2: Second condition in the comparison
+        - log2FC: Log2 fold change between conditions
+        - test_statistic: Wilcoxon test statistic
+        - p_value: Raw p-value
+        - adj_p_value: BH-corrected p-value
+        - cohens_d: Effect size (Cohen's d)
+        - n_group1: Number of observations in group1
+        - n_group2: Number of observations in group2
+        - median_group1: Median expression in group1
+        - median_group2: Median expression in group2
+        - median_diff: Difference in medians (group2 - group1)
     """
     # Lists to store results for DataFrame
     results_list = []
@@ -217,18 +353,25 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
                 # Perform Wilcoxon rank-sum test
                 statistic, pvalue = ranksums(values2, values1, alternative=alternative)
 
+                # Calculate log2 fold change
+                mean1, mean2 = np.mean(values1), np.mean(values2)
+                fold_change = mean2 / mean1 if mean1 != 0 else 300
+                log2_fold_change = np.log2(fold_change) if fold_change > 0 else 0.
+
                 # Store results
                 results_list.append({
                     'feature': var_name,
                     'group1': group1,
                     'group2': group2,
-                    'statistic': statistic,
+                    'log2FC': log2_fold_change,
+                    'test_statistic': statistic,
                     'p_value': pvalue,
+                    'cohens_d': cohens_d(values1, values2),
                     'n_group1': len(values1),
                     'n_group2': len(values2),
                     'median_group1': np.median(values1),
                     'median_group2': np.median(values2),
-                    'cohens_d': cohens_d(values2, values1)
+                    'median_diff': np.median(values2) - np.median(values1)
                 })
 
     # Create DataFrame
@@ -237,6 +380,4 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
     # Perform global multiple testing correction
     df['adj_p_value'] = multipletests(df['p_value'], alpha=alpha, method='fdr_bh')[1]
 
-    # Add median difference
-    df['median_diff'] = df['median_group2'] - df['median_group1']
     return df
