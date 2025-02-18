@@ -36,6 +36,14 @@ def compute_communication_scores(adata, groupby, var_pairs, communication_score=
     layer : str, optional
         Layer in adata to use for aggregation. If None, the main expression matrix adata.X is used.
 
+    ligand_threshold : float, default=0
+        Threshold for the fraction of cells expressing the ligand.
+        Only cells with expression above this threshold are considered as expressing the ligand.
+
+    receptor_threshold : float, default=0
+        Threshold for the fraction of cells expressing the receptor.
+        Only cells with expression above this threshold are considered as expressing the receptor.
+
     Returns
     -------
     ccc_scores : pandas.DataFrame

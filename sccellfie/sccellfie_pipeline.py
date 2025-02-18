@@ -297,6 +297,13 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     if should_normalize:
         normalize_adata(adata, n_counts_key=n_counts_col)
 
+    # Check for presence of neighbors / Run this earlier to use HVGs
+    if (smooth_cells) & (neighbors_key not in adata.uns.keys()):
+        if verbose:
+            print("\n---- scCellFie Step: Computing neighbors ----")
+        compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors,
+                                   verbose=verbose)
+
     # Transform gene names if necessary
     if ensembl_ids:
         transform_adata_gene_names(adata=adata, organism=organism, copy=False, drop_unmapped=True)
@@ -332,12 +339,6 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
     if smooth_cells:
         if verbose:
             print("\n---- scCellFie Step: Smoothing gene expression ----")
-
-        # Check for presence of neighbors
-        if neighbors_key not in adata.uns.keys():
-            if verbose:
-                print("\n---- scCellFie Step: Computing neighbors ----")
-            compute_neighbors_pipeline(adata=adata, batch_key=batch_key, n_neighbors=n_neighbors, verbose=verbose)
 
         # Perform smoothing based on neighbors
         smooth_expression_knn(adata=preprocessed_db['adata'],
