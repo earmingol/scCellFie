@@ -81,33 +81,14 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     adata_subsampled : AnnData
         Subsampled AnnData object
     """
-    np.random.seed(random_state)
+    # Get the indices of the cells to keep
+    indices_to_keep = (adata.obs
+                       .groupby(group_column)
+                       .apply(lambda x: x.sample(frac=target_fraction, random_state=random_state))
+                       .index.get_level_values(1))
 
-    # Get the group categories
-    categories = adata.obs[group_column].cat.categories
-
-    # Initialize an empty list to store subsampled indices
-    subsampled_indices = []
-
-    # Perform stratified subsampling
-    for category in categories:
-        # Get indices for the current category
-        category_indices = adata.obs[adata.obs[group_column] == category].index
-
-        # Calculate the number of cells to sample from this category
-        n_sample = int(len(category_indices) * target_fraction)
-
-        # Randomly sample indices
-        sampled_indices = np.random.choice(category_indices, size=n_sample, replace=False)
-
-        # Add sampled indices to the list
-        subsampled_indices.extend(sampled_indices)
-
-    # Convert the list of indices to a pandas Index
-    subsampled_indices = pd.Index(subsampled_indices)
-
-    # Return the subsampled AnnData object
-    adata_subsampled = adata[subsampled_indices]
+    # Create a new AnnData object with the subsampled cells
+    adata_subsampled = adata[indices_to_keep]
     return adata_subsampled
 
 
