@@ -26,10 +26,10 @@ scCellFie includes a series of improvements and new analyses, such as marker sel
 cell-cell communication inference.
 
 
-.. image:: https://github.com/earmingol/scCellFie/blob/main/scCellFie-Logo.png?raw=true
+.. image:: https://github.com/earmingol/scCellFie/blob/main/scCellFie-analysis.png?raw=true
    :alt: Logo
-   :width: 350
-   :height: 188.31
+   :width: 500
+   :height: 590
    :align: center
 
 
@@ -46,7 +46,7 @@ Features
 - **Single cell and spatial data analysis:** Inference of metabolic
   activity per single cell or spatial spot.
 
-- **Speed:** Runs fast and memory efficiently, scaling up to large datasets. ~100k single cells can be analyzed in ~7 min.
+- **Speed:** Runs fast and memory efficiently, scaling up to large datasets. ~100k single cells can be analyzed in ~8 min.
 
 - **Downstream analyses:** From marker selection of relevant metabolic tasks to integration with
   inference of cell-cell communication.
@@ -58,7 +58,7 @@ Features
 
 - **Organisms:** Metabolic database and analysis available for human and mouse.
 
-Quick start
+Quick Start
 -----------
 A quick example of how to use scCellFie with a single-cell dataset and generate results::
 
@@ -105,14 +105,17 @@ In particular:
 Other keys in the ``results`` dictionary are associated with the scCellFie database and are already filtered for the elements present
 in the dataset (``'gpr_rules'``, ``'task_by_gene'``, ``'rxn_by_gene'``, ``'task_by_rxn'``, ``'rxn_info'``, ``'task_info'``, ``'thresholds'``, ``'organism'``).
 
-Documentation
--------------
-For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.readthedocs.io/en/latest/>`_.
+Documentation and Tutorials
+---------------------------
+- For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.ƒreadthedocs.io/en/latest/>`_.
 
-How to cite
+- For visualizing a summarized version of the results, visit the `scCellFie Metabolic Task Visualization website <https://www.sccellfie.org/>`_.
+
+How to Cite
 -----------
 
-*Preprint is coming soon!*
+- **Metabolic activities inferred from single-cell and spatial transcriptomic atlases in health and disease**.
+  *bioRxiv, 2025*. https://doi.org/10.1101/XXXXXX
 
 Acknowledgments
 ---------------
