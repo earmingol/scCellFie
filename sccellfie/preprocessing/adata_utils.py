@@ -277,16 +277,27 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
 
     # Create new var DataFrame
     new_var = adata_target.var.copy()
-    cols_in_both = adata_target.var.columns.intersection(adata_source.var.columns)
-    cols_only_source = adata_source.var.columns.difference(adata_target.var.columns)
+
+    # Add a temporary column to handle empty DataFrame cases
+    temp_col_name = '_temp_transfer_column_'
+    new_var[temp_col_name] = np.nan
+
+    # Add temporary column to source var copy as well
+    source_var = adata_source.var.copy()
+    source_var[temp_col_name] = np.nan
+
+    # Original column processing logic
+    cols_in_both = new_var.columns.intersection(source_var.columns)
+    cols_only_source = source_var.columns.difference(new_var.columns)
     new_cols = cols_in_both.union(cols_only_source)
-    source_var = adata_source.var
-    if len(new_cols) != 0:
+
+    if len(new_cols) > 0:
         new_var = new_var[cols_in_both]
         new_var = new_var.reindex(columns=new_cols)
         source_var = source_var[new_cols]
+
     for v in var_names:
-        if v in adata_source.var.index:
+        if v in source_var.index:
             new_var.loc[v] = source_var.loc[v]
         else:
             new_var.loc[v] = None
@@ -414,6 +425,10 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
                     adata_target.obs[col].cat.ordered:
                 new_obs[col] = new_obs[col].cat.reorder_categories(adata_target.obs[col].cat.categories)
                 new_obs[col] = new_obs[col].cat.as_ordered()
+
+    # Remove the temporary column before creating the new AnnData
+    if temp_col_name in new_var.columns:
+        new_var = new_var.drop(columns=[temp_col_name])
 
     # Create new AnnData with correct dimensions
     adata_new = sc.AnnData(
