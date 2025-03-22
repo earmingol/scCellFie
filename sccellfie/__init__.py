@@ -7,6 +7,7 @@ from . import metabolic_task
 from . import plotting
 from . import preprocessing
 from . import reaction_activity
+from . import reports
 from . import spatial
 from . import stats
 from .expression import aggregation, smoothing, thresholds
