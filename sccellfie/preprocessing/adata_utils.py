@@ -81,33 +81,14 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     adata_subsampled : AnnData
         Subsampled AnnData object
     """
-    np.random.seed(random_state)
+    # Get the indices of the cells to keep
+    indices_to_keep = (adata.obs
+                       .groupby(group_column)
+                       .apply(lambda x: x.sample(frac=target_fraction, random_state=random_state))
+                       .index.get_level_values(1))
 
-    # Get the group categories
-    categories = adata.obs[group_column].cat.categories
-
-    # Initialize an empty list to store subsampled indices
-    subsampled_indices = []
-
-    # Perform stratified subsampling
-    for category in categories:
-        # Get indices for the current category
-        category_indices = adata.obs[adata.obs[group_column] == category].index
-
-        # Calculate the number of cells to sample from this category
-        n_sample = int(len(category_indices) * target_fraction)
-
-        # Randomly sample indices
-        sampled_indices = np.random.choice(category_indices, size=n_sample, replace=False)
-
-        # Add sampled indices to the list
-        subsampled_indices.extend(sampled_indices)
-
-    # Convert the list of indices to a pandas Index
-    subsampled_indices = pd.Index(subsampled_indices)
-
-    # Return the subsampled AnnData object
-    adata_subsampled = adata[subsampled_indices]
+    # Create a new AnnData object with the subsampled cells
+    adata_subsampled = adata[indices_to_keep]
     return adata_subsampled
 
 
@@ -296,16 +277,27 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
 
     # Create new var DataFrame
     new_var = adata_target.var.copy()
-    cols_in_both = adata_target.var.columns.intersection(adata_source.var.columns)
-    cols_only_source = adata_source.var.columns.difference(adata_target.var.columns)
+
+    # Add a temporary column to handle empty DataFrame cases
+    temp_col_name = '_temp_transfer_column_'
+    new_var[temp_col_name] = np.nan
+
+    # Add temporary column to source var copy as well
+    source_var = adata_source.var.copy()
+    source_var[temp_col_name] = np.nan
+
+    # Original column processing logic
+    cols_in_both = new_var.columns.intersection(source_var.columns)
+    cols_only_source = source_var.columns.difference(new_var.columns)
     new_cols = cols_in_both.union(cols_only_source)
-    source_var = adata_source.var
-    if len(new_cols) != 0:
+
+    if len(new_cols) > 0:
         new_var = new_var[cols_in_both]
         new_var = new_var.reindex(columns=new_cols)
         source_var = source_var[new_cols]
+
     for v in var_names:
-        if v in adata_source.var.index:
+        if v in source_var.index:
             new_var.loc[v] = source_var.loc[v]
         else:
             new_var.loc[v] = None
@@ -433,6 +425,10 @@ def transfer_variables(adata_target, adata_source, var_names, source_obs_col=Non
                     adata_target.obs[col].cat.ordered:
                 new_obs[col] = new_obs[col].cat.reorder_categories(adata_target.obs[col].cat.categories)
                 new_obs[col] = new_obs[col].cat.as_ordered()
+
+    # Remove the temporary column before creating the new AnnData
+    if temp_col_name in new_var.columns:
+        new_var = new_var.drop(columns=[temp_col_name])
 
     # Create new AnnData with correct dimensions
     adata_new = sc.AnnData(

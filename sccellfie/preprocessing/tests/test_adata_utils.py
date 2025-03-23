@@ -24,7 +24,7 @@ def test_stratified_subsample_adata():
     subsampled_adata = stratified_subsample_adata(adata, group_column='cluster', target_fraction=target_fraction)
 
     # Check if the subsampled data has approximately the correct size
-    expected_size = int(n_obs * target_fraction)
+    expected_size = round(n_obs * target_fraction)
     assert abs(len(subsampled_adata) - expected_size) <= n_clusters  # Allow for small rounding differences
 
     # Check if all clusters are represented in the subsampled data

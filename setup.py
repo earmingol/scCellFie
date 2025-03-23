@@ -13,7 +13,7 @@ setup(
     version=version,
     author='Erick Armingol',
     author_email='erickarmingol@gmail.com',
-    description="A tool for studying metabolic tasks from single-cell and spatial transcriptomics",
+    description="A tool for inferring metabolic activities from single-cell and spatial transcriptomics",
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     url='https://github.com/earmingol/scCellFie',
@@ -29,7 +29,10 @@ setup(
         'squidpy',
         'networkx',
         'geopandas',
-        'esda'
+        'esda',
+        'matplotlib',
+        'seaborn',
+        'glasbey'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
