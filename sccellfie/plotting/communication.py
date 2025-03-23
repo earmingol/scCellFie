@@ -1,3 +1,4 @@
+import os
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -143,7 +144,7 @@ def plot_communication_network(ccc_scores, sender_col, receiver_col, score_col,
                                node_color="#210070", node_size=1000, node_alpha=0.9,
                                node_label_size=12, node_label_alpha=0.7,
                                node_label_offset=(0.05, -0.2), title=None,
-                               title_fontsize=14, ax=None, save=None, dpi=300, tight_layout=True):
+                               title_fontsize=14, ax=None, save=None, dpi=300, tight_layout=True, bbox_inches='tight'):
     """
     Plots a network of cell-cell communication. 
     Edges represent communication scores between cells. These scores could
@@ -221,6 +222,9 @@ def plot_communication_network(ccc_scores, sender_col, receiver_col, score_col,
 
     tight_layout : bool, optional (default: True)
         Whether to use tight layout for the plot.
+
+    bbox_inches : str, optional (default: 'tight')
+        Bounding box in inches. Only used if `save` is provided.
 
     Returns
     -------
@@ -353,6 +357,10 @@ def plot_communication_network(ccc_scores, sender_col, receiver_col, score_col,
         if tight_layout:
             plt.tight_layout()
         if save is not None:
-            plt.savefig(save, dpi=dpi, bbox_inches='tight')
+            from sccellfie.plotting.plot_utils import _get_file_format, _get_file_dir
+            dir, basename = _get_file_dir(save)
+            os.makedirs(dir, exist_ok=True)
+            format = _get_file_format(save)
+            plt.savefig(f'{dir}/ccc_{basename}.{format}', dpi=dpi, bbox_inches=bbox_inches)
 
     return fig, ax

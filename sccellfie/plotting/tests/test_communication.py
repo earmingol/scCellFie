@@ -143,7 +143,7 @@ def test_plot_communication_network():
     # Test file saving
     with tempfile.TemporaryDirectory() as tmpdirname:
         save_path = os.path.join(tmpdirname, 'test_network.png')
-
+        expected_path = os.path.join(tmpdirname, 'ccc_test_network.png')
         fig, ax = plot_communication_network(
             ccc_scores,
             sender_col='sender',
@@ -152,7 +152,7 @@ def test_plot_communication_network():
             save=save_path
         )
 
-        assert os.path.exists(save_path), f"File not found at {save_path}"
+        assert os.path.exists(expected_path), f"File not found at {expected_path}"
         plt.close(fig)
 
     # Test with custom aesthetics
