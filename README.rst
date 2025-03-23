@@ -107,9 +107,9 @@ in the dataset (``'gpr_rules'``, ``'task_by_gene'``, ``'rxn_by_gene'``, ``'task_
 
 Documentation and Tutorials
 ---------------------------
-- For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.ƒreadthedocs.io/en/latest/>`_.
+- For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.readthedocs.io>`_.
 
-- For visualizing a summarized version of the results, visit the `scCellFie Metabolic Task Visualization website <https://www.sccellfie.org/>`_.
+- For visualizing a summarized version of the results, visit the `scCellFie Metabolic Task Visualizer <https://www.sccellfie.org/>`_.
 
 How to Cite
 -----------
