@@ -226,7 +226,7 @@ def test_generate_report_tissue_column():
     report = generate_report_from_adata(
         adata,
         group_by='cluster',
-        tissue_column='tissue'
+        tissue_col='tissue'
     )
 
     # Check that the tissue information is included in the melted report
