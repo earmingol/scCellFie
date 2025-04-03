@@ -18,11 +18,15 @@ def _get_file_format(save_name):
 
 
 def _get_file_dir(save_name):
+    dir = os.path.dirname(save_name)
     # Check if path is absolute
     if os.path.isabs(save_name):
-        dir = os.path.dirname(save_name)
+        pass
+    # Check if user provided a directory
+    elif dir != '':
+        dir = os.path.abspath(dir)
     else:
-        # If not absolute, combine with scanpy's figdir
+        # If not directory provided, combine with scanpy's figdir
         dir = str(sc.settings.figdir.absolute())
     basename = os.path.splitext(os.path.basename(save_name))[0]
     return dir, basename

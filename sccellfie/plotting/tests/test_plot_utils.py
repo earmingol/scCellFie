@@ -61,10 +61,12 @@ def test_get_file_dir_relative_path(setup_scanpy_settings):
     assert basename == 'plot'
 
 
-def test_get_file_dir_nested_path(setup_scanpy_settings):
+def test_get_file_dir_nested_path():
     """Test _get_file_dir with nested relative path."""
     nested_path = 'subfolder/plot.png'
     dir_path, basename = _get_file_dir(nested_path)
 
-    assert dir_path == str(sc.settings.figdir.absolute())
+    # For a nested path, expect the absolute path to the subfolder
+    expected_path = os.path.abspath('subfolder')
+    assert dir_path == expected_path
     assert basename == 'plot'
