@@ -1,0 +1,81 @@
+/* Custom CSS for scCellFie documentation */
+
+/* Make the body text color easier on the eyes */
+body {
+    color: #333;
+}
+
+/* Custom styling for headers */
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+}
+
+/* Style code blocks */
+.highlight {
+    background: #f8f8f8;
+    border-radius: 4px;
+}
+
+/* Make code more readable */
+code {
+    font-size: 90%;
+    color: #e74c3c;
+}
+
+/* Better styling for API documentation */
+dl.class, dl.function, dl.method, dl.attribute {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-left: 3px solid #2980b9;
+    background-color: #f9f9f9;
+}
+
+/* Style parameter lists */
+dl.field-list {
+    margin-left: 20px;
+}
+
+/* Style admonitions */
+div.admonition {
+    border-radius: 4px;
+    border-left-width: 6px;
+}
+
+/* Style note admonitions */
+div.note {
+    background-color: #f8f9fa;
+    border-color: #2980b9;
+}
+
+/* Style warning admonitions */
+div.warning {
+    background-color: #fff3cd;
+    border-color: #f0ad4e;
+}
+
+/* Style navbar */
+.wy-side-nav-search {
+    background-color: #2c3e50;
+}
+
+/* Style the notebook cells in tutorials */
+div.nbinput .highlight, div.nboutput .highlight {
+    margin: 0;
+}
+
+/* Add a small gap between notebook cells */
+div.nbinput, div.nboutput {
+    margin-bottom: 10px;
+}
+
+/* Style table headers */
+table.docutils th {
+    background-color: #f2f2f2;
+}
+
+/* Style API documention section titles */
+.rst-content .section-title {
+    margin-top: 30px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
