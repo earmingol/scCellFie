@@ -5,15 +5,8 @@ from tqdm import tqdm
 
 from sccellfie.expression.aggregation import AGG_FUNC
 
-import numpy as np
-import pandas as pd
-from scipy import sparse
-from tqdm import tqdm
 
-from sccellfie.expression.aggregation import AGG_FUNC
-
-
-def generate_report_from_adata(adata, group_by, agg_func='trimean', layer=None, features=None, tissue_column=None,
+def generate_report_from_adata(adata, group_by, agg_func='trimean', layer=None, features=None, tissue_col=None,
                                feature_name='feature', min_cells=1, threshold=5 * np.log(2),
                                default_tissue_name='tissue', **kwargs):
     """
@@ -38,7 +31,7 @@ def generate_report_from_adata(adata, group_by, agg_func='trimean', layer=None, 
     features : list, optional (default: None)
         Names of features to analyze. If None, uses adata.var_names.
 
-    tissue_column : str, optional (default: None)
+    tissue_col : str, optional (default: None)
         Column name in adata.obs for tissue information.
 
     feature_name : str, optional (default: 'feature')
@@ -88,7 +81,7 @@ def generate_report_from_adata(adata, group_by, agg_func='trimean', layer=None, 
     # Extract metrics by group
     metrics_data = generate_summary_by_group(
         adata, data_matrix, feature_names, group_by, agg_func,
-        tissue_column, min_cells, default_tissue_name, threshold, **kwargs
+        tissue_col, min_cells, default_tissue_name, threshold, **kwargs
     )
 
     # Compile feature ranges

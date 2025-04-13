@@ -167,22 +167,22 @@ def scanpy_differential_analysis(adata, cell_type, cell_type_key, condition_key,
 
     Returns
     -------
-    df_results : DataFrame
+    df_results : pandas.DataFrame
         A DataFrame containing the results of the differential expression analysis with columns:
-        - cell_type: The analyzed cell type
-        - feature: Name of the analyzed feature
-        - group1: First condition in the comparison
-        - group2: Second condition in the comparison
-        - log2FC: Log2 fold change between means of conditions
-        - test_statistic: Wilcoxon test statistic
-        - p_value: Raw p-value
-        - adj_p_value: BH-corrected p-value
-        - cohens_d: Effect size (Cohen's d)
-        - n_group1: Number of observations in group1
-        - n_group2: Number of observations in group2
-        - median_group1: Median expression in group1
-        - median_group2: Median expression in group2
-        - median_diff: Difference in medians (group2 - group1)
+            - cell_type: The analyzed cell type
+            - feature: Name of the analyzed feature
+            - group1: First condition in the comparison
+            - group2: Second condition in the comparison
+            - log2FC: Log2 fold change between means of conditions
+            - test_statistic: Wilcoxon test statistic
+            - p_value: Raw p-value
+            - adj_p_value: BH-corrected p-value
+            - cohens_d: Effect size (Cohen's d)
+            - n_group1: Number of observations in group1
+            - n_group2: Number of observations in group2
+            - median_group1: Median expression in group1
+            - median_group2: Median expression in group2
+            - median_diff: Difference in medians (group2 - group1)
     """
     excluded_cells = defaultdict(list)
 
@@ -301,19 +301,19 @@ def pairwise_differential_analysis(adata, groupby, var_names=None, order=None, a
     df : pandas.DataFrame
         A DataFrame containing the results with the same columns as scanpy_differential_analysis
         (except 'cell_type') for consistency:
-        - feature: Name of the analyzed feature
-        - group1: First condition in the comparison
-        - group2: Second condition in the comparison
-        - log2FC: Log2 fold change between conditions
-        - test_statistic: Wilcoxon test statistic
-        - p_value: Raw p-value
-        - adj_p_value: BH-corrected p-value
-        - cohens_d: Effect size (Cohen's d)
-        - n_group1: Number of observations in group1
-        - n_group2: Number of observations in group2
-        - median_group1: Median expression in group1
-        - median_group2: Median expression in group2
-        - median_diff: Difference in medians (group2 - group1)
+            - feature: Name of the analyzed feature
+            - group1: First condition in the comparison
+            - group2: Second condition in the comparison
+            - log2FC: Log2 fold change between conditions
+            - test_statistic: Wilcoxon test statistic
+            - p_value: Raw p-value
+            - adj_p_value: BH-corrected p-value
+            - cohens_d: Effect size (Cohen's d)
+            - n_group1: Number of observations in group1
+            - n_group2: Number of observations in group2
+            - median_group1: Median expression in group1
+            - median_group2: Median expression in group2
+            - median_diff: Difference in medians (group2 - group1)
     """
     # Lists to store results for DataFrame
     results_list = []

@@ -18,8 +18,8 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
     """
     Runs the complete scCellFie pipeline on the given AnnData object, processing by cell type if specified.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     adata : AnnData
         AnnData object containing gene expression values and nearest neighbor graph.
         The .X matrix must contain raw counts. If neighbors are not present, they will be computed.
@@ -96,12 +96,13 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
     verbose : bool, optional (default: True)
         Whether to print messages during the processing.
 
-    Returns:
-    --------
+    Returns
+    -------
     preprocessed_db : dict
         Complete preprocessed database including the processed AnnData object and scCellFie attributes/results,
         normally stored as preprocessed_db['adata'], preprocessed_db['adata'].reactions,
-        and preprocessed_db['adata'].metabolic_tasks. THIS IS OUTPUT ONLY IF `process_by_group` is False.
+        and preprocessed_db['adata'].metabolic_tasks.
+        This output is returned only if `process_by_group` is False.
     """
     if verbose:
         print("\n==== scCellFie Pipeline: Initializing ====")

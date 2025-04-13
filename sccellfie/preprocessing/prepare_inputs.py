@@ -9,8 +9,8 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     """
     Preprocesses inputs for metabolic analysis.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     adata : AnnData
         Annotated data matrix.
 
@@ -47,8 +47,8 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     verbose : bool, optional (default: True)
         If True, prints information about the preprocessing results.
 
-    Returns:
-    --------
+    Returns
+    -------
     adata2 : AnnData
         Filtered annotated data matrix.
 
