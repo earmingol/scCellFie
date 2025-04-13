@@ -18,10 +18,11 @@
 
 
 Metabolic activity from single-cell and spatial transcriptomics with scCellFie
------------------------------------------------------------------------------------------
-scCellFie is a Python-based tool for analyzing metabolic activity at different resolutions, developed at `the Vento Lab <https://ventolab.org/>`_. It efficiently processes both
+------------------------------------------------------------------------------
+
+scCellFie is a Python-based tool for analyzing metabolic activity at different resolutions, developed at the `Vento Lab <https://ventolab.org/>`_. It efficiently processes both
 single-cell and spatial data to predict metabolic task activities. While its prediction strategy is inspired by
-`CellFie <https://github.com/LewisLabUCSD/CellFie>`_, a tool from the `Lewis Lab <https://lewislab.ucsd.edu/>`_ originally developed in MATLAB,
+`CellFie <https://github.com/LewisLabUCSD/CellFie>`_, a tool from the `Lewis Lab <https://lewislab.ucsd.edu/>`_ originally developed in MATLAB for bulk and small single-cell datasets,
 scCellFie includes a series of improvements and new analyses, such as marker selection, differential analysis, and
 cell-cell communication inference.
 
@@ -31,14 +32,6 @@ cell-cell communication inference.
    :width: 500
    :height: 590
    :align: center
-
-
-Installation
-------------
-
-To install scCellFie, use pip::
-
-    pip install sccellfie
 
 Features
 --------
@@ -58,8 +51,31 @@ Features
 
 - **Organisms:** Metabolic database and analysis available for human and mouse.
 
+Documentation and Tutorials
+---------------------------
+
+- For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.readthedocs.io>`_.
+
+- For visualizing a summarized version of the results, visit the `scCellFie Metabolic Task Visualizer <https://www.sccellfie.org/>`_.
+
+Installation
+------------
+
+To create a new conda environment (optional)::
+
+    # Create a new conda environment
+    conda create -n sccellfie -y python=3.10
+
+    # Activate the environment
+    conda activate sccellfie
+
+To install scCellFie, use pip::
+
+    pip install sccellfie
+
 Quick Start
 -----------
+
 A quick example of how to use scCellFie with a single-cell dataset and generate results::
 
         import sccellfie
@@ -88,6 +104,24 @@ A quick example of how to use scCellFie with a single-cell dataset and generate 
                                                    save_filename=None
                                                   )
 
+        # Save adata objects containing single-cell/spatial results
+        sccellfie.io.save_adata(adata=results['adata'],
+                                output_directory='/folder/path/',
+                                filename='sccellfie_results'
+                                )
+
+        # Summarize results in a cell-group level for the Metabolic Task Visualizer
+        report = sccellfie.reports.generate_report_from_adata(results['adata'].metabolic_tasks,
+                                                              group_by=cell_group,
+                                                              tissue_column='condition',
+                                                              feature_name='metabolic_task'
+                                                              )
+
+        # Export files to a specific folder.
+        sccellfie.io.save_result_summary(results_dict=report, output_directory='/folder/path/')
+
+        # Melted.csv and Min_max.csv are input files for the Metabolic Task Visualizer
+
 To access metabolic activities, we need to inspect ``results['adata']``:
 
 - The processed single-cell data is located in the AnnData object ``results['adata']``.
@@ -105,14 +139,10 @@ In particular:
 Other keys in the ``results`` dictionary are associated with the scCellFie database and are already filtered for the elements present
 in the dataset (``'gpr_rules'``, ``'task_by_gene'``, ``'rxn_by_gene'``, ``'task_by_rxn'``, ``'rxn_info'``, ``'task_info'``, ``'thresholds'``, ``'organism'``).
 
-Documentation and Tutorials
----------------------------
-- For detailed documentation and tutorials, visit the `scCellFie documentation <https://sccellfie.readthedocs.io>`_.
-
-- For visualizing a summarized version of the results, visit the `scCellFie Metabolic Task Visualizer <https://www.sccellfie.org/>`_.
-
 How to Cite
 -----------
+
+Please consider citing our work if you find scCellFie useful:
 
 - **Metabolic activities inferred from single-cell and spatial transcriptomic atlases in health and disease**.
   *bioRxiv, 2025*. https://doi.org/10.1101/XXXXXX
@@ -120,8 +150,8 @@ How to Cite
 Acknowledgments
 ---------------
 
-This implementation is inspired by the original `CellFie tool <https://github.com/LewisLabUCSD/CellFie>`_ developed by
-the `Lewis Lab <https://lewislab.ucsd.edu/>`_. Please consider citing their work if you find this tool useful:
+This tool is inspired by the original `CellFie tool <https://github.com/LewisLabUCSD/CellFie>`_ developed by
+the `Lewis Lab <https://lewislab.ucsd.edu/>`_. Please consider citing their work if you find our tool useful:
 
 - **Model-based assessment of mammalian cell metabolic functionalities using omics data**.
   *Cell Reports Methods, 2021*. https://doi.org/10.1016/j.crmeth.2021.100040

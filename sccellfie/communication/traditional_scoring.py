@@ -24,9 +24,9 @@ def compute_communication_scores(adata, groupby, var_pairs, communication_score=
 
     communication_score : str, default='gmean'
         Method to compute communication scores. Options are:
-        - 'gmean': geometric mean (sqrt(x * y))
-        - 'product': simple multiplication (x * y)
-        - 'mean': arithmetic mean ((x + y) / 2)
+            - 'gmean': geometric mean (sqrt(x * y))
+            - 'product': simple multiplication (x * y)
+            - 'mean': arithmetic mean ((x + y) / 2)
 
     agg_func : str, default='mean'
         Aggregation function for aggregating expression values across cells.
@@ -49,13 +49,13 @@ def compute_communication_scores(adata, groupby, var_pairs, communication_score=
     ccc_scores : pandas.DataFrame
         DataFrame containing the communication scores between cell types for each variable pair.
         Columns are:
-        - sender_celltype: type of the sender cell
-        - receiver_celltype: type of the receiver cell
-        - ligand: name of the ligand
-        - receptor: name of the receptor
-        - score: communication score
-        - ligand_fraction: fraction of sender cells expressing the ligand
-        - receptor_fraction: fraction of receiver cells expressing the receptor
+            - sender_celltype: type of the sender cell
+            - receiver_celltype: type of the receiver cell
+            - ligand: name of the ligand
+            - receptor: name of the receptor
+            - score: communication score
+            - ligand_fraction: fraction of sender cells expressing the ligand
+            - receptor_fraction: fraction of receiver cells expressing the receptor
     """
     # Split variable pairs
     vars1, vars2 = zip(*var_pairs)

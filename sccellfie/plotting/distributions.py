@@ -11,8 +11,8 @@ def create_multi_violin_plots(adata, features, groupby, n_cols=4, figsize=(5, 5)
     Plots a grid of violin plots for multiple genes in Scanpy,
     controlling the number of columns.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     adata : AnnData
         Annotated data matrix.
 

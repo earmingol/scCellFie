@@ -158,10 +158,10 @@ def compute_hotspots(adata, spatial_key='X_spatial', use_raw=False, z_threshold=
     Returns
     -------
     None
-        A dictionary containing the Getis-Ord Gi* statistic for each variable in adata.var_names
+        - A dictionary containing the Getis-Ord Gi* statistic for each variable in adata.var_names
         is added to adata.uns['hotspots']['hotspots'].
 
-        A pandas.DataFrame object containing the aggregate metrics for each variable in adata.var_names
+        - A pandas.DataFrame object containing the aggregate metrics for each variable in adata.var_names
         is added to adata.uns['hotspots']['hotspot_df'].
     """
     hotspots = obtain_hotspots(adata, spatial_key=spatial_key, use_raw=use_raw)
