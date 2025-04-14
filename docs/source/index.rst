@@ -5,10 +5,8 @@ Welcome to scCellFie's documentation!
     :end-before: Installation
 
 
-How to Cite
------------
 .. include:: ../../README.rst
-    :start-after: How to Cite
+    :start-after: ``'organism'``).
 
 Additional Documentation
 ------------------------

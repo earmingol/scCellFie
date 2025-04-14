@@ -1,0 +1,10 @@
+sphinx
+sphinx-rtd-theme
+furo
+docrep
+furo
+ipykernel
+ipython
+nbsphinx
+numpydoc
+pandoc
