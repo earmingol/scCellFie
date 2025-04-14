@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def save_adata(adata, folder, filename, spatial_network_key='spatial_network', verbose=True):
+def save_adata(adata, output_directory, filename, spatial_network_key='spatial_network', verbose=True):
     """
     Saves an AnnData object and its scCellFie attributes to a folder.
 
@@ -15,8 +15,8 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
     adata: AnnData object
         Annotated data matrix.
 
-    folder: str
-        The folder to save the AnnData object.
+    output_directory: str
+        Directory to save the results (AnnData objects).
 
     filename: str
         The name of the file to save the AnnData object. Do not include the file extension.
@@ -36,14 +36,14 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
             - metabolic_tasks: folder/filename_metabolic_tasks.h5ad.
     """
     # Check folder path
-    Path(folder).mkdir(parents=True, exist_ok=True)
+    Path(output_directory).mkdir(parents=True, exist_ok=True)
     if spatial_network_key in adata.uns.keys():
         if isinstance(adata.uns[spatial_network_key]['graph'], nx.Graph):
             adata.uns[spatial_network_key]['graph'] = nx.to_pandas_adjacency(adata.uns[spatial_network_key]['graph'])
             warn = f"adata.uns['{spatial_network_key}']['graph'] was converted from a networkx.Graph object to a pandas adjacency matrix to be saved with the AnnData object."
             warnings.warn(warn)
 
-    adata_filename = f'{folder}/{filename}.h5ad'
+    adata_filename = f'{output_directory}/{filename}.h5ad'
     adata.write_h5ad(adata_filename)
     if verbose: print(f'{adata_filename} was correctly saved')
 
@@ -53,7 +53,7 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
                 adata.reactions.uns[spatial_network_key]['graph'] = nx.to_pandas_adjacency(adata.reactions.uns[spatial_network_key]['graph'])
                 warn = f"adata.reactions.uns['{spatial_network_key}']['graph'] was converted from a networkx.Graph object to a pandas adjacency matrix to be saved with the AnnData object."
                 warnings.warn(warn)
-        reaction_filename = f'{folder}/{filename}_reactions.h5ad'
+        reaction_filename = f'{output_directory}/{filename}_reactions.h5ad'
         adata.reactions.write_h5ad(reaction_filename)
         if verbose: print(f'{reaction_filename} was correctly saved')
     else:
@@ -64,7 +64,7 @@ def save_adata(adata, folder, filename, spatial_network_key='spatial_network', v
                 adata.metabolic_tasks.uns[spatial_network_key]['graph'] = nx.to_pandas_adjacency(adata.metabolic_tasks.uns[spatial_network_key]['graph'])
                 warn = f"adata.metabolic_tasks.uns['{spatial_network_key}']['graph'] was converted from a networkx.Graph object to a pandas adjacency matrix to be saved with the AnnData object."
                 warnings.warn(warn)
-        mt_filename = f'{folder}/{filename}_metabolic_tasks.h5ad'
+        mt_filename = f'{output_directory}/{filename}_metabolic_tasks.h5ad'
         adata.metabolic_tasks.write_h5ad(mt_filename)
         if verbose: print(f'{mt_filename} was correctly saved')
     else:
