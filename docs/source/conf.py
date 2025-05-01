@@ -34,7 +34,7 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'furo' #'sphinx_rtd_theme'
 html_static_path = ['_static']
-html_logo = '_static/scCellFie-logo.png'  # Add your logo here
+html_logo = 'https://raw.githubusercontent.com/earmingol/scCellFie/refs/heads/main/docs/source/_static/scCellFie-Logo.png' #'_static/scCellFie-logo.png'  # Add your logo here
 # html_favicon = '_static/favicon.ico'  # Add your favicon here
 html_css_files = [
     'custom.css',

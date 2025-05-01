@@ -14,17 +14,27 @@ Additional Documentation
    :maxdepth: 1
 
    installation
-   quick_start
    api/index
 
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: General Tutorials:
+   :caption: Quick start tutorials
 
+   quick_start
+   notebooks/quick_start_human
+   notebooks/quick_start_mouse
    notebooks/extended_quick_start
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Visualization tutorials
+
    notebooks/visualizer
+
 
 
 Indices and tables
