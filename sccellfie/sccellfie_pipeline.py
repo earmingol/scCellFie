@@ -178,7 +178,7 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
             # Save results if requested
             if save_folder:
                 save_adata(adata=preprocessed_db['adata'],
-                           folder=save_folder,
+                           output_directory=save_folder,
                            filename=save_filename + '_' + celltype.replace(' ', '_'),
                            verbose=False)
         if verbose:
@@ -207,7 +207,7 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
             if verbose:
                 print("\n==== scCellFie Pipeline: Saving results ====")
             save_adata(adata=preprocessed_db['adata'],
-                       folder=save_folder,
+                       output_directory=save_folder,
                        filename=save_filename)
         if verbose:
             print("\n==== scCellFie Pipeline: Processing completed successfully ====")
