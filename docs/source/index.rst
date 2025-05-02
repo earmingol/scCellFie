@@ -34,6 +34,7 @@ Additional Documentation
    :caption: Visualization tutorials
 
    notebooks/visualizer
+   notebooks/escher_viz
 
 
 
