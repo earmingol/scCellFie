@@ -224,6 +224,9 @@ def transform_adata_gene_names(adata, filename=None, organism='human', copy=True
     # Assign new gene names
     adata_mod.var_names = new_var_names
 
+    # Drop duplicates
+    mask = ~adata_mod.var_names.duplicated(keep='first')
+    adata_mod = adata_mod[:, mask]
     return adata_mod
 
 
