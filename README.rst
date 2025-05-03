@@ -76,14 +76,14 @@ To install scCellFie, use pip::
 Quick Start
 -----------
 
-A quick example of how to use scCellFie with a single-cell dataset and generate results::
+A quick example of how to use scCellFie with a single-cell dataset to infer metabolic activities and export them::
 
         import sccellfie
         import scanpy as sc
 
         # Load the dataset
-        adata = sc.read(filename='BALF-COVID19.h5ad',
-                        backup_url='https://zenodo.org/record/7535867/files/BALF-COVID19-Liao_et_al-NatMed-2020.h5ad')
+        adata = sc.read(filename='./data/HECA-Subset.h5ad',
+                        backup_url='https://zenodo.org/records/15072628/files/HECA-Subset.h5ad')
 
         # Run one-command scCellFie pipeline
         results = sccellfie.run_sccellfie_pipeline(adata,
@@ -104,7 +104,7 @@ A quick example of how to use scCellFie with a single-cell dataset and generate 
                                                    save_filename=None
                                                   )
 
-        # Save adata objects containing single-cell/spatial results
+        # Save adata objects containing single-cell/spatial predictions
         sccellfie.io.save_adata(adata=results['adata'],
                                 output_directory='/folder/path/',
                                 filename='sccellfie_results'
@@ -144,7 +144,7 @@ How to Cite
 
 Please consider citing our work if you find scCellFie useful:
 
-- **Metabolic activities inferred from single-cell and spatial transcriptomic atlases in health and disease**.
+- **Atlas-scale metabolic activities inferred from single-cell and spatial transcriptomics**.
   *bioRxiv, 2025*. https://doi.org/10.1101/XXXXXX
 
 Acknowledgments

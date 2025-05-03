@@ -25,8 +25,6 @@ Additional Documentation
    quick_start
    notebooks/quick_start_human
    notebooks/quick_start_mouse
-   notebooks/extended_quick_start
-
 
 .. toctree::
    :maxdepth: 1
@@ -35,6 +33,13 @@ Additional Documentation
 
    notebooks/visualizer
    notebooks/escher_viz
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Downstream tutorials
+
+   notebooks/extended_quick_start
 
 
 
