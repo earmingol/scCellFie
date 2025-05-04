@@ -2,6 +2,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import scanpy as sc
+from pandas.core.algorithms import duplicated
 from scipy import sparse
 from scipy.sparse import issparse, csr_matrix, hstack
 
@@ -225,8 +226,11 @@ def transform_adata_gene_names(adata, filename=None, organism='human', copy=True
     adata_mod.var_names = new_var_names
 
     # Drop duplicates
-    mask = ~adata_mod.var_names.duplicated(keep='first')
-    adata_mod = adata_mod[:, mask]
+    duplicated = adata_mod.var_names.duplicated(keep='first').any()
+    if duplicated:
+        print("Duplicated gene names found. Dropping duplicates.")
+        mask = ~adata_mod.var_names.duplicated(keep='first')
+        adata_mod = adata_mod[:, mask]
     return adata_mod
 
 
