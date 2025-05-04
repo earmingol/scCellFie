@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import pandas as pd
-from scipy import sparse
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats.multitest import multipletests
 from tqdm import tqdm
@@ -288,7 +287,7 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
     for gene in tqdm(genes, desc='Fitting GAMs for each var in adata'):
         try:
             y = get_matrix_gene_expression(matrix, var_names, gene, normalize=normalize)
-            gam = GAM(s(0, n_splines=n_splines, basis='ps'), **kwargs)
+            gam = GAM(s(0, n_splines=n_splines, basis='ps', spline_order=spline_order, lam=lam), **kwargs)
             gam.fit(X, y)
 
             models[gene] = gam
