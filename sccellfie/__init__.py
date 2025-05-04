@@ -16,4 +16,4 @@ from .metabolic_task import (compute_mt_score)
 from .reaction_activity import (compute_reaction_activity)
 from .sccellfie_pipeline import (run_sccellfie_pipeline)
 
-__version__ = "0.4.4"
+__version__ = "0.4.5"
