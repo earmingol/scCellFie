@@ -28,17 +28,18 @@ Additional Documentation
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Visualization tutorials
+   :caption: Extended tutorials
 
-   notebooks/visualizer
-   notebooks/escher_viz
+   notebooks/extended_quick_start
+   notebooks/temporal_patterns
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Downstream tutorials
+   :caption: Visualization tutorials
 
-   notebooks/extended_quick_start
+   notebooks/visualizer
+   notebooks/escher_viz
 
 
 
