@@ -22,7 +22,6 @@ Additional Documentation
    :hidden:
    :caption: Quick start tutorials
 
-   quick_start
    notebooks/quick_start_human
    notebooks/quick_start_mouse
 
