@@ -307,7 +307,7 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
 
     # Transform gene names if necessary
     if ensembl_ids:
-        transform_adata_gene_names(adata=adata, organism=organism, copy=False, drop_unmapped=True)
+        adata = transform_adata_gene_names(adata=adata, organism=organism, copy=False, drop_unmapped=True)
 
     if first_group:
         if verbose:
