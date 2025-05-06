@@ -32,6 +32,7 @@ Additional Documentation
 
    notebooks/extended_quick_start
    notebooks/metabolic_markers
+   notebooks/sc_communication
    notebooks/temporal_patterns
 
 .. toctree::
