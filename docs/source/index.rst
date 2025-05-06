@@ -31,6 +31,7 @@ Additional Documentation
    :caption: Extended tutorials
 
    notebooks/extended_quick_start
+   notebooks/metabolic_markers
    notebooks/temporal_patterns
 
 .. toctree::
