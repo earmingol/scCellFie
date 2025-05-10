@@ -38,17 +38,17 @@ Additional Documentation
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Visualization tutorials
+   :caption: Spatial tutorials
 
-   notebooks/visualizer
-   notebooks/escher_viz
+   notebooks/mouse_embryo_spatial
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Spatial tutorials
+   :caption: Visualization tutorials
 
-   notebooks/mouse_embryo_spatial
+   notebooks/visualizer
+   notebooks/escher_viz
 
 
 
