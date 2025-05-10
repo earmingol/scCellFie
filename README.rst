@@ -145,7 +145,7 @@ How to Cite
 Please consider citing our work if you find scCellFie useful:
 
 - **Atlas-scale metabolic activities inferred from single-cell and spatial transcriptomics**.
-  *bioRxiv, 2025*. https://doi.org/10.1101/XXXXXX
+  *bioRxiv, 2025*. https://doi.org/10.1101/2025.05.09.653038
 
 Acknowledgments
 ---------------
