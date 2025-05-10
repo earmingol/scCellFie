@@ -43,6 +43,13 @@ Additional Documentation
    notebooks/visualizer
    notebooks/escher_viz
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Spatial tutorials
+
+   notebooks/mouse_embryo_spatial
+
 
 
 Indices and tables
