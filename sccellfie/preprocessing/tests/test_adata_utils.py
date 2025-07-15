@@ -98,6 +98,44 @@ def test_normalize_adata_dense():
         normalize_adata(adata, target_sum=1000)
 
 
+def test_normalize_adata_chunked():
+    """Test chunked normalization when counts already exist"""
+    # Create test data
+    adata = create_controlled_adata()
+
+    # Pre-calculate counts
+    adata.obs['n_counts'] = np.array([3, 9, 21, 21])
+
+    # Normalize without chunks
+    adata_no_chunk = adata.copy()
+    normalize_adata(adata_no_chunk, target_sum=1000, n_counts_key='n_counts', copy=False)
+
+    # Normalize with chunks
+    adata_chunked = adata.copy()
+    normalize_adata(adata_chunked, target_sum=1000, n_counts_key='n_counts',
+                    chunk_size=2, copy=False)  # Small chunk size for 4 cells
+
+    # Results should be identical
+    np.testing.assert_array_almost_equal(
+        adata_no_chunk.X.toarray(),
+        adata_chunked.X.toarray(),
+        decimal=10
+    )
+
+    # Check expected values
+    expected_normalized_X = np.array([
+        [333.33, 666.67, 0],
+        [333.33, 444.44, 222.22],
+        [238.10, 285.71, 476.19],
+        [333.33, 380.95, 285.71]
+    ])
+    np.testing.assert_array_almost_equal(
+        adata_chunked.X.toarray(),
+        expected_normalized_X,
+        decimal=2
+    )
+
+
 # Transform gene names tests
 # Mock data for testing
 MOCK_ENSEMBL2SYMBOL = {
