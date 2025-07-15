@@ -93,10 +93,15 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     return adata_subsampled
 
 
-def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=False):
+from scipy import sparse
+from scipy.sparse import issparse, csr_matrix, hstack
+
+
+def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts',
+                    chunk_size=None, copy=False):
     """
-    Preprocesses an AnnData object by normalizing the data to a target sum.
-    Original adata object is updated in place.
+    Memory-efficient normalization of AnnData object.
+    Works directly on sparse matrices without converting to dense.
 
     Parameters
     ----------
@@ -109,6 +114,11 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
     n_counts_key : str, optional (default: 'n_counts')
         The key in adata.obs containing the total counts for each cell.
 
+    chunk_size : int or None, optional (default: None)
+        If None, process entire matrix at once (faster, more memory).
+        If int, process matrix in chunks of this size (slower, less memory).
+        Recommended for very large datasets (>1M cells).
+
     copy : bool, optional (default: False)
         If True, returns a copy of adata with the normalized data.
     """
@@ -118,37 +128,65 @@ def normalize_adata(adata, target_sum=10_000, n_counts_key='n_counts', copy=Fals
     # Check if total counts are already calculated
     if n_counts_key not in adata.obs.columns:
         warnings.warn(f"{n_counts_key} not found in adata.obs. Calculating total counts.", UserWarning)
-        n_counts_key = 'total_counts'  # scanpy uses 'total_counts' as the key
-        # Calculate total counts from the raw expression matrix
-        adata.obs[n_counts_key] = adata.X.sum(axis=1)
+        n_counts_key = 'total_counts'
 
-    # Input data
-    X_view = adata.X
+        if sparse.issparse(adata.X):
+            if chunk_size is not None:
+                # Chunked calculation for very large matrices
+                n_cells = adata.X.shape[0]
+                counts = np.zeros(n_cells)
+
+                for start in range(0, n_cells, chunk_size):
+                    end = min(start + chunk_size, n_cells)
+                    counts[start:end] = np.array(adata.X[start:end].sum(axis=1)).flatten()
+
+                adata.obs[n_counts_key] = counts
+            else:
+                # Standard calculation
+                adata.obs[n_counts_key] = np.array(adata.X.sum(axis=1)).flatten()
+        else:
+            # Dense matrix
+            adata.obs[n_counts_key] = np.array(adata.X.sum(axis=1)).flatten()
 
     warnings.warn("Normalizing data.", UserWarning)
 
-    # Check if matrix is sparse
-    is_sparse = sparse.issparse(X_view)
+    # Get counts and calculate scaling factors
+    n_counts = adata.obs[n_counts_key].values
+    scaling_factors = target_sum / n_counts
 
-    # Convert to dense if sparse
-    if is_sparse:
-        X_view = X_view.toarray()
+    # Perform normalization
+    if sparse.issparse(adata.X):
+        if chunk_size is not None:
+            # Chunked processing for very large sparse matrices
+            n_cells = adata.X.shape[0]
+            normalized_chunks = []
 
-    # Normalize
-    n_counts = adata.obs[n_counts_key].values[:, None]
-    X_norm = X_view / n_counts * target_sum
+            for start in range(0, n_cells, chunk_size):
+                end = min(start + chunk_size, n_cells)
+                chunk_scaling = sparse.diags(scaling_factors[start:end], 0, format='csr')
+                normalized_chunk = chunk_scaling @ adata.X[start:end]
+                normalized_chunks.append(normalized_chunk)
 
-    # Convert back to sparse if original was sparse
-    if is_sparse:
-        X_norm = sparse.csr_matrix(X_norm)
+            # Combine chunks
+            adata.X = sparse.vstack(normalized_chunks, format='csr')
+        else:
+            # Standard sparse matrix normalization (most efficient)
+            scaling_matrix = sparse.diags(scaling_factors, 0, format='csr')
+            adata.X = scaling_matrix @ adata.X
+    else:
+        # Dense matrix normalization
+        adata.X = adata.X / n_counts[:, None] * target_sum
 
-    # Update adata
-    adata.X = X_norm
+    # Update metadata
     adata.uns['normalization'] = {
         'method': 'total_counts',
         'target_sum': target_sum,
-        'n_counts_key': n_counts_key
+        'n_counts_key': n_counts_key,
+        'chunked': chunk_size is not None
     }
+    if chunk_size is not None:
+        adata.uns['normalization']['chunk_size'] = chunk_size
+
     if copy:
         return adata
 
