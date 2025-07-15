@@ -22,7 +22,7 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
         and 'params' from the analysis.
 
     Returns
-   -------
+    -------
     S : numpy.ndarray or scipy.sparse.csr_matrix
         The smoothing matrix S such that S @ X smoothes the signal X over neighbors.
         If the input matrix A is sparse, S will be returned as a scipy.sparse.csr_matrix.
@@ -42,16 +42,21 @@ def get_smoothing_matrix(adata, mode, neighbors_key='neighbors'):
     else:
         raise ValueError(f'unknown mode {mode}')
 
-    update = False
-    if sp.issparse(A):
-        A = A.toarray()
-        update = True
     # Normalize the smoothing matrix
-    norm_vec = A.sum(axis=1)
-    norm_vec[norm_vec == 0] = 1  # Avoid division by zero
-    S = A / norm_vec[:, np.newaxis]
-    if update:
-        S = sp.csr_matrix(S)
+    if not sp.issparse(A):
+        norm_vec = A.sum(axis=1)
+        norm_vec[norm_vec == 0] = 1  # Avoid division by zero
+        S = A / norm_vec[:, np.newaxis]
+    else:
+        # Memory-efficient sparse normalization
+        A = A.tocsr()
+        norm_vec = np.array(A.sum(axis=1)).flatten()
+        norm_vec[norm_vec == 0] = 1  # Avoid division by zero
+
+        # Use sparse diagonal matrix for row-wise scaling
+        D_inv = sp.diags(1.0 / norm_vec, format='csr')
+        S = D_inv @ A
+
     return S
 
 
@@ -131,7 +136,8 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
     if isinstance(X, sp.coo_matrix):
         X = X.tocsr()
 
-    smoothed_matrix = np.zeros(X.shape)
+    # Collect smoothed chunks for memory efficiency
+    smoothed_chunks = []
 
     # Iterate over chunks of cells
     for i in tqdm(range(n_chunks), disable=disable_pbar, desc='Smoothing Expression'):
@@ -158,11 +164,6 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
 
         # Compute the expression data purely based on cell neighbors
         chunk_smoothed = smoothing_mat @ chunk_expression
-        if sp.issparse(X):
-            chunk_smoothed = chunk_smoothed.toarray()
-            X_ = X.toarray()
-        else:
-            X_ = X
 
         # Extract the smoothed expression for the cells in the current chunk
         chunk_indices = np.arange(start_idx, end_idx)
@@ -170,9 +171,18 @@ def smooth_expression_knn(adata, key_added='smoothed_X', neighbors_key='neighbor
         smoothed_chunk_indices = [subset_mapping[i] for i in chunk_indices]
 
         # Smooth by alpha
-        smoothed_matrix[chunk_indices, :] = (1. - alpha) * X_[chunk_indices, :] + alpha * chunk_smoothed[smoothed_chunk_indices, :]
+        if sp.issparse(X):
+            X_chunk = X[chunk_indices, :]
+            smoothed_result = (1. - alpha) * X_chunk + alpha * chunk_smoothed[smoothed_chunk_indices, :]
+        else:
+            smoothed_result = (1. - alpha) * X[chunk_indices, :] + alpha * chunk_smoothed[smoothed_chunk_indices, :]
+
+        smoothed_chunks.append(smoothed_result)
 
     # Store the smoothed expression matrix in adata.layers
-    if sp.issparse(adata.X):
-        smoothed_matrix = sp.csr_matrix(smoothed_matrix)
+    if sp.issparse(X):
+        smoothed_matrix = sp.vstack(smoothed_chunks, format='csr')
+    else:
+        smoothed_matrix = np.vstack(smoothed_chunks)
+
     adata.layers[key_added] = smoothed_matrix
