@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.stats import hypergeom
 from scipy.sparse import issparse, csr_matrix
+from statsmodels.stats.multitest import multipletests
 
 
 def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, express_cut=0.9, r_output=False):
@@ -75,17 +76,22 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
         second_best_tf[:, gene_idx] = tf_scores[second_best_idx]
         second_best_cluster_idx[gene_idx] = unique_clusters[second_best_idx]
 
-    # P-values and FDR adjustment
+    # P-values
     p_values = np.array \
         ([hypergeom.sf(n_obs[i] - 1, len(clusters), n_tot, cl_counts[i]) for i in range(len(unique_clusters))])
-    q_values = np.array([np.minimum.accumulate(np.sort(p_values[:, i])) for i in range(p_values.shape[1])]).T
+
+    # FDR correction using statsmodels (global across all gene-cluster pairs)
+    p_flat = p_values.flatten()
+    reject, q_flat, _, _ = multipletests(p_flat, alpha=fdr, method='fdr_bh')
+    q_values = q_flat.reshape(p_values.shape)
 
     # Select top N markers by iterating over columns of p-values matrix
     top_markers = {cl: [] for cl in unique_clusters}
     for gene_idx in range(tf_idf.shape[1]):
         for cl in unique_clusters:
-            # Filter genes by FDR
-            if q_values[cl, gene_idx] < fdr:
+            # Filter genes by FDR (statsmodels handles NaN automatically)
+            q_val = q_values[cl, gene_idx]
+            if not np.isnan(q_val) and q_val < fdr:
                 top_markers[cl].append((gene_idx, tf_idf[cl, gene_idx]))
 
     # Sort and select top genes for each cluster
