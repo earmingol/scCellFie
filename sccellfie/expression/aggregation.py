@@ -82,84 +82,37 @@ def agg_expression_cells(adata, groupby, layer=None, gene_symbols=None, agg_func
         else:
             X = adata.X
 
+    if issparse(X):
+        X = X.toarray()
+
+    if exclude_zeros:
+        X = np.where(X==0, np.nan, X)
+
     # Filter for specific genes if provided
     if gene_symbols is not None:
         if isinstance(gene_symbols, str):
             gene_symbols = [gene_symbols]
         gene_mask = adata.var_names.isin(gene_symbols)
-        gene_indices = np.where(gene_mask)[0]
+        X = X[:, gene_mask]
         gene_index = adata.var_names[gene_mask]
     else:
-        gene_indices = None
         gene_index = adata.var_names
 
     # Group data by the specified groupby column
     grouped = adata.obs[groupby]
-    unique_groups = sorted(np.unique(grouped))
-
-    # Initialize result dictionary
-    agg_results = {}
+    agg_expression = pd.DataFrame(index=gene_index)
 
     # Perform aggregation for each group
-    for group in unique_groups:
+    for group in sorted(np.unique(grouped)):
         group_mask = grouped == group
-        group_indices = np.where(group_mask)[0]
+        group_data = X[group_mask, :]
 
-        # Memory-efficient gene selection and aggregation
-        if gene_indices is not None:
-            if issparse(X):
-                # For sparse matrices, use advanced indexing
-                group_data = X[group_indices, :][:, gene_indices]
-            else:
-                # For dense matrices
-                group_data = X[np.ix_(group_indices, gene_indices)]
-        else:
-            group_data = X[group_indices, :]
-
-        # Handle exclude_zeros efficiently
-        if exclude_zeros:
-            if issparse(group_data):
-                # For sparse matrices, convert to COO format for efficient manipulation
-                group_data = group_data.tocoo()
-                # Replace zeros with NaN (sparse matrices don't store zeros)
-                # We need to convert to dense for operations that need NaN
-                if agg_func in ['mean', 'median', '25p', '75p', 'trimean', 'topmean']:
-                    # These functions need NaN handling, so convert to dense
-                    group_data = group_data.toarray()
-                    group_data = np.where(group_data == 0, np.nan, group_data)
-            else:
-                group_data = np.where(group_data == 0, np.nan, group_data)
-
-        # Apply aggregation function
         if agg_func == 'topmean':
-            if issparse(group_data) and not exclude_zeros:
-                # Convert sparse to dense for top_mean calculation
-                group_data = group_data.toarray()
-            agg_results[group] = AGG_FUNC[agg_func](group_data, axis=0, percent=top_percent)
+            agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0, percent=top_percent)
         elif agg_func == 'fraction_above':
-            if issparse(group_data):
-                # Efficient sparse computation for fraction_above
-                agg_results[group] = (group_data > threshold).mean(axis=0).A1
-            else:
-                agg_results[group] = AGG_FUNC[agg_func](group_data, axis=0, threshold=threshold)
+            agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0, threshold=threshold)
         else:
-            if issparse(group_data) and not exclude_zeros:
-                # For sparse matrices without NaN handling
-                if agg_func == 'mean':
-                    agg_results[group] = np.array(group_data.mean(axis=0)).flatten()
-                elif agg_func == 'median':
-                    # Need to convert to dense for median
-                    group_data = group_data.toarray()
-                    agg_results[group] = np.median(group_data, axis=0)
-                else:
-                    # Other percentile-based functions need dense
-                    group_data = group_data.toarray()
-                    agg_results[group] = AGG_FUNC[agg_func](group_data, axis=0)
-            else:
-                agg_results[group] = AGG_FUNC[agg_func](group_data, axis=0)
-
-    # Create DataFrame from results
-    agg_expression = pd.DataFrame(agg_results, index=gene_index)
+            agg_expression[group] = AGG_FUNC[agg_func](group_data, axis=0)
 
     return agg_expression.transpose()
 
@@ -236,11 +189,11 @@ def fraction_above_threshold(x, axis, threshold=0):
     return np.mean(x > threshold, axis=axis)
 
 
-AGG_FUNC = {'mean': np.nanmean,
-            'median': np.nanmedian,
-            '25p': lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
-            '75p': lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
-            'trimean': lambda x, axis: 0.5 * np.nanpercentile(x, q=50, axis=axis) + 0.25 * (np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis)),
-            'topmean': top_mean,
-            'fraction_above': fraction_above_threshold
+AGG_FUNC = {'mean' : np.nanmean,
+            'median' : np.nanmedian,
+            '25p' : lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
+            '75p' : lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
+            'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis)),
+            'topmean' : top_mean,
+            'fraction_above' : fraction_above_threshold
             }
