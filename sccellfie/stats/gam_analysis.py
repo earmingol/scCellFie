@@ -215,6 +215,12 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
         information about the pseudo-bulk assignments and cell type encoder when applicable.
     """
     try:
+        # This is a temporary fix for pygam to support newer versions of scipy
+        import scipy.sparse
+        def to_array(self):
+            return self.toarray()
+        scipy.sparse.spmatrix.A = property(to_array)
+
         from pygam import GAM, s
     except ImportError:
         raise ImportError(
