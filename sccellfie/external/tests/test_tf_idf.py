@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from sccellfie.external.tf_idf import quick_markers, filter_tfidf_markers
+from sccellfie.external.tf_idf import quick_markers, filter_tfidf_markers, markers_to_dict
 from sccellfie.datasets.toy_inputs import create_random_adata
 
 

@@ -1,1 +1,1 @@
-from .tf_idf import quick_markers, filter_tfidf_markers
+from .tf_idf import quick_markers, filter_tfidf_markers, markers_to_dict
