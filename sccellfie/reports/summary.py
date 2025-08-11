@@ -206,6 +206,7 @@ def generate_summary_by_group(adata, data_matrix, feature_names, group_by, agg_f
             # Create mask for this group (and tissue if applicable)
             group_mask = adata.obs[group_by] == group
             combined_mask = group_mask & tissue_mask
+            combined_mask = np.asarray(combined_mask, dtype=bool)
 
             # Skip if no cells match
             if np.sum(combined_mask) == 0:
