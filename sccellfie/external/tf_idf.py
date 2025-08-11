@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from natsort import natsorted
 
 from scipy.optimize import curve_fit
 from scipy.stats import hypergeom
@@ -7,7 +8,7 @@ from scipy.sparse import issparse, csr_matrix
 from statsmodels.stats.multitest import multipletests
 
 
-def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, express_cut=0.9, r_output=False):
+def quick_markers(adata, cluster_key, cell_groups=None, layer=None, n_markers=10, fdr=0.01, express_cut=0.9, r_output=False):
     """
     Identifies top N markers for each cluster in an AnnData object using a TF-IDF-based strategy.
     Implemented as in the SoupX library for R.
@@ -22,6 +23,9 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
 
     cell_groups : list, optional (default: None)
         List of cell groups to be compared in the analysis.
+
+    layer : str, optional (default: None)
+        Layer to use for the analysis. If None, uses adata.X.
 
     n_markers : int, optional (default: 10)
         Number of marker genes to return per cluster.
@@ -46,13 +50,17 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
         adata_ = adata
 
     # Convert to CSR matrix if necessary and binarize the expression data
-    toc = csr_matrix(adata_.X) if not issparse(adata_.X) else adata_.X
+    if layer is not None:
+        toc = csr_matrix(adata_.layers[layer]) if not issparse(adata_.layers[layer]) else adata_.layers[layer]
+    else:
+        toc = csr_matrix(adata_.X) if not issparse(adata_.X) else adata_.X
+
     toc_bin = (toc > express_cut).astype(int)
 
     # Cluster information
     clusters = pd.Categorical(adata_.obs[cluster_key]).codes
     unique_clusters = np.unique(clusters)
-    cl_counts = np.asarray([np.sum(clusters == cl) for cl in unique_clusters]).reshape(-1 ,1)
+    cl_counts = np.asarray([np.sum(clusters == cl) for cl in unique_clusters]).reshape(-1, 1)
 
     # Calculate observed and total frequency
     n_obs = np.asarray([np.asarray(toc_bin[clusters == cl, :].sum(axis=0)).flatten() for cl in unique_clusters])
@@ -120,20 +128,23 @@ def quick_markers(adata, cluster_key, cell_groups=None, n_markers=10, fdr=0.01, 
             })
 
     markers = pd.DataFrame(marker_data)
-    if markers.shape == (0,0):
+    if markers.shape == (0, 0):
         markers = pd.DataFrame(columns=['gene', 'cluster', 'tf', 'idf', 'tf_idf', 'gene_frequency_outside_cluster',
-                                        'gene_frequency_global', 'second_best_tf', 'second_best_cluster', 'pval', 'qval'])
+                                        'gene_frequency_global', 'second_best_tf', 'second_best_cluster', 'pval',
+                                        'qval'])
 
     if r_output:
         cols = ['gene', 'cluster', 'tf', 'gene_frequency_outside_cluster', 'second_best_tf', 'gene_frequency_global', 'second_best_cluster', 'tf_idf', 'idf', 'qval']
         markers = markers[cols]
         markers.columns = ['gene', 'cluster', 'geneFrequency', 'geneFrequencyOutsideCluster',
-                           'geneFrequencySecondBest', 'geneFrequencyGlobal', 'secondBestClusterName', 'tfidf', 'idf', 'qval']
+                           'geneFrequencySecondBest', 'geneFrequencyGlobal', 'secondBestClusterName', 'tfidf', 'idf',
+                           'qval']
     return markers
 
 
 def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_threshold=None, tfidf_col='tf_idf',
-                         tf_ratio=None, second_best_tf_col='second_best_tf', group_col='cluster', second_best_group_col='second_best_cluster'):
+                         tf_ratio=None, second_best_tf_col='second_best_tf', group_col='cluster',
+                         second_best_group_col='second_best_cluster'):
     """
     Filters the top N markers for each cluster based on a hyperbolic curve fit to the TF-IDF values.
     Additional filtering can be applied based on the TF-IDF threshold and the ratio of the
@@ -204,3 +215,49 @@ def filter_tfidf_markers(df, tf_col='tf', idf_col='idf', tfidf_threshold=None, t
         above_curve_mask = above_curve_mask & ((df[tf_col] / df[second_best_tf_col] > tf_ratio) | (df[group_col] == df[second_best_group_col]))
 
     return df[above_curve_mask], theoretical_curve
+
+
+def markers_to_dict(markers_df, n_markers=10, sort_by='tf_idf', cluster_col='cluster', gene_col='gene',
+                    ascending=False):
+    """
+    Converts a markers DataFrame to a dictionary mapping cluster names to lists of marker genes.
+
+    Parameters
+    ----------
+    markers_df : pandas.DataFrame
+        DataFrame containing marker data with cluster and gene information.
+
+    n_markers : int, optional (default: 10)
+        Number of top markers to select per cluster.
+
+    sort_by : str, optional (default: 'tf_idf')
+        Column name to sort markers by for each cluster.
+
+    cluster_col : str, optional (default: 'cluster')
+        Column name containing cluster labels.
+
+    gene_col : str, optional (default: 'gene')
+        Column name containing gene names.
+
+    ascending : bool, optional (default: False)
+        Whether to sort in ascending order. Default is False (descending order for TF-IDF).
+
+    Returns
+    -------
+    markers_dict : dict
+        Dictionary mapping cluster names to lists of marker gene names.
+        Keys are naturally sorted cluster names.
+    """
+    markers_dict = {}
+
+    for cluster_name, cluster_df in markers_df.groupby(cluster_col):
+        # Sort by the specified column and take top n_markers
+        sorted_df = cluster_df.sort_values(sort_by, ascending=ascending).head(n_markers)
+
+        # Extract gene names as a list
+        markers_dict[cluster_name] = sorted_df[gene_col].tolist()
+
+    # Sort dictionary keys using natural sort
+    markers_dict = {k: markers_dict[k] for k in natsorted(markers_dict.keys())}
+
+    return markers_dict
