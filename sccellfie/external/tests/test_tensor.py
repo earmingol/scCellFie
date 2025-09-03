@@ -203,3 +203,103 @@ def test_sccellfie_to_tensor_values_consistency(mock_preprocessed_db):
     # Check dimensions match expected structure
     contexts, celltypes, features = tensor_args['order_names']
     assert tensor.shape == (len(contexts), len(celltypes), len(features))
+
+
+def test_sccellfie_to_tensor_verbose_output(mock_preprocessed_db, capsys):
+    """Test verbose output functionality."""
+    tensor_args = sccellfie_to_tensor(
+        preprocessed_db=mock_preprocessed_db,
+        sample_key='sample',
+        celltype_key='celltype',
+        score_type='metabolic_tasks',
+        agg_func='mean',
+        min_cells_per_group=1,
+        verbose=True
+    )
+
+    # Capture printed output
+    captured = capsys.readouterr()
+
+    # Check that verbose messages are printed
+    assert "Using metabolic_tasks" in captured.out
+    assert "Aggregating metabolic_task scores" in captured.out
+    assert "Building tensor with dimensions" in captured.out
+    assert "Tensor built successfully" in captured.out
+
+    # Verify function still works correctly
+    assert tensor_args['tensor'].shape == (2, 2, 4)
+
+
+def test_sccellfie_to_tensor_missing_attributes():
+    """Test error handling when metabolic_tasks/reactions attributes are missing."""
+    # Create adata without scCellFie attributes
+    adata = create_controlled_adata()
+    adata.obs['sample'] = ['sample1', 'sample1', 'sample2', 'sample2']
+    adata.obs['celltype'] = ['typeA', 'typeB', 'typeA', 'typeB']
+
+    preprocessed_db = {'adata': adata}
+
+    # Test missing metabolic_tasks
+    with pytest.raises(ValueError, match="AnnData object must have 'metabolic_tasks' attribute"):
+        sccellfie_to_tensor(
+            preprocessed_db=preprocessed_db,
+            sample_key='sample',
+            celltype_key='celltype',
+            score_type='metabolic_tasks',
+            verbose=False
+        )
+
+    # Test missing reactions
+    with pytest.raises(ValueError, match="AnnData object must have 'reactions' attribute"):
+        sccellfie_to_tensor(
+            preprocessed_db=preprocessed_db,
+            sample_key='sample',
+            celltype_key='celltype',
+            score_type='reactions',
+            verbose=False
+        )
+
+
+def test_sccellfie_to_tensor_gene_symbols_edge_cases(mock_preprocessed_db):
+    """Test gene_symbols parameter with various edge cases."""
+    # Test with single string (not list)
+    tensor_args = sccellfie_to_tensor(
+        preprocessed_db=mock_preprocessed_db,
+        sample_key='sample',
+        celltype_key='celltype',
+        score_type='metabolic_tasks',
+        gene_symbols='task1',  # Single string
+        min_cells_per_group=1,
+        verbose=False
+    )
+
+    # Should have only 1 feature
+    assert tensor_args['tensor'].shape[2] == 1
+    assert tensor_args['order_names'][2] == ['task1']
+
+    # Test with non-existent gene symbols
+    with pytest.raises(ValueError, match="None of the specified gene_symbols found in the data"):
+        sccellfie_to_tensor(
+            preprocessed_db=mock_preprocessed_db,
+            sample_key='sample',
+            celltype_key='celltype',
+            score_type='metabolic_tasks',
+            gene_symbols=['nonexistent_task'],
+            min_cells_per_group=1,
+            verbose=False
+        )
+
+    # Test with mix of existing and non-existing gene symbols
+    tensor_args = sccellfie_to_tensor(
+        preprocessed_db=mock_preprocessed_db,
+        sample_key='sample',
+        celltype_key='celltype',
+        score_type='metabolic_tasks',
+        gene_symbols=['task1', 'nonexistent_task', 'task2'],  # Mix of valid/invalid
+        min_cells_per_group=1,
+        verbose=False
+    )
+
+    # Should only include existing features
+    assert tensor_args['tensor'].shape[2] == 2
+    assert set(tensor_args['order_names'][2]) == {'task1', 'task2'}
