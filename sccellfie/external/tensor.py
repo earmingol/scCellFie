@@ -8,7 +8,7 @@ def sccellfie_to_tensor(preprocessed_db,
                         sample_key,
                         celltype_key,
                         score_type='metabolic_tasks',
-                        min_cells_per_group=5,
+                        min_cells_per_group=1,
                         agg_func='trimean',
                         layer=None,
                         gene_symbols=None,
@@ -42,7 +42,7 @@ def sccellfie_to_tensor(preprocessed_db,
     score_type : str, optional (default: 'metabolic_tasks')
         Which scCellFie scores to use. Options: 'metabolic_tasks', 'reactions'.
 
-    min_cells_per_group : int, optional (default: 5)
+    min_cells_per_group : int, optional (default: 1)
         Minimum number of cells required per group (sample x celltype)
         to be included in analysis.
 
