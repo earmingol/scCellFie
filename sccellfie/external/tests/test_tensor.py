@@ -213,7 +213,6 @@ def test_sccellfie_to_tensor_verbose_output(mock_preprocessed_db, capsys):
         celltype_key='celltype',
         score_type='metabolic_tasks',
         agg_func='mean',
-        min_cells_per_group=1,
         verbose=True
     )
 
@@ -269,7 +268,6 @@ def test_sccellfie_to_tensor_gene_symbols_edge_cases(mock_preprocessed_db):
         celltype_key='celltype',
         score_type='metabolic_tasks',
         gene_symbols='task1',  # Single string
-        min_cells_per_group=1,
         verbose=False
     )
 
@@ -285,7 +283,6 @@ def test_sccellfie_to_tensor_gene_symbols_edge_cases(mock_preprocessed_db):
             celltype_key='celltype',
             score_type='metabolic_tasks',
             gene_symbols=['nonexistent_task'],
-            min_cells_per_group=1,
             verbose=False
         )
 
@@ -296,7 +293,6 @@ def test_sccellfie_to_tensor_gene_symbols_edge_cases(mock_preprocessed_db):
         celltype_key='celltype',
         score_type='metabolic_tasks',
         gene_symbols=['task1', 'nonexistent_task', 'task2'],  # Mix of valid/invalid
-        min_cells_per_group=1,
         verbose=False
     )
 
