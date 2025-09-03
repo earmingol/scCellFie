@@ -33,6 +33,7 @@ Additional Documentation
    notebooks/extended_quick_start
    notebooks/metabolic_markers
    notebooks/differential_analysis
+   notebooks/tensor_factorization
    notebooks/sc_communication
    notebooks/temporal_patterns
 
