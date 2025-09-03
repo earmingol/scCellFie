@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from sccellfie.external.tf_idf import quick_markers, filter_tfidf_markers
+from sccellfie.external.tf_idf import quick_markers, filter_tfidf_markers, markers_to_dict
 from sccellfie.datasets.toy_inputs import create_random_adata
 
 
@@ -212,3 +212,62 @@ def test_filter_tfidf_empty_result(sample_marker_df):
     # Check if result is empty but maintains structure
     assert len(filtered_df) == 0
     assert list(filtered_df.columns) == list(sample_marker_df.columns)
+
+
+# Tests for markers_to_dict function
+@pytest.fixture
+def sample_markers_dict_df():
+    """Create a sample DataFrame with marker data for testing dictionary conversion"""
+    data = {
+        'gene': ['GENE1', 'GENE2', 'GENE3', 'GENE4', 'GENE5', 'GENE6', 'GENE7', 'GENE8'],
+        'cluster': ['cluster1', 'cluster1', 'cluster1', 'cluster2', 'cluster2', 'cluster10', 'cluster10', 'cluster10'],
+        'tf_idf': [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2],
+        'tf': [0.95, 0.85, 0.75, 0.65, 0.55, 0.45, 0.35, 0.25],
+        'pval': [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008]
+    }
+    return pd.DataFrame(data)
+
+
+def test_markers_to_dict_basic(sample_markers_dict_df):
+    """Test basic functionality of markers_to_dict"""
+    result = markers_to_dict(sample_markers_dict_df, n_markers=2)
+
+    # Check if output is a dictionary
+    assert isinstance(result, dict)
+
+    # Check if all clusters are present
+    expected_clusters = ['cluster1', 'cluster2', 'cluster10']
+    assert set(result.keys()) == set(expected_clusters)
+
+    # Check if each cluster has the correct number of markers
+    for cluster in expected_clusters:
+        assert len(result[cluster]) == 2
+        assert isinstance(result[cluster], list)
+
+
+def test_markers_to_dict_natural_sorting(sample_markers_dict_df):
+    """Test that clusters are naturally sorted (cluster1, cluster2, cluster10)"""
+    result = markers_to_dict(sample_markers_dict_df, n_markers=2)
+
+    # Check if clusters are in natural sort order
+    cluster_keys = list(result.keys())
+    expected_order = ['cluster1', 'cluster2', 'cluster10']
+    assert cluster_keys == expected_order
+
+
+def test_markers_to_dict_integration_with_quick_markers():
+    """Test integration with quick_markers function"""
+    adata = create_random_adata()
+    markers_df = quick_markers(adata, cluster_key='cluster', n_markers=5, fdr=1.1)
+
+    result = markers_to_dict(markers_df, n_markers=3)
+
+    # Check basic properties
+    assert isinstance(result, dict)
+    assert len(result) > 0
+
+    # Check that all values are lists of strings
+    for cluster_genes in result.values():
+        assert isinstance(cluster_genes, list)
+        assert all(isinstance(gene, str) for gene in cluster_genes)
+        assert len(cluster_genes) <= 3

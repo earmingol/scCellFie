@@ -261,6 +261,7 @@ def fit_gam_model(adata, cell_type_key, cell_type_order=None, continuous_key=Non
     preserve_order = False
     if cell_type_order is not None:
         cell_filter = adata_use.obs[cell_type_key].isin(cell_type_order)
+        cell_filter = np.asarray(cell_filter, dtype=bool)
         matrix = matrix[cell_filter, :]
         cell_types_series = adata_use.obs[cell_type_key][cell_filter]
         cell_type_order = pd.Categorical(cell_types_series, categories=cell_type_order, ordered=True)
