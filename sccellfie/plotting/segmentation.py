@@ -8,6 +8,7 @@ crop, and a scalebar. Works for any technology that exposes per-cell
 2D coordinates (Xenium, VisiumHD-segmented, Atera, ...).
 """
 import math
+import textwrap
 from typing import List, Optional, Sequence, Tuple, Union
 
 import matplotlib.patches as mpatches
@@ -124,6 +125,7 @@ def _render_panel(
     scalebar_kwargs,
     cbar_kwargs,
     panel_title,
+    title_fontsize,
 ):
     """Render a single panel (one feature) into ``ax``."""
     ax.set_xlim(*xlim)
@@ -258,7 +260,7 @@ def _render_panel(
     ax.set_ylim(*ylim)
 
     if panel_title is not None:
-        ax.set_title(panel_title)
+        ax.set_title(panel_title, fontsize=title_fontsize)
 
 
 def plot_segmentation(
@@ -286,6 +288,9 @@ def plot_segmentation(
     ax=None,
     ncols: int = 4,
     panel_titles: bool = True,
+    title: Optional[Union[str, Sequence[str]]] = None,
+    title_fontsize: Optional[float] = 12,
+    wrapped_title_length: int = 45,
     dpi: int = 150,
     scatter_size: float = 2.0,
     cmap: str = "viridis",
@@ -413,8 +418,28 @@ def plot_segmentation(
         ``sc.pl.spatial``'s ``ncols`` parameter.
 
     panel_titles : bool, optional (default: True)
-        If True (and ``color_by`` is a list), each panel's title is set
-        to the feature name. Pass False to suppress.
+        Master toggle for panel titles. When True, each panel's title is
+        set to the corresponding feature name (or to the explicit string
+        passed via ``title=``). Set False to suppress titles entirely
+        (in single- and multi-panel modes).
+
+    title : str, list of str, or None, optional (default: None)
+        Explicit title override. For single-feature mode pass a string;
+        for multi-feature mode pass a list of strings whose length
+        matches ``color_by``. When None (default), titles are auto-derived
+        from the feature names. Ignored if ``panel_titles=False``.
+
+    title_fontsize : float, optional (default: 12)
+        Font size of the per-panel title. Mirrors the convention in
+        :func:`sccellfie.plotting.plot_spatial`.
+
+    wrapped_title_length : int, optional (default: 45)
+        Maximum number of characters per title line. Long feature names
+        (e.g. metabolic-task labels) are wrapped via :func:`textwrap.wrap`
+        before being set, matching the behavior of the other tool plots
+        (:func:`plot_spatial`, :func:`create_multi_violin_plots`,
+        :func:`create_volcano_plot`). Pass a large value (e.g. 1000) to
+        disable wrapping.
 
     dpi : int, optional (default: 150)
         Figure DPI; also used when ``save`` is set.
@@ -521,8 +546,39 @@ def plot_segmentation(
 
     flat_axes = axes.ravel()
 
+    if panel_titles:
+        if title is not None:
+            if is_list:
+                if not isinstance(title, (list, tuple)) or isinstance(title, str):
+                    raise ValueError(
+                        "`title` must be a list/tuple of strings when `color_by` is a list."
+                    )
+                if len(title) != n_panels:
+                    raise ValueError(
+                        f"`title` has {len(title)} entries but `color_by` has {n_panels}."
+                    )
+                resolved_titles = list(title)
+            else:
+                if not isinstance(title, str):
+                    raise ValueError(
+                        "`title` must be a string when `color_by` is a single feature."
+                    )
+                resolved_titles = [title]
+        else:
+            resolved_titles = [
+                (f if f is not None else celltype_key) for f in features
+            ]
+    else:
+        resolved_titles = [None] * n_panels
+
     for i, feature in enumerate(features):
-        title = feature if (is_list and panel_titles and feature is not None) else None
+        raw = resolved_titles[i]
+        if raw is None:
+            wrapped = None
+        else:
+            wrapped = "\n".join(textwrap.wrap(str(raw), width=wrapped_title_length))
+            if wrapped == "":
+                wrapped = str(raw)
         _render_panel(
             flat_axes[i],
             adata=adata,
@@ -551,7 +607,8 @@ def plot_segmentation(
             scalebar=scalebar,
             scalebar_kwargs=scalebar_kwargs,
             cbar_kwargs=cbar_kwargs,
-            panel_title=title,
+            panel_title=wrapped,
+            title_fontsize=title_fontsize,
         )
 
     for j in range(n_panels, flat_axes.size):

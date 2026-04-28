@@ -317,3 +317,109 @@ def test_plot_segmentation_single_feature_default_figsize_unchanged():
     w, h = fig.get_size_inches()
     assert (w, h) == (10.0, 10.0)
     plt.close(fig)
+
+
+def test_plot_segmentation_single_panel_default_title():
+    """Single-panel mode now auto-titles with the feature name."""
+    adata = create_controlled_adata_with_spatial()
+    fig, ax = plot_segmentation(
+        adata, color_by="group", celltype_key="group", scalebar=False,
+    )
+    assert ax.get_title() == "group"
+    plt.close(fig)
+
+
+def test_plot_segmentation_single_panel_falls_back_to_celltype_key():
+    """color_by=None: title falls back to celltype_key."""
+    adata = create_controlled_adata_with_spatial()
+    fig, ax = plot_segmentation(
+        adata, color_by=None, celltype_key="group", scalebar=False,
+    )
+    assert ax.get_title() == "group"
+    plt.close(fig)
+
+
+def test_plot_segmentation_panel_titles_off_single_panel():
+    adata = create_controlled_adata_with_spatial()
+    fig, ax = plot_segmentation(
+        adata, color_by="group", celltype_key="group",
+        scalebar=False, panel_titles=False,
+    )
+    assert ax.get_title() == ""
+    plt.close(fig)
+
+
+def test_plot_segmentation_explicit_title_single():
+    adata = create_controlled_adata_with_spatial()
+    fig, ax = plot_segmentation(
+        adata, color_by="group", celltype_key="group",
+        scalebar=False, title="My custom title",
+    )
+    assert ax.get_title() == "My custom title"
+    plt.close(fig)
+
+
+def test_plot_segmentation_explicit_title_list_multi():
+    adata = create_controlled_adata_with_spatial()
+    fig, axes = plot_segmentation(
+        adata, color_by=["gene1", "gene2"], scalebar=False,
+        ncols=2, title=["Custom A", "Custom B"],
+    )
+    titles = [a.get_title() for a in axes.ravel()]
+    assert titles == ["Custom A", "Custom B"]
+    plt.close(fig)
+
+
+def test_plot_segmentation_title_fontsize():
+    adata = create_controlled_adata_with_spatial()
+    fig, ax = plot_segmentation(
+        adata, color_by="group", celltype_key="group",
+        scalebar=False, title_fontsize=20,
+    )
+    assert ax.title.get_fontsize() == 20
+    plt.close(fig)
+
+
+def test_plot_segmentation_wrapped_title_length():
+    """Long titles are wrapped via textwrap."""
+    adata = create_controlled_adata_with_spatial()
+    long_title = "A very long metabolic task description that should wrap"
+    fig, ax = plot_segmentation(
+        adata, color_by="group", celltype_key="group",
+        scalebar=False, title=long_title, wrapped_title_length=15,
+    )
+    rendered = ax.get_title()
+    assert "\n" in rendered
+    for line in rendered.split("\n"):
+        assert len(line) <= 15
+    plt.close(fig)
+
+
+def test_plot_segmentation_title_string_for_list_raises():
+    adata = create_controlled_adata_with_spatial()
+    with pytest.raises(ValueError, match="list/tuple"):
+        plot_segmentation(
+            adata, color_by=["gene1", "gene2"], scalebar=False,
+            ncols=2, title="not a list",
+        )
+    plt.close("all")
+
+
+def test_plot_segmentation_title_list_for_single_raises():
+    adata = create_controlled_adata_with_spatial()
+    with pytest.raises(ValueError, match="single feature"):
+        plot_segmentation(
+            adata, color_by="group", celltype_key="group",
+            scalebar=False, title=["a", "b"],
+        )
+    plt.close("all")
+
+
+def test_plot_segmentation_title_length_mismatch_raises():
+    adata = create_controlled_adata_with_spatial()
+    with pytest.raises(ValueError, match="entries but"):
+        plot_segmentation(
+            adata, color_by=["gene1", "gene2"], scalebar=False,
+            ncols=2, title=["only one"],
+        )
+    plt.close("all")
