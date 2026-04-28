@@ -468,6 +468,8 @@ def get_sccellfie_dataset_threshold(adata,
                                     chunk_size=100_000,
                                     reservoir_size=5_000_000,
                                     percentiles=(10, 25, 50, 75, 90, 95),
+                                    lower_percentile=25,
+                                    upper_percentile=75,
                                     random_state=None,
                                     verbose=True,
                                     return_stats=False):
@@ -483,9 +485,11 @@ def get_sccellfie_dataset_threshold(adata,
       3. Accumulate per-gene sum, non-zero cell count, and max.
       4. Stream non-zero normalized values into a reservoir sample for global percentiles.
 
-    The final threshold rule matches the original script:
-        if max > P25 or max == 0:  threshold = clip(nonzero_mean, P25, P75)
-        else:                      threshold = nonzero_mean
+    The final threshold rule matches the original script (with configurable bounds):
+        if max > P_lower or max == 0:  threshold = clip(nonzero_mean, P_lower, P_upper)
+        else:                          threshold = nonzero_mean
+    where ``P_lower`` / ``P_upper`` default to P25 / P75 (the original atlas behavior)
+    and are controlled by ``lower_percentile`` / ``upper_percentile``.
 
     Parameters
     ----------
@@ -529,8 +533,17 @@ def get_sccellfie_dataset_threshold(adata,
         values. Memory cost is ``reservoir_size * 4B`` (float32).
 
     percentiles : tuple of int, optional (default: (10, 25, 50, 75, 90, 95))
-        Percentiles to report in the returned stats. Percentiles 25 and 75 are always
-        computed internally because the threshold rule depends on them.
+        Percentiles to *report* in the returned stats. Always merged with
+        ``{lower_percentile, upper_percentile}`` so the rule's bounds are also
+        available for inspection.
+
+    lower_percentile, upper_percentile : int or float, optional (default: 25 and 75)
+        Percentile bounds used by the clip rule. The threshold for each gene is
+        ``clip(nonzero_mean, P_lower, P_upper)`` when the gene's max value exceeds
+        ``P_lower`` or is zero (the low-expression escape); otherwise the raw
+        ``nonzero_mean`` is used. Must satisfy
+        ``0 <= lower_percentile < upper_percentile <= 100``. Defaults reproduce the
+        original atlas-derived ``sccellfie_threshold`` exactly.
 
     random_state : int or None, optional (default: None)
         Seed for the reservoir sampler.
@@ -555,6 +568,12 @@ def get_sccellfie_dataset_threshold(adata,
     """
     if use_raw and layer is not None:
         raise ValueError("`use_raw=True` and `layer` are mutually exclusive.")
+
+    if not (0 <= lower_percentile < upper_percentile <= 100):
+        raise ValueError(
+            f"Require 0 <= lower_percentile < upper_percentile <= 100; "
+            f"got lower_percentile={lower_percentile}, upper_percentile={upper_percentile}."
+        )
 
     from sccellfie.preprocessing.prepare_inputs import CORRECT_GENES
 
@@ -653,8 +672,8 @@ def get_sccellfie_dataset_threshold(adata,
 
         reservoir.update(nz_values)
 
-    required = {25, 75}
-    all_pcts = sorted(set(int(p) for p in percentiles) | required)
+    required = {lower_percentile, upper_percentile}
+    all_pcts = sorted(set(percentiles) | required)
     sample = reservoir.sample()
     if sample.size == 0:
         warnings.warn("No non-zero values encountered; returning zero thresholds.", UserWarning)
@@ -662,15 +681,15 @@ def get_sccellfie_dataset_threshold(adata,
     else:
         pct_values = np.percentile(sample, all_pcts)
     pct_dict = dict(zip(all_pcts, pct_values))
-    p25 = float(pct_dict[25])
-    p75 = float(pct_dict[75])
+    p_lo = float(pct_dict[lower_percentile])
+    p_hi = float(pct_dict[upper_percentile])
 
     nz_mean = np.zeros(n_genes, dtype=np.float64)
     has_nz = nnz_per_gene > 0
     nz_mean[has_nz] = sum_per_gene[has_nz] / nnz_per_gene[has_nz]
 
-    clip_mask = (max_per_gene > p25) | (max_per_gene == 0)
-    threshold = np.where(clip_mask, np.clip(nz_mean, p25, p75), nz_mean)
+    clip_mask = (max_per_gene > p_lo) | (max_per_gene == 0)
+    threshold = np.where(clip_mask, np.clip(nz_mean, p_lo, p_hi), nz_mean)
 
     thresholds_df = pd.DataFrame({'sccellfie_threshold': threshold},
                                  index=pd.Index(final_gene_names, name='symbol'))
@@ -681,8 +700,11 @@ def get_sccellfie_dataset_threshold(adata,
     mean = np.zeros(n_genes, dtype=np.float64)
     if n_cells_sel > 0:
         mean = sum_per_gene / n_cells_sel
+    def _pct_key(p):
+        return int(p) if float(p).is_integer() else float(p)
+
     stats = {
-        'percentiles': {int(p): float(v) for p, v in pct_dict.items()},
+        'percentiles': {_pct_key(p): float(v) for p, v in pct_dict.items()},
         'sum_per_gene': pd.Series(sum_per_gene, index=final_gene_names),
         'nnz_per_gene': pd.Series(nnz_per_gene, index=final_gene_names),
         'max_per_gene': pd.Series(max_per_gene, index=final_gene_names),

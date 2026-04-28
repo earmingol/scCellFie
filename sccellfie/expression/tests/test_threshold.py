@@ -666,3 +666,59 @@ def test_get_sccellfie_dataset_threshold_compatible_with_compute_gene_scores():
     compute_gene_scores(adata, thresholds=thr)
     assert 'gene_scores' in adata.layers
     assert adata.layers['gene_scores'].shape == adata.X.shape
+
+
+def test_get_sccellfie_dataset_threshold_custom_percentiles():
+    """User-supplied lower/upper percentile bounds drive the clip rule."""
+    adata = create_controlled_adata()
+    gene_set = ['gene1', 'gene2', 'gene3']
+    common = dict(
+        adata=adata, gene_set=gene_set,
+        chunk_size=100, reservoir_size=100, random_state=0, verbose=False,
+    )
+
+    default = get_sccellfie_dataset_threshold(**common)
+    explicit_default = get_sccellfie_dataset_threshold(
+        **common, lower_percentile=25, upper_percentile=75,
+    )
+    assert_frame_equal(default, explicit_default)
+
+    wide, wide_stats = get_sccellfie_dataset_threshold(
+        **common, lower_percentile=10, upper_percentile=90, return_stats=True,
+    )
+    assert 10 in wide_stats['percentiles']
+    assert 90 in wide_stats['percentiles']
+    p10 = wide_stats['percentiles'][10]
+    p90 = wide_stats['percentiles'][90]
+    # Every threshold produced under the wide rule must lie in [p10, p90]
+    # for clipped genes, or equal the raw nonzero_mean for the
+    # low-expression escape branch (which still falls within that range
+    # for non-zero-max genes; here we just bound by the outer interval).
+    thresh = wide['sccellfie_threshold'].values
+    nz_mean = wide_stats['nonzero_mean'].values
+    in_clip = (thresh >= p10 - 1e-9) & (thresh <= p90 + 1e-9)
+    in_escape = np.isclose(thresh, nz_mean)
+    assert (in_clip | in_escape).all()
+    assert wide.shape == default.shape
+
+
+def test_get_sccellfie_dataset_threshold_invalid_percentiles_raises():
+    adata = create_controlled_adata()
+    with pytest.raises(ValueError, match='lower_percentile'):
+        get_sccellfie_dataset_threshold(
+            adata, gene_set=['gene1', 'gene2', 'gene3'],
+            chunk_size=100, reservoir_size=100, verbose=False,
+            lower_percentile=80, upper_percentile=20,
+        )
+    with pytest.raises(ValueError, match='lower_percentile'):
+        get_sccellfie_dataset_threshold(
+            adata, gene_set=['gene1', 'gene2', 'gene3'],
+            chunk_size=100, reservoir_size=100, verbose=False,
+            lower_percentile=50, upper_percentile=50,
+        )
+    with pytest.raises(ValueError, match='lower_percentile'):
+        get_sccellfie_dataset_threshold(
+            adata, gene_set=['gene1', 'gene2', 'gene3'],
+            chunk_size=100, reservoir_size=100, verbose=False,
+            lower_percentile=-1, upper_percentile=75,
+        )
