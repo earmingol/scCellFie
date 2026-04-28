@@ -121,6 +121,8 @@ def _render_panel(
     axes_off,
     scatter_size,
     cmap,
+    vmin,
+    vmax,
     scalebar,
     scalebar_kwargs,
     cbar_kwargs,
@@ -194,6 +196,8 @@ def _render_panel(
         else:
             p_coll.set_array(np.array(v_cmap))
             p_coll.set_cmap(cmap)
+            if vmin is not None or vmax is not None:
+                p_coll.set_clim(vmin=vmin, vmax=vmax)
         ax.add_collection(p_coll)
     else:
         l_coords = coords[local_idx]
@@ -203,6 +207,8 @@ def _render_panel(
             l_coords[:, 1],
             c=c,
             cmap=cmap if cmap_vals is not None else None,
+            vmin=vmin if cmap_vals is not None else None,
+            vmax=vmax if cmap_vals is not None else None,
             s=scatter_size,
             edgecolor="none",
         )
@@ -294,6 +300,8 @@ def plot_segmentation(
     dpi: int = 150,
     scatter_size: float = 2.0,
     cmap: str = "viridis",
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
     y_pad_ratio: float = 0.1,
     x_pad_ratio: float = 0.0,
     scalebar: bool = True,
@@ -450,6 +458,14 @@ def plot_segmentation(
     cmap : str, optional (default: "viridis")
         Matplotlib colormap name for continuous colouring.
 
+    vmin, vmax : float, optional (default: None)
+        Lower / upper bounds for continuous colouring. When set, values
+        outside ``[vmin, vmax]`` are clipped at the colormap edges and
+        the colorbar is restricted to that range. Ignored for
+        categorical colouring. In multi-panel mode the same bounds apply
+        to every panel (useful for comparing features on a shared
+        scale). Pass only one of the two to cap a single side.
+
     y_pad_ratio : float, optional (default: 0.1)
         Fraction of the y range added as top/bottom whitespace (so the
         scalebar label has room).
@@ -604,6 +620,8 @@ def plot_segmentation(
             axes_off=axes_off,
             scatter_size=scatter_size,
             cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
             scalebar=scalebar,
             scalebar_kwargs=scalebar_kwargs,
             cbar_kwargs=cbar_kwargs,
