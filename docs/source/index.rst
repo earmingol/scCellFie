@@ -43,6 +43,7 @@ Additional Documentation
    :caption: Spatial tutorials
 
    notebooks/mouse_embryo_spatial
+   notebooks/atera_analysis
 
 .. toctree::
    :maxdepth: 1
