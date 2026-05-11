@@ -9,12 +9,14 @@ from sccellfie.expression.smoothing import smooth_expression_knn
 from sccellfie.gene_score import compute_gene_scores
 from sccellfie.reaction_activity import compute_reaction_activity
 from sccellfie.metabolic_task import compute_mt_score
+from sccellfie.stats.ablation import compute_gene_ablation_impact
 
 
 def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, sccellfie_db=None, n_counts_col='n_counts',
                            process_by_group=False, groupby=None, neighbors_key='neighbors',n_neighbors=10, batch_key=None,
                            threshold_key='sccellfie_threshold', smooth_cells=True, alpha=0.33, chunk_size=5000,
-                           disable_pbar=False, save_folder=None, save_filename=None, verbose=True):
+                           disable_pbar=False, save_folder=None, save_filename=None, compute_ablation_impact=False,
+                           verbose=True):
     """
     Runs the complete scCellFie pipeline on the given AnnData object, processing by cell type if specified.
 
@@ -93,6 +95,13 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
     save_filename : str, optional (default: None)
         Filename to save results. If None, the filename will be 'sccellfie'.
 
+    compute_ablation_impact : bool, optional (default: False)
+        If True, run a single-gene ablation analysis on the filtered GPR rules after
+        preprocessing and attach the result to `preprocessed_db['ablation_impact']`
+        as a dict of (gene x task) DataFrames keyed by 'rel_change', 'abs_change',
+        and 'fraction_zeroed'. See `sccellfie.stats.compute_gene_ablation_impact`.
+        Only applied on the first group when `process_by_group=True`.
+
     verbose : bool, optional (default: True)
         Whether to print messages during the processing.
 
@@ -153,7 +162,8 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
                                                 ensembl_ids=ensembl_ids,
                                                 organism=organism,
                                                 verbose=False,
-                                                first_group=True)
+                                                first_group=True,
+                                                compute_ablation_impact=compute_ablation_impact)
                 met_genes = list(preprocessed_db['adata'].var_names)
                 first_group = False
             else:
@@ -173,7 +183,8 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
                                                 verbose=False,
                                                 first_group=False,
                                                 preprocessed_db=preprocessed_db,
-                                                met_genes=met_genes)
+                                                met_genes=met_genes,
+                                                compute_ablation_impact=False)
 
             # Save results if requested
             if save_folder:
@@ -200,7 +211,8 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
                                         ensembl_ids=ensembl_ids,
                                         organism=organism,
                                         verbose=verbose,
-                                        first_group=True)
+                                        first_group=True,
+                                        compute_ablation_impact=compute_ablation_impact)
 
         # Save results if requested
         if save_folder:
@@ -216,7 +228,7 @@ def run_sccellfie_pipeline(adata, organism='human', sccellfie_data_folder=None, 
 
 def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_size, threshold_key, disable_pbar,
                   neighbors_key, n_neighbors, batch_key, ensembl_ids, organism, first_group=True, preprocessed_db=None,
-                  met_genes=None, verbose=True, ):
+                  met_genes=None, verbose=True, compute_ablation_impact=False):
     """
     Processes a chunk of data (either a cell type or the entire dataset).
 
@@ -328,6 +340,15 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
         for k, v in sccellfie_db.items():
             if k not in preprocessed_db.keys():
                 preprocessed_db[k] = v
+
+        if compute_ablation_impact:
+            if verbose:
+                print("\n---- scCellFie Step: Computing gene ablation impact ----")
+            preprocessed_db['ablation_impact'] = compute_gene_ablation_impact(
+                preprocessed_db['gpr_rules'],
+                preprocessed_db['task_by_rxn'],
+                disable_pbar=disable_pbar,
+            )
     else:
         correction_dict = CORRECT_GENES[organism]
         correction_dict = {k: v for k, v in correction_dict.items() if v in met_genes}

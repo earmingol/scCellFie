@@ -3,3 +3,4 @@ from .differential_results import (create_volcano_plot, create_comparative_violi
 from .distributions import (create_multi_violin_plots)
 from .radial_plot import (create_radial_plot)
 from .spatial import (plot_neighbor_distribution, plot_spatial)
+from .segmentation import (plot_segmentation)
