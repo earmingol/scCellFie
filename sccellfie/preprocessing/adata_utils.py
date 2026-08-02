@@ -93,6 +93,53 @@ def stratified_subsample_adata(adata, group_column, target_fraction=0.20, random
     return adata_subsampled
 
 
+def fixed_number_subsample_adata(adata, group_column, target_n=1000, random_state=0):
+    """
+    Subsample an AnnData object to a fixed number of cells per group.
+
+    Samples ``target_n`` cells from each group in ``adata.obs[group_column]``.
+    Groups with fewer than ``target_n`` cells are kept in full and a warning is
+    issued.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix.
+
+    group_column : str
+        Column name in adata.obs containing the group information.
+
+    target_n : int, optional (default: 1000)
+        Target number of cells to sample from each group. Groups smaller than
+        this are returned unchanged.
+
+    random_state : int, optional (default: 0)
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    adata_subsampled : AnnData
+        Subsampled AnnData object.
+    """
+    def _sample_group(x):
+        n = len(x)
+        if n < target_n:
+            warnings.warn(
+                f"Group '{x.name}' has {n} cells (< target_n={target_n}); "
+                f"keeping all {n} cells."
+            )
+            return x
+        return x.sample(n=target_n, random_state=random_state)
+
+    indices_to_keep = (adata.obs
+                       .groupby(group_column)
+                       .apply(_sample_group)
+                       .index.get_level_values(1))
+
+    adata_subsampled = adata[indices_to_keep].copy()
+    return adata_subsampled
+
+
 from scipy import sparse
 from scipy.sparse import issparse, csr_matrix, hstack
 

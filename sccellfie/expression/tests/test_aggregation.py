@@ -251,6 +251,94 @@ def test_fraction_above_error():
         agg_expression_cells(adata, groupby='group', agg_func='fraction_above')
 
 
+@pytest.mark.parametrize("agg_func", ['mean', 'median', '25p', '75p', 'trimean', 'topmean', 'fraction_above'])
+@pytest.mark.parametrize("sparse_input", [True, False])
+@pytest.mark.parametrize("exclude_zeros", [False, True])
+@pytest.mark.parametrize("chunk_size", [1, 3, 7, 10000])
+def test_chunk_size_matches_unchunked(agg_func, sparse_input, exclude_zeros, chunk_size):
+    """chunk_size (gene-window batching) must give results identical to the unchunked path."""
+    adata = create_random_adata(n_obs=100, n_vars=50)
+    groupby = 'group'
+    adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
+
+    if sparse_input:
+        adata.X = sparse.csr_matrix(adata.X)
+    else:
+        adata.X = np.asarray(adata.X.todense()) if sparse.issparse(adata.X) else np.asarray(adata.X)
+
+    kwargs = dict(agg_func=agg_func, exclude_zeros=exclude_zeros)
+    if agg_func == 'fraction_above':
+        kwargs['threshold'] = 0.5
+
+    ref = agg_expression_cells(adata, groupby, chunk_size=None, **kwargs)
+    chunked = agg_expression_cells(adata, groupby, chunk_size=chunk_size, **kwargs)
+
+    assert ref.shape == chunked.shape
+    assert list(ref.index) == list(chunked.index)
+    assert list(ref.columns) == list(chunked.columns)
+    np.testing.assert_allclose(ref.values, chunked.values, equal_nan=True)
+
+
+def test_chunk_size_gene_subset():
+    """chunk_size must still work correctly when genes are subset."""
+    adata = create_controlled_adata()
+    genes = ['gene1', 'gene3']
+
+    ref = agg_expression_cells(adata, 'group', gene_symbols=genes, agg_func='trimean', chunk_size=None)
+    chunked = agg_expression_cells(adata, 'group', gene_symbols=genes, agg_func='trimean', chunk_size=1)
+
+    assert list(ref.columns) == genes
+    np.testing.assert_allclose(ref.values, chunked.values, equal_nan=True)
+
+
+def _adata_with_empty_group():
+    """Controlled AnnData whose numeric group column has a NaN. `unique()` yields
+    that NaN as a 'group', but `grouped == nan` matches no rows, so it becomes an
+    empty (n_cells == 0) group."""
+    adata = create_controlled_adata()
+    adata.obs['gnum'] = np.array([0.0, 0.0, 1.0, np.nan])
+    return adata
+
+
+def test_agg_empty_group_sparse_fraction_above():
+    """Empty group via the sparse fraction_above fast path -> NaN column (line 143)."""
+    adata = _adata_with_empty_group()
+    assert sparse.issparse(adata.X)  # ensure the sparse fast path is exercised
+
+    result = agg_expression_cells(adata, 'gnum', agg_func='fraction_above', threshold=1)
+
+    # The NaN group has no cells -> all-NaN row; real groups are finite.
+    assert np.isnan(result.loc[np.nan].values).all()
+    assert np.isfinite(result.loc[0.0].values).all()
+
+
+def test_agg_empty_group_dense_fallback():
+    """Empty group via the densifying fallback (median) -> NaN column (lines 152-154)."""
+    adata = _adata_with_empty_group()
+
+    result = agg_expression_cells(adata, 'gnum', agg_func='median')
+
+    assert np.isnan(result.loc[np.nan].values).all()
+    assert np.isfinite(result.loc[0.0].values).all()
+
+
+def test_agg_dtype_cast():
+    """dtype casts the dense block before aggregating (line 171) without changing results."""
+    adata = create_controlled_adata()
+
+    ref = agg_expression_cells(adata, 'group', agg_func='trimean', dtype=None)
+    cast = agg_expression_cells(adata, 'group', agg_func='trimean', dtype=np.float32)
+
+    assert cast.shape == ref.shape
+    np.testing.assert_allclose(cast.values, ref.values, rtol=1e-6, equal_nan=True)
+
+
+def test_top_mean_invalid_axis():
+    """top_mean rejects axes other than 0 or 1 (line 220)."""
+    with pytest.raises(ValueError, match="axis must be 0 or 1"):
+        top_mean(np.ones((2, 2)), axis=2)
+
+
 def test_fraction_above_threshold_function():
     """Test the fraction_above_threshold helper function directly."""
     test_data = np.array([[1, 5, 3],
