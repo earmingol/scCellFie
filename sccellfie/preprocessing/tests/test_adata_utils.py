@@ -7,7 +7,7 @@ from scipy import sparse
 from scipy.sparse import issparse, csr_matrix
 from unittest.mock import patch
 
-from sccellfie.preprocessing.adata_utils import get_adata_gene_expression, stratified_subsample_adata, normalize_adata, transform_adata_gene_names, transfer_variables
+from sccellfie.preprocessing.adata_utils import get_adata_gene_expression, stratified_subsample_adata, fixed_number_subsample_adata, normalize_adata, transform_adata_gene_names, transfer_variables
 from sccellfie.datasets.toy_inputs import create_random_adata, create_controlled_adata
 
 
@@ -38,6 +38,38 @@ def test_stratified_subsample_adata():
 
     for cluster in original_clusters:
         assert np.isclose(original_proportions[cluster], subsampled_proportions[cluster], atol=0.05)
+
+
+# Fixed-number subsampling tests
+def test_fixed_number_subsample_adata():
+    # Build an AnnData with deterministic, uneven group sizes:
+    # big1=300, big2=250, small=40
+    n_obs = 590
+    adata = create_random_adata(n_obs=n_obs, n_vars=50, n_clusters=1)
+    groups = ['big1'] * 300 + ['big2'] * 250 + ['small'] * 40
+    adata.obs['group'] = pd.Categorical(groups)
+
+    # target_n smaller than every group -> each group capped at exactly target_n
+    target_n = 30
+    subsampled = fixed_number_subsample_adata(adata, group_column='group', target_n=target_n)
+    counts = subsampled.obs['group'].value_counts()
+    assert set(counts.index) == {'big1', 'big2', 'small'}
+    assert (counts == target_n).all()
+
+    # target_n larger than the smallest group -> that group is kept in full (with a
+    # warning), larger groups are capped at target_n
+    target_n = 100
+    with pytest.warns(UserWarning, match="Group 'small' has 40 cells"):
+        subsampled = fixed_number_subsample_adata(adata, group_column='group', target_n=target_n)
+    counts = subsampled.obs['group'].value_counts()
+    assert counts['big1'] == target_n
+    assert counts['big2'] == target_n
+    assert counts['small'] == 40  # smaller than target_n, kept in full
+
+    # Reproducibility: same random_state -> same cells selected
+    sub_a = fixed_number_subsample_adata(adata, group_column='group', target_n=100, random_state=42)
+    sub_b = fixed_number_subsample_adata(adata, group_column='group', target_n=100, random_state=42)
+    assert list(sub_a.obs_names) == list(sub_b.obs_names)
 
 
 # Normalization tests
