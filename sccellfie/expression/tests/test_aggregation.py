@@ -251,6 +251,46 @@ def test_fraction_above_error():
         agg_expression_cells(adata, groupby='group', agg_func='fraction_above')
 
 
+@pytest.mark.parametrize("agg_func", ['mean', 'median', '25p', '75p', 'trimean', 'topmean', 'fraction_above'])
+@pytest.mark.parametrize("sparse_input", [True, False])
+@pytest.mark.parametrize("exclude_zeros", [False, True])
+@pytest.mark.parametrize("chunk_size", [1, 3, 7, 10000])
+def test_chunk_size_matches_unchunked(agg_func, sparse_input, exclude_zeros, chunk_size):
+    """chunk_size (gene-window batching) must give results identical to the unchunked path."""
+    adata = create_random_adata(n_obs=100, n_vars=50)
+    groupby = 'group'
+    adata.obs[groupby] = ['group1' if i < adata.n_obs // 2 else 'group2' for i in range(adata.n_obs)]
+
+    if sparse_input:
+        adata.X = sparse.csr_matrix(adata.X)
+    else:
+        adata.X = np.asarray(adata.X.todense()) if sparse.issparse(adata.X) else np.asarray(adata.X)
+
+    kwargs = dict(agg_func=agg_func, exclude_zeros=exclude_zeros)
+    if agg_func == 'fraction_above':
+        kwargs['threshold'] = 0.5
+
+    ref = agg_expression_cells(adata, groupby, chunk_size=None, **kwargs)
+    chunked = agg_expression_cells(adata, groupby, chunk_size=chunk_size, **kwargs)
+
+    assert ref.shape == chunked.shape
+    assert list(ref.index) == list(chunked.index)
+    assert list(ref.columns) == list(chunked.columns)
+    np.testing.assert_allclose(ref.values, chunked.values, equal_nan=True)
+
+
+def test_chunk_size_gene_subset():
+    """chunk_size must still work correctly when genes are subset."""
+    adata = create_controlled_adata()
+    genes = ['gene1', 'gene3']
+
+    ref = agg_expression_cells(adata, 'group', gene_symbols=genes, agg_func='trimean', chunk_size=None)
+    chunked = agg_expression_cells(adata, 'group', gene_symbols=genes, agg_func='trimean', chunk_size=1)
+
+    assert list(ref.columns) == genes
+    np.testing.assert_allclose(ref.values, chunked.values, equal_nan=True)
+
+
 def test_fraction_above_threshold_function():
     """Test the fraction_above_threshold helper function directly."""
     test_data = np.array([[1, 5, 3],
