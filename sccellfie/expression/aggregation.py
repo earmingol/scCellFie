@@ -265,11 +265,16 @@ def fraction_above_threshold(x, axis, threshold=0):
     return np.mean(x > threshold, axis=axis)
 
 
+def _trimean(x, axis):
+    q1, q2, q3 = np.nanpercentile(x, [25, 50, 75], axis=axis)
+    return 0.5 * q2 + 0.25 * (q1 + q3)
+
+
 AGG_FUNC = {'mean' : np.nanmean,
             'median' : np.nanmedian,
             '25p' : lambda x, axis: np.nanpercentile(x, q=25, axis=axis),
             '75p' : lambda x, axis: np.nanpercentile(x, q=75, axis=axis),
-            'trimean' : lambda x, axis: 0.5*np.nanpercentile(x, q=50, axis=axis) + 0.25*(np.nanpercentile(x, q=25, axis=axis) + np.nanpercentile(x, q=75, axis=axis)),
+            'trimean' : _trimean,
             'topmean' : top_mean,
             'fraction_above' : fraction_above_threshold
             }
