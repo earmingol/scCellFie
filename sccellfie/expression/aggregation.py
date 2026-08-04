@@ -266,8 +266,24 @@ def fraction_above_threshold(x, axis, threshold=0):
 
 
 def _trimean(x, axis):
+    '''
+    Computes the trimean of the data along the specified axis.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        The input data for which the trimean is to be computed.
+    axis : int
+        The axis along which to compute the trimean. Use 0 for columns, 1 for rows.
+
+    Returns
+    -------
+    trimean : numpy.ndarray
+        An array containing the trimean values for each row or column, depending on the specified axis.
+    '''
     q1, q2, q3 = np.nanpercentile(x, [25, 50, 75], axis=axis)
-    return 0.5 * q2 + 0.25 * (q1 + q3)
+    trimean = 0.5 * q2 + 0.25 * (q1 + q3)
+    return trimean
 
 
 AGG_FUNC = {'mean' : np.nanmean,
