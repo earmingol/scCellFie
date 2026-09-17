@@ -124,6 +124,41 @@ def test_run_sccellfie_pipeline_with_groups(random_adata_with_neighbors, sccellf
         assert (tmp_path / f"test_output_group_{group}.h5ad").exists()
 
 
+def test_run_sccellfie_pipeline_with_duplicated_genes(sccellfie_db, tmp_path):
+    # adata whose var_names are not unique (e.g. var_names_make_unique() was never
+    # run, or two symbols collapsed by CORRECT_GENES): every group must still run
+    adata = create_random_adata(n_obs=100, n_vars=4, n_clusters=5)
+    adata.raw = None
+    adata.var_names = ['gene1', 'gene2', 'gene3', 'gene1']
+    adata = add_toy_neighbors(adata)
+    adata.obs['group'] = np.random.choice(['A', 'B', 'C'], size=adata.n_obs)
+
+    run_sccellfie_pipeline(
+        adata=adata,
+        organism='human',
+        sccellfie_data_folder=None,
+        sccellfie_db=sccellfie_db,
+        n_counts_col='total_counts',
+        process_by_group=True,
+        groupby='group',
+        neighbors_key='neighbors',
+        n_neighbors=10,
+        batch_key=None,
+        threshold_key='global',
+        smooth_cells=True,
+        alpha=0.33,
+        chunk_size=5000,
+        disable_pbar=True,
+        save_folder=str(tmp_path),
+        save_filename='test_output_dups',
+        verbose=False
+    )
+
+    # All groups processed despite the duplicated gene name
+    for group in ['A', 'B', 'C']:
+        assert (tmp_path / f"test_output_dups_{group}.h5ad").exists()
+
+
 # Neighbors pipeline
 @pytest.fixture
 def mock_adata():

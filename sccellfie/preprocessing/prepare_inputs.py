@@ -111,9 +111,16 @@ def preprocess_inputs(adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, c
     valid_genes = sorted(valid_genes)
     valid_reactions = sorted(valid_reactions)
 
-    # Filter adata
-    adata2 = adata[:, adata_var[correction_col].isin(valid_genes)]
-    adata2.var_names = adata_var[adata_var[correction_col].isin(valid_genes)][correction_col].values.tolist()
+    # Filter adata. Corrections (or an already non-unique adata.var_names) can map two
+    # genes to the same symbol, so keep the first occurrence to allow slicing by name
+    keep = adata_var[correction_col].isin(valid_genes).values
+    dups = adata_var[correction_col].duplicated(keep='first').values & keep
+    if dups.any():
+        if verbose:
+            print('Dropping {} genes with duplicated names after correction'.format(dups.sum()))
+        keep = keep & ~dups
+    adata2 = adata[:, keep]
+    adata2.var_names = adata_var[correction_col].values[keep].tolist()
 
     # Filter gene tables
     task_by_gene = task_by_gene.loc[:, valid_genes]
