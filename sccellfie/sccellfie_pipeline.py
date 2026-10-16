@@ -353,6 +353,10 @@ def process_chunk(adata, sccellfie_db, n_counts_col, smooth_cells, alpha, chunk_
         correction_dict = CORRECT_GENES[organism]
         correction_dict = {k: v for k, v in correction_dict.items() if v in met_genes}
         adata.var.index = [correction_dict[g] if g in correction_dict.keys() else g for g in adata.var.index]
+        # Keep the first of any duplicated name, otherwise slicing by name below fails
+        dups = adata.var_names.duplicated(keep='first')
+        if dups.any():
+            adata = adata[:, ~dups]
         # Filter genes for subsequent groups
         adata = adata[:, met_genes]
         preprocessed_db['adata'] = adata

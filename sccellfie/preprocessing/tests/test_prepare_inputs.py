@@ -130,3 +130,77 @@ def test_preprocess_inputs_one_gene_one_reaction():
     assert rxn_by_gene2.shape[0] == rxn_by_gene.shape[0], "Number of reactions should remain the same"
     assert task_by_rxn2.shape == task_by_rxn.shape, "task_by_rxn shape should remain the same"
     assert adata2.shape == adata.shape, "adata shape should remain the same"
+
+def test_duplicated_gene_names():
+    # adata with a duplicated gene name (e.g. no var_names_make_unique(), or two
+    # gene names collapsed into one by CORRECT_GENES)
+    adata = create_controlled_adata()
+    adata = adata[:, ['gene1', 'gene2', 'gene3']].copy()
+    adata.var_names = ['gene1', 'gene2', 'gene1']
+
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+
+    adata2, gpr_rules, task_by_gene2, rxn_by_gene2, task_by_rxn2 = preprocess_inputs(
+        adata, gpr_info, create_controlled_task_by_gene(), create_controlled_rxn_by_gene(),
+        create_controlled_task_by_rxn()
+    )
+
+    assert adata2.var_names.is_unique, "Duplicated gene names should have been dropped"
+    assert list(adata2.var_names) == ['gene1', 'gene2'], "The first occurrence should be kept"
+    # The duplicate carried gene3's values, so the kept gene1 must be the original one
+    assert adata2[:, 'gene1'].X.toarray().flatten().tolist() == [1, 3, 5, 7]
+
+
+def test_duplicated_gene_names_after_correction():
+    # adata carrying both the old and the new symbol of the same gene (e.g. ADSS
+    # and ADSS2): CORRECT_GENES collapses them into one name
+    import numpy as np
+    import scanpy as sc
+    from scipy import sparse
+
+    X = np.array([[1, 2, 0, 100],
+                  [3, 4, 2, 200],
+                  [5, 6, 10, 300],
+                  [7, 8, 6, 400]], dtype=float)
+    adata = sc.AnnData(X=sparse.csr_matrix(X))
+    adata.var_names = ['ADSS', 'gene2', 'gene3', 'ADSS2']
+    adata.obs_names = ['cell1', 'cell2', 'cell3', 'cell4']
+
+    # Database where the gene is stored under its current symbol (ADSS2)
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v).replace('gene1', 'ADSS2') for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+    task_by_gene = create_controlled_task_by_gene().rename(columns={'gene1': 'ADSS2'})
+    rxn_by_gene = create_controlled_rxn_by_gene().rename(columns={'gene1': 'ADSS2'})
+    task_by_rxn = create_controlled_task_by_rxn()
+
+    adata2, gpr_rules, task_by_gene2, rxn_by_gene2, task_by_rxn2 = preprocess_inputs(
+        adata, gpr_info, task_by_gene, rxn_by_gene, task_by_rxn, correction_organism='human'
+    )
+
+    assert adata2.var_names.is_unique, "Collapsed gene names should have been deduplicated"
+    assert sorted(adata2.var_names) == ['ADSS2', 'gene2', 'gene3']
+    # ADSS (first occurrence) is the one kept, not the ADSS2 column
+    assert adata2[:, 'ADSS2'].X.toarray().flatten().tolist() == [1, 3, 5, 7]
+    assert len(gpr_rules) == 4, "All reactions should be kept"
+
+
+def test_no_duplicated_gene_names_unchanged():
+    # The dedup guard must be a no-op when gene names are already unique
+    adata = create_controlled_adata()
+    gpr_dict_expected = create_controlled_gpr_dict()
+    str_gpr_dict_expected = {k: v._ast2str(v) for k, v in gpr_dict_expected.items()}
+    gpr_info = pd.DataFrame.from_dict(str_gpr_dict_expected, orient='index').reset_index()
+    gpr_info.columns = ['Reaction', 'GPR-symbol']
+
+    adata2, gpr_rules, _, _, _ = preprocess_inputs(
+        adata, gpr_info, create_controlled_task_by_gene(), create_controlled_rxn_by_gene(),
+        create_controlled_task_by_rxn(), verbose=False
+    )
+
+    assert list(adata2.var_names) == list(adata.var_names), "No gene should be dropped"
+    assert (adata2.X.toarray() == adata.X.toarray()).all(), "Expression values should be unchanged"
